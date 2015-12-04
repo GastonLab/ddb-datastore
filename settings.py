@@ -1,5 +1,3 @@
-__author__ = 'dgaston'
-
 import os
 
 if os.environ.get('PORT'):
@@ -10,7 +8,7 @@ else:
     MONGO_PORT = 27017
     # MONGO_USERNAME = 'user'
     # MONGO_PASSWORD = 'user'
-    MONGO_DBNAME = 'apitest'
+    MONGO_DBNAME = 'variantstore'
     DEBUG = True
     VERSIONING = True
     SOFT_DELETE = True
@@ -27,10 +25,32 @@ ITEM_METHODS = ['GET', 'PATCH', 'PUT', 'DELETE']
 schema = {
     # Schema definition, based on Cerberus grammar. Check the Cerberus project
     # (https://github.com/nicolaiarocci/cerberus) for details.
-    'name': {
+    'chr': {
         'type': 'string',
         'minlength': 1,
-        'maxlength': 50,
+        'maxlength': 100,
+        'required': True,
+        'unique': True,
+    },
+    'start': {
+        'type': 'int',
+        'required': True,
+    },
+    'end': {
+        'type': 'int',
+        'required': True,
+    },
+    'ref': {
+        'type': 'string',
+        'minlength': 1,
+        'maxlength': 100,
+        'required': True,
+        'unique': True,
+    },
+    'alt': {
+        'type': 'string',
+        'minlength': 1,
+        'maxlength': 100,
         'required': True,
         'unique': True,
     },
@@ -42,12 +62,12 @@ schema = {
     },
     'type': {
         'type': 'string',
-        'allowed': ["dna", "rna", "epigenetic", "other"],
+        'allowed': ["snv", "indel", "sv"],
         'required': True,
     },
-    'status': {
+    'subtype': {
         'type': 'string',
-        'allowed': ["dev-template", "prod-template", "run"],
+        'allowed': ["tr", "tv", "ins", "del"],
         'required': True,
     },
     'samples': {
@@ -57,29 +77,27 @@ schema = {
             'type': {'type': 'string'},
         },
     },
-    'engine': {
-        'type': 'string',
-        'allowed': ["toil", "bcbio", "other"],
-        'required': True,
+    'het_samples': {
+        'type' 'list',
     },
-    'parameters': {
+    'hom_alt_samples': {
+        'type' 'list',
+    },
+    'hom_ref_samples': {
+        'type' 'list',
+    },
+    'max_af': {
+        'type': 'float',
+    },
+    'info_string': {
         'type': 'dict',
-    },
-    'workflow_file': {
-        'type': 'media',
-    },
-    'date_added': {
-        'type': 'datetime',
-    },
-    'date_modified': {
-        'type': 'datetime',
     },
 }
 
-pipelines = {
+variants = {
     # 'title' tag used in item links. Defaults to the resource title minus
     # the final, plural 's' (works fine in most cases but not for 'people')
-    'item_title': 'pipeline',
+    'item_title': 'variant',
 
     # by default the standard item entry point is defined as
     # '/people/<ObjectId>'. We leave it untouched, and we also enable an
@@ -101,5 +119,5 @@ pipelines = {
 }
 
 DOMAIN = {
-    'pipelines': pipelines,
+    'variants': variants,
 }
