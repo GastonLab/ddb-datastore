@@ -128,12 +128,29 @@ schema = {
     'biotype': {
         'type': 'string',
     },
-    'impact': {
+    'codon_change': {
+        'type': 'string',
+    },
+    'aa_change': {
+        'type': 'string',
+    },
+    'aa_length': {
+        'type': 'int',
+    },
+    'func_effects': {
         'type': 'dict',
         'schema': {
             'impact': {'type': 'string'},
             'impact_so': {'type': 'string'},
-            'impact_severity': {'type': 'string'}
+            'impact_severity': {'type': 'string'},
+            'polyphen_pred': {'type': 'string'},
+            'polyphen_score': {'type': 'float'},
+            'sift_pred': {'type': 'string'},
+            'sift_score': {'type': 'float'},
+            'gerp_bp_score': {'type': 'float'},
+            'cadd_raw': {'type': 'float'},
+            'cadd_scaled': {'type': 'float'},
+            'fitcons': {'type': 'float'}
         },
     },
     'frequencies': {
@@ -174,6 +191,62 @@ schema = {
             'clinvar_on_diag_assay': {'type': 'string'}
         },
     },
+    'sv_info': {
+        'type': 'dict',
+        'schema': {
+            'sv_cipos_start_left': {'type': 'int'},
+            'sv_cipos_end_left': {'type': 'int'},
+            'sv_cipos_start_right': {'type': 'int'},
+            'sv_cipos_end_right': {'type': 'int'},
+            'sv_length': {'type': 'int'},
+            'sv_is_precise': {'type': 'boolean'},
+            'sv_tool': {'type': 'string'},
+            'sv_evidence_type': {'type': 'string'},
+            'sv_event_id': {'type': 'string'},
+            'sv_mate_id': {'type': 'string'},
+            'sv_strand': {'type': 'string'}
+        },
+    },
+    'error_assessment': {
+        'type': 'dict',
+        'schema': {
+            'grc': {'type': 'string'},
+            'gms_illumina': {'type': 'float'},
+            'gms_solid': {'type': 'float'},
+            'gms_iontorrent': {'type': 'float'},
+            'in_cse': {'type': 'boolean'}
+        },
+    },
+    'cigar': {
+        'type': 'string',
+    },
+    'rmsk': {
+        'type': 'string',
+    },
+    'qual_depth': {
+        'type': 'float',
+    },
+    'haplotype_score': {
+        'type': 'float',
+    },
+    'strand_bias': {
+        'type': 'float',
+    },
+    'rms_map_qual': {
+        'type': 'float',
+    },
+    'rms_bq': {
+        'type': 'float',
+    },
+    'recomb_rate': {
+        'type': 'float',
+    },
+    'frac_reads_w_dels': {
+        'type': 'float',
+    },
+    'num_mapq_zero': {
+        'type': 'int',
+    },
     'is_conserved': {
         'type': 'boolean',
     },
@@ -190,6 +263,9 @@ schema = {
         'type': 'boolean',
     },
     'is_somatic': {
+        'type': 'boolean',
+    },
+    'is_missense_nonsense': {
         'type': 'boolean',
     },
     'in_hom_run': {
