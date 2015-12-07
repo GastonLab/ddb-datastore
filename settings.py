@@ -24,6 +24,9 @@ RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
 # individual items  (defaults to read-only item access).
 ITEM_METHODS = ['GET', 'PATCH', 'PUT', 'DELETE']
 
+# Some fields appear in a field of their own and also as part of dictionaries.
+# Right now these are the impact field (which is also in func_effects) and the in_cse field which is also
+# in the error_assessment dictionary
 schema = {
     'chr': {
         'type': 'string',
@@ -32,11 +35,11 @@ schema = {
         'required': True,
     },
     'start': {
-        'type': 'int',
+        'type': 'integer',
         'required': True,
     },
     'end': {
-        'type': 'int',
+        'type': 'integer',
         'required': True,
     },
     'type': {
@@ -95,10 +98,10 @@ schema = {
             'sample_id': {'type': 'string'},
             'variant_caller': {'type': 'string'},
             'genotype': {'type': 'float'},
-            'genotype_qual': {'type': 'int'},
-            'alt_depth': {'type': 'int'},
-            'ref_depth': {'type': 'int'},
-            'depth': {'type': 'int'}
+            'genotype_qual': {'type': 'integer'},
+            'alt_depth': {'type': 'integer'},
+            'ref_depth': {'type': 'integer'},
+            'depth': {'type': 'integer'}
         },
     },
     'cosmic_ids': {
@@ -126,7 +129,10 @@ schema = {
         'type': 'string',
     },
     'aa_length': {
-        'type': 'int',
+        'type': 'integer',
+    },
+    'impact': {
+        'type': 'string',
     },
     'func_effects': {
         'type': 'dict',
@@ -164,9 +170,9 @@ schema = {
             'aaf_adj_exac_nfe': {'type': 'float'},
             'aaf_adj_exac_oth': {'type': 'float'},
             'aaf_adj_exac_sas': {'type': 'float'},
-            'exac_num_het': {'type': 'int'},
-            'exac_num_hom_alt': {'type': 'int'},
-            'exac_num_chroms': {'type': 'int'}
+            'exac_num_het': {'type': 'integer'},
+            'exac_num_hom_alt': {'type': 'integer'},
+            'exac_num_chroms': {'type': 'integer'}
         },
     },
     'clin_info': {
@@ -185,11 +191,11 @@ schema = {
     'sv_info': {
         'type': 'dict',
         'schema': {
-            'sv_cipos_start_left': {'type': 'int'},
-            'sv_cipos_end_left': {'type': 'int'},
-            'sv_cipos_start_right': {'type': 'int'},
-            'sv_cipos_end_right': {'type': 'int'},
-            'sv_length': {'type': 'int'},
+            'sv_cipos_start_left': {'type': 'integer'},
+            'sv_cipos_end_left': {'type': 'integer'},
+            'sv_cipos_start_right': {'type': 'integer'},
+            'sv_cipos_end_right': {'type': 'integer'},
+            'sv_length': {'type': 'integer'},
             'sv_is_precise': {'type': 'boolean'},
             'sv_tool': {'type': 'string'},
             'sv_evidence_type': {'type': 'string'},
@@ -236,7 +242,7 @@ schema = {
         'type': 'float',
     },
     'num_mapq_zero': {
-        'type': 'int',
+        'type': 'integer',
     },
     'is_conserved': {
         'type': 'boolean',
@@ -254,9 +260,6 @@ schema = {
         'type': 'boolean',
     },
     'is_somatic': {
-        'type': 'boolean',
-    },
-    'is_missense_nonsense': {
         'type': 'boolean',
     },
     'in_hom_run': {
