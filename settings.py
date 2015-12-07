@@ -25,15 +25,6 @@ RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
 ITEM_METHODS = ['GET', 'PATCH', 'PUT', 'DELETE']
 
 schema = {
-    # Schema definition, based on Cerberus grammar. Check the Cerberus project
-    # (https://github.com/nicolaiarocci/cerberus) for details.
-    # 'variant_id': {
-    #     'type': 'string',
-    #     'minlength': 1,
-    #     'maxlength': 100,
-    #     'required': True,
-    #     'unique': True,
-    # },
     'chr': {
         'type': 'string',
         'minlength': 1,
@@ -304,15 +295,6 @@ variants = {
     # 'title' tag used in item links. Defaults to the resource title minus
     # the final, plural 's' (works fine in most cases but not for 'people')
     'item_title': 'variant',
-
-    # by default the standard item entry point is defined as
-    # '/people/<ObjectId>'. We leave it untouched, and we also enable an
-    # additional read-only entry point. This way consumers can also perform
-    # GET requests at '/people/<lastname>'.
-    # 'additional_lookup': {
-    #     'url': 'regex("[\w]+")',
-    #     'field': 'variant_id'
-    # },
 
     # We choose to override global cache-control directives for this resource.
     'cache_control': 'max-age=10,must-revalidate',
