@@ -24,9 +24,7 @@ RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
 # individual items  (defaults to read-only item access).
 ITEM_METHODS = ['GET', 'PATCH', 'PUT', 'DELETE']
 
-# Some fields appear in a field of their own and also as part of dictionaries.
-# Right now these are the impact field (which is also in func_effects) and the in_cse field which is also
-# in the error_assessment dictionary
+
 schema = {
     'chr': {
         'type': 'string',
@@ -130,9 +128,6 @@ schema = {
     },
     'aa_length': {
         'type': 'integer',
-    },
-    'impact': {
-        'type': 'string',
     },
     'func_effects': {
         'type': 'dict',
@@ -284,9 +279,6 @@ schema = {
         'type': 'boolean',
     },
     'in_segdup': {
-        'type': 'boolean',
-    },
-    'in_cse': {
         'type': 'boolean',
     },
     'info_string': {
