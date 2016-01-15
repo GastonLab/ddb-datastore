@@ -74,6 +74,12 @@ schema = {
     'hom_ref_samples': {
         'type': 'list',
     },
+    'sample_caller_info': {
+        'type': 'dict',
+        'schema': {
+            ''
+        }
+    },
     'sample_quals': {
         'type': 'dict',
         'schema': {
