@@ -9,6 +9,7 @@ from collections import defaultdict
 from cassandra.cqlengine import connection
 
 from variantstore import Variant
+from cyvcf2 import VCF
 
 
 def configure_runtime(infile):
@@ -120,34 +121,77 @@ if __name__ == "__main__":
         gq.run(query)
         header = gq.header
 
+        caller_vcf_records = defaultdict(lambda: dict())
+
         sys.stdout.write("Reading {}\n".format(samples[sample]['mutect']))
-        mutect_vcf = cyvcf.Reader(open(samples[sample]['mutect'], 'r'))
+        mutect_vcf = VCF(samples[sample]['mutect'])
+        for record in mutect_vcf:
+            if len(record.ALT) > 1:
+                sys.stderr.write("ERROR: More than one alternative allele detected in file "
+                                 "{}\n Record: {}\n".format(samples[sample]['mutect'], record))
+                sys.exit()
+            key = (unicode("chr{}".format(record.CHROM)), int(record.start), int(record.end), unicode(record.REF),
+                   unicode(record.ALT[0]))
+            caller_vcf_records['mutect'][key] = record
 
         sys.stdout.write("Reading {}\n".format(samples[sample]['vardict']))
-        vardict_vcf = cyvcf.Reader(open(samples[sample]['vardict'], 'r'))
+        vardict_vcf = VCF(samples[sample]['vardict'])
+        for record in vardict_vcf:
+            if len(record.ALT) > 1:
+                sys.stderr.write("ERROR: More than one alternative allele detected in file "
+                                 "{}\n Record: {}\n".format(samples[sample]['varddict'], record))
+                sys.exit()
+            key = (unicode("chr{}".format(record.CHROM)), int(record.start), int(record.end), unicode(record.REF),
+                   unicode(record.ALT[0]))
+            caller_vcf_records['vardict'][key] = record
 
         sys.stdout.write("Reading {}\n".format(samples[sample]['freebayes']))
-        freebayes_vcf = cyvcf.Reader(open(samples[sample]['freebayes'], 'r'))
+        freebayes_vcf = VCF(samples[sample]['freebayes'])
+        for record in freebayes_vcf:
+            if len(record.ALT) > 1:
+                sys.stderr.write("ERROR: More than one alternative allele detected in file "
+                                 "{}\n Record: {}\n".format(samples[sample]['freebayes'], record))
+                sys.exit()
+            key = (unicode("chr{}".format(record.CHROM)), int(record.start), int(record.end), unicode(record.REF),
+                   unicode(record.ALT[0]))
+            caller_vcf_records['freebayes'][key] = record
 
         sys.stdout.write("Reading {}\n".format(samples[sample]['scalpel']))
-        scalpel_vcf = cyvcf.Reader(open(samples[sample]['scalpel'], 'r'))
+        scalpel_vcf = VCF(samples[sample]['scalpel'])
+        for record in scalpel_vcf:
+            if len(record.ALT) > 1:
+                sys.stderr.write("ERROR: More than one alternative allele detected in file "
+                                 "{}\n Record: {}\n".format(samples[sample]['scalpel'], record))
+                sys.exit()
+            key = (unicode("chr{}".format(record.CHROM)), int(record.start), int(record.end), unicode(record.REF),
+                   unicode(record.ALT[0]))
+            caller_vcf_records['scalpel'][key] = record
 
         # Filter out variants with minor allele frequencies above the threshold but
         # retain any that are above the threshold but in COSMIC or in ClinVar and not listed as benign.
         for variant_data in gq:
-            caller_info = defaultdict(lambda: defaultdict())
-            if 'mutect' in variant_data['info']['CALLERS']:
-                caller_info['mutect'] = mutect_vcf.fetch(variant_data['chrom'], int(variant_data['start']),
-                                                         int(variant_data['end']))
-            if 'vardict' in variant_data['info']['CALLERS']:
-                caller_info['vardict'] = vardict_vcf.fetch(variant_data['chrom'], int(variant_data['start']),
-                                                           int(variant_data['end']))
-            if 'freebayes' in variant_data['info']['CALLERS']:
-                caller_info['freebayes'] = freebayes_vcf.fetch(variant_data['chrom'], int(variant_data['start']),
-                                                               int(variant_data['end']))
-            if 'scalpel' in variant_data['info']['CALLERS']:
-                caller_info['scalpel'] = scalpel_vcf.fetch(variant_data['chrom'], int(variant_data['start']),
-                                                           int(variant_data['end']))
+            caller_info = defaultdict(lambda: dict())
+            key = (variant_data['chrom'], variant_data['start'], variant_data['end'], variant_data['ref'],
+                   variant_data['alt'])
 
-            print variant_data
-            print caller_info
+            if 'mutect' in variant_data['info']['CALLERS']:
+                caller_info['mutect'] = caller_vcf_records['mutect'][key]
+                sys.stdout.write("MuTect: ")
+                print caller_vcf_records['mutect'][key]
+
+            if 'vardict' in variant_data['info']['CALLERS']:
+                caller_info['vardict'] = caller_vcf_records['vardict'][key]
+                sys.stdout.write("VarDict: ")
+                print caller_vcf_records['vardict'][key]
+
+            if 'freebayes' in variant_data['info']['CALLERS']:
+                caller_info['freebayes'] = caller_vcf_records['freebayes'][key]
+                sys.stdout.write("FreeBayes: ")
+                print caller_vcf_records['freebayes'][key]
+
+            if 'scalpel' in variant_data['info']['CALLERS']:
+                caller_info['scalpel'] = caller_vcf_records['scalpel'][key]
+                sys.stdout.write("Scalpel: ")
+                print caller_vcf_records['scalpel'][key]
+
+            sys.stdout.write("******************************************\n")
