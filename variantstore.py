@@ -24,9 +24,10 @@ class Variant(Model):
 
     gene = columns.Text()
     transcript = columns.Text()
+    exon = columns.Text()
 
     genes = columns.List(columns.Text)
-    transcripts = columns.List(columns.Text)
+    transcripts_data = columns.Map(columns.Text, columns.Text)
 
     in_cosmic = columns.Boolean()
     in_clinvar = columns.Boolean()
@@ -50,3 +51,10 @@ class Variant(Model):
     mutect = columns.Map(columns.Text, columns.Text)
     scalpel = columns.Map(columns.Text, columns.Text)
     vardict = columns.Map(columns.Text, columns.Text)
+    scanindel = columns.Map(columns.Text, columns.Text)
+    platypus = columns.Map(columns.Text, columns.Text)
+    mutect2 = columns.Map(columns.Text, columns.Text)
+    haplotypecaller = columns.Map(columns.Text, columns.Text)
+    unifiedgenotype = columns.Map(columns.Text, columns.Text)
+    itdseek = columns.Map(columns.Text, columns.Text)
+    manta = columns.Map(columns.Text, columns.Text)
