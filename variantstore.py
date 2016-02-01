@@ -25,6 +25,11 @@ class Variant(Model):
     gene = columns.Text()
     transcript = columns.Text()
     exon = columns.Text()
+    codon_change = columns.Text()
+    aa_change = columns.Text()
+    biotype = columns.Text()
+    impact = columns.Text()
+    impact_so = columns.Text()
 
     genes = columns.List(columns.Text)
     transcripts_data = columns.Map(columns.Text, columns.Text)

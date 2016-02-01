@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from cassandra.cqlengine.management import sync_table
 from cassandra.cqlengine import connection
 from variantstore import Variant

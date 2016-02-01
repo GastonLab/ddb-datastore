@@ -105,6 +105,7 @@ if __name__ == "__main__":
 
     for sample in samples:
         query = "SELECT chrom, start, end, ref, alt, vcf_id, rs_ids, cosmic_ids, filter, qual, qual_depth, depth, " \
+                "type, sub_type, " \
                 "gene, transcript, exon, codon_change, aa_change, biotype, impact, impact_so, impact_severity, " \
                 "aa_length, is_lof, is_conserved, pfam_domain, in_omim, clinvar_sig, clinvar_disease_name, " \
                 "clinvar_origin, clinvar_causal_allele, clinvar_dbsource, clinvar_dbsource_id, " \
@@ -170,7 +171,18 @@ if __name__ == "__main__":
         # Filter out variants with minor allele frequencies above the threshold but
         # retain any that are above the threshold but in COSMIC or in ClinVar and not listed as benign.
         for variant_data in gq:
-            caller_info = defaultdict(lambda: dict())
+            cassandra_variant = Variant(chr=variant_data['chrom'], start=variant_data['start'], end=variant_data['end'],
+                                        ref=variant_data['ref'], alt=variant_data['alt'], sample=sample,
+                                        callers=variant_data['info']['CALLERS'], type=variant_data['type'],
+                                        subtype=variant_data['sub_type'], rs_id=variant_data['vcf_id'],
+                                        rs_ids=variant_data['rs_ids'].split(','),
+                                        cosmic_ids=variant_data['cosmic_ids'].split(','), gene=variant_data['gene'],
+                                        transcript=variant_data['transcript'], exon=variant_data['exon'],
+                                        codon_change=variant_data['codon_change'],
+                                        aa_change=variant_data['aa_change'], biotype=variant_data['biotype'],
+                                        impact=variant_data['impact'], impact_so=variant_data['impact_so'],
+                                        max_aaf=variant_data['max_aaf'])
+
             key = (variant_data['chrom'], variant_data['start'], variant_data['end'], variant_data['ref'],
                    variant_data['alt'])
 
@@ -195,3 +207,4 @@ if __name__ == "__main__":
                 print caller_vcf_records['scalpel'][key]
 
             sys.stdout.write("******************************************\n")
+            cassandra_variant.save()
