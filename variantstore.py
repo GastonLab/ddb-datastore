@@ -9,6 +9,9 @@ class Variant(Model):
     ref = columns.Text(primary_key=True)
     alt = columns.Text(primary_key=True)
     sample = columns.Text(primary_key=True)
+    target_pool = columns.Text(primary_key=True)
+    reference_genome = columns.Text(primary_key=True)
+    date_annotated = columns.DateTime(primary_key=True)
 
     # Simple Annotation Data
     callers = columns.List(columns.Text)
@@ -40,7 +43,6 @@ class Variant(Model):
     is_coding = columns.Boolean()
     is_lof = columns.Boolean()
     is_splicing = columns.Boolean()
-    is_truncating = columns.Boolean()
 
     # Derived Annotation Data
     max_aaf = columns.Float()
