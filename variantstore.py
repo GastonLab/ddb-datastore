@@ -47,14 +47,10 @@ class Variant(Model):
     is_lof = columns.Boolean()
     is_splicing = columns.Boolean()
 
-    # Derived Annotation Data
-    max_aaf = columns.Float()
-    min_alt_depth = columns.Float()
-    max_alt_depth = columns.Float()
-
     # Complex Annotation Data
     population_freqs = columns.Map(columns.Text, columns.Float)
     clinvar_data = columns.Map(columns.Text, columns.Text)
+    max_aaf = columns.Float()
 
     # Variant Caller Data
     freebayes = columns.Map(columns.Text, columns.Text)
