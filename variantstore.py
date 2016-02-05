@@ -9,7 +9,10 @@ class Variant(Model):
     ref = columns.Text(primary_key=True)
     alt = columns.Text(primary_key=True)
     sample = columns.Text(primary_key=True)
+    library_name = columns.Text(primary_key=True)
     target_pool = columns.Text(primary_key=True)
+    panel_name = columns.Text(primary_key=True)
+    extraction = columns.Text(primary_key=True)
     reference_genome = columns.Text(primary_key=True)
     date_annotated = columns.DateTime(primary_key=True)
 

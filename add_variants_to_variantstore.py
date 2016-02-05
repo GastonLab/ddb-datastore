@@ -232,7 +232,9 @@ if __name__ == "__main__":
         # retain any that are above the threshold but in COSMIC or in ClinVar and not listed as benign.
         for variant_data in gq:
             cassandra_variant = Variant(chr=variant_data['chrom'], start=variant_data['start'], end=variant_data['end'],
-                                        ref=variant_data['ref'], alt=variant_data['alt'], sample=sample,
+                                        ref=variant_data['ref'], alt=variant_data['alt'],
+                                        sample=samples[sample]['sample_name'], extraction=samples[sample]['extraction'],
+                                        library_name=sample, panel_name=samples[sample]['panel'],
                                         target_pool=samples[sample]['target_pool'],
                                         reference_genome=config['genome_version'], date_annotated=datetime.now(),
                                         type=variant_data['type'],
