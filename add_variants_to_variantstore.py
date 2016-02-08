@@ -101,7 +101,6 @@ if __name__ == "__main__":
         sys.stdout.write("Running GEMINI query\n")
         gq = GeminiQuery(samples[sample]['db'])
         gq.run(query)
-        header = gq.header
 
         caller_vcf_records = defaultdict(lambda: dict())
 
