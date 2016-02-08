@@ -69,6 +69,19 @@ def _var_in_gene(variant_data, genes):
         return False
 
 
+def parse_vcf(vcf_file, caller, caller_vcf_records):
+    sys.stdout.write("Reading {}\n".format(vcf_file))
+    vcf = VCF(vcf_file)
+    for record in vcf:
+        if len(record.ALT) > 1:
+            sys.stderr.write("ERROR: More than one alternative allele detected in file "
+                             "{}\n Record: {}\n".format(vcf_file, record))
+            sys.exit()
+        key = (unicode("chr{}".format(record.CHROM)), int(record.start), int(record.end), unicode(record.REF),
+               unicode(record.ALT[0]))
+        caller_vcf_records[caller][key] = record
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--samples_file', help="Input configuration file for samples")
@@ -104,49 +117,10 @@ if __name__ == "__main__":
 
         caller_vcf_records = defaultdict(lambda: dict())
 
-        sys.stdout.write("Reading {}\n".format(samples[sample]['mutect']))
-        mutect_vcf = VCF(samples[sample]['mutect'])
-        for record in mutect_vcf:
-            if len(record.ALT) > 1:
-                sys.stderr.write("ERROR: More than one alternative allele detected in file "
-                                 "{}\n Record: {}\n".format(samples[sample]['mutect'], record))
-                sys.exit()
-            key = (unicode("chr{}".format(record.CHROM)), int(record.start), int(record.end), unicode(record.REF),
-                   unicode(record.ALT[0]))
-            caller_vcf_records['mutect'][key] = record
-
-        sys.stdout.write("Reading {}\n".format(samples[sample]['vardict']))
-        vardict_vcf = VCF(samples[sample]['vardict'])
-        for record in vardict_vcf:
-            if len(record.ALT) > 1:
-                sys.stderr.write("ERROR: More than one alternative allele detected in file "
-                                 "{}\n Record: {}\n".format(samples[sample]['varddict'], record))
-                sys.exit()
-            key = (unicode("chr{}".format(record.CHROM)), int(record.start), int(record.end), unicode(record.REF),
-                   unicode(record.ALT[0]))
-            caller_vcf_records['vardict'][key] = record
-
-        sys.stdout.write("Reading {}\n".format(samples[sample]['freebayes']))
-        freebayes_vcf = VCF(samples[sample]['freebayes'])
-        for record in freebayes_vcf:
-            if len(record.ALT) > 1:
-                sys.stderr.write("ERROR: More than one alternative allele detected in file "
-                                 "{}\n Record: {}\n".format(samples[sample]['freebayes'], record))
-                sys.exit()
-            key = (unicode("chr{}".format(record.CHROM)), int(record.start), int(record.end), unicode(record.REF),
-                   unicode(record.ALT[0]))
-            caller_vcf_records['freebayes'][key] = record
-
-        sys.stdout.write("Reading {}\n".format(samples[sample]['scalpel']))
-        scalpel_vcf = VCF(samples[sample]['scalpel'])
-        for record in scalpel_vcf:
-            if len(record.ALT) > 1:
-                sys.stderr.write("ERROR: More than one alternative allele detected in file "
-                                 "{}\n Record: {}\n".format(samples[sample]['scalpel'], record))
-                sys.exit()
-            key = (unicode("chr{}".format(record.CHROM)), int(record.start), int(record.end), unicode(record.REF),
-                   unicode(record.ALT[0]))
-            caller_vcf_records['scalpel'][key] = record
+        parse_vcf(samples[sample]['mutect'], "mutect", caller_vcf_records)
+        parse_vcf(samples[sample]['vardict'], "vardict", caller_vcf_records)
+        parse_vcf(samples[sample]['freebayes'], "freebayes", caller_vcf_records)
+        parse_vcf(samples[sample]['scalpel'], "scalpel", caller_vcf_records)
 
         # Filter out variants with minor allele frequencies above the threshold but
         # retain any that are above the threshold but in COSMIC or in ClinVar and not listed as benign.
@@ -328,6 +302,4 @@ if __name__ == "__main__":
 
                 cassandra_variant['scalpel'] = scalpel_info
 
-            # for key in cassandra_variant.keys():
-            #     sys.stdout.write("{}: {} ({})\n".format(key, cassandra_variant[key], type(cassandra_variant[key])))
             cassandra_variant.save()
