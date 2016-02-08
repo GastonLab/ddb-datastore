@@ -2,7 +2,6 @@
 
 import sys
 import argparse
-import configuration
 
 from datetime import datetime
 from gemini import GeminiQuery
@@ -11,62 +10,8 @@ from cassandra.cqlengine import connection
 
 from variantstore import Variant
 from cyvcf2 import VCF
-
-
-def _var_is_rare(variant_data):
-    """Determine if the MAF of the variant is < 1% in all populations"""
-
-    if variant_data['in_esp'] != 0 or variant_data['in_1kg'] != 0 or variant_data['in_exac'] != 0:
-        if variant_data['max_aaf_all'] > 0.01:
-            return False
-        else:
-            return True
-    else:
-        return True
-
-
-def _var_is_in_cosmic(variant_data):
-    """Determine if the variant has a COSMIC identifier"""
-
-    if variant_data['cosmic_ids'] is not None:
-        return True
-    else:
-        return False
-
-
-def _var_is_in_clinvar(variant_data):
-    """Determine if there is ClinVar data for the variant"""
-
-    if variant_data['clinvar_sig'] is not None:
-        return True
-    else:
-        return False
-
-
-def _var_is_pathogenic(variant_data):
-    """Determine if a variant in clinvar is potentially pathogenic"""
-
-    if variant_data['clinvar_sig'] is not None:
-        if "pathogenic" in variant_data['clinvar_sig']:
-            return True
-        else:
-            return False
-    else:
-        return False
-
-
-def _var_is_protein_effecting(variant_data):
-    if variant_data['impact_severity'] != "LOW":
-        return True
-    else:
-        return False
-
-
-def _var_in_gene(variant_data, genes):
-    if variant_data['gene'] in genes:
-        return True
-    else:
-        return False
+from ddb import gemini_interface
+from ddb import configuration
 
 
 def parse_vcf(vcf_file, caller, caller_vcf_records):
@@ -139,9 +84,9 @@ if __name__ == "__main__":
                                         aa_change=variant_data['aa_change'], biotype=variant_data['biotype'],
                                         impact=variant_data['impact'], impact_so=variant_data['impact_so'])
 
-            cassandra_variant['in_clinvar'] = _var_is_in_clinvar(variant_data)
-            cassandra_variant['in_cosmic'] = _var_is_in_cosmic(variant_data)
-            cassandra_variant['is_pathogenic'] = _var_is_pathogenic(variant_data)
+            cassandra_variant['in_clinvar'] = gemini_interface.var_is_in_clinvar(variant_data)
+            cassandra_variant['in_cosmic'] = gemini_interface.var_is_in_cosmic(variant_data)
+            cassandra_variant['is_pathogenic'] = gemini_interface.var_is_pathogenic(variant_data)
 
             if variant_data['is_lof']:
                 cassandra_variant['is_lof'] = True
