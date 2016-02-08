@@ -194,21 +194,9 @@ if __name__ == "__main__":
             cassandra_variant['in_clinvar'] = gemini_interface.var_is_in_clinvar(variant_data)
             cassandra_variant['in_cosmic'] = gemini_interface.var_is_in_cosmic(variant_data)
             cassandra_variant['is_pathogenic'] = gemini_interface.var_is_pathogenic(variant_data)
-
-            if variant_data['is_lof']:
-                cassandra_variant['is_lof'] = True
-            else:
-                cassandra_variant['is_lof'] = False
-
-            if variant_data['is_coding']:
-                cassandra_variant['is_coding'] = True
-            else:
-                cassandra_variant['is_coding'] = False
-
-            if variant_data['is_splicing']:
-                cassandra_variant['is_splicing'] = True
-            else:
-                cassandra_variant['is_splicing'] = False
+            cassandra_variant['is_lof'] = gemini_interface.var_is_lof(variant_data)
+            cassandra_variant['is_coding'] = gemini_interface.var_is_coding(variant_data)
+            cassandra_variant['is_splicing'] = gemini_interface.var_is_splicing(variant_data)
 
             if variant_data['rs_ids'] is not None:
                 cassandra_variant['rs_ids'] = variant_data['rs_ids'].split(',')
