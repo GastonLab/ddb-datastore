@@ -61,15 +61,14 @@ if __name__ == "__main__":
                                         ref=variant_data['ref'], alt=variant_data['alt'],
                                         sample=samples[sample]['sample_name'], extraction=samples[sample]['extraction'],
                                         library_name=sample, panel_name=samples[sample]['panel'],
-                                        target_pool=samples[sample]['target_pool'],
+                                        target_pool=samples[sample]['target_pool'], rs_id=variant_data['vcf_id'],
                                         reference_genome=config['genome_version'], date_annotated=datetime.now(),
-                                        type=variant_data['type'],
-                                        subtype=variant_data['sub_type'], rs_id=variant_data['vcf_id'],
+                                        subtype=variant_data['sub_type'], type=variant_data['type'],
                                         gene=variant_data['gene'], max_aaf=variant_data['max_aaf_all'],
                                         transcript=variant_data['transcript'], exon=variant_data['exon'],
-                                        codon_change=variant_data['codon_change'],
-                                        aa_change=variant_data['aa_change'], biotype=variant_data['biotype'],
-                                        impact=variant_data['impact'], impact_so=variant_data['impact_so'])
+                                        codon_change=variant_data['codon_change'], biotype=variant_data['biotype'],
+                                        aa_change=variant_data['aa_change'], impact=variant_data['impact'],
+                                        impact_so=variant_data['impact_so'])
 
             cassandra_variant['in_clinvar'] = gemini_interface.var_is_in_clinvar(variant_data)
             cassandra_variant['in_cosmic'] = gemini_interface.var_is_in_cosmic(variant_data)
