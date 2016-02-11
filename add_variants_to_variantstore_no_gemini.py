@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
+import re
 import sys
 import argparse
 
+import utils
+import cyvcf2
 from cyvcf2 import VCF
 from datetime import datetime
 from collections import defaultdict
@@ -38,9 +41,16 @@ if __name__ == "__main__":
 
         vcf = VCF(samples[sample]['annotated_vcf'])
 
+        reader = cyvcf2.VCFReader(samples[sample]['annotated_vcf'])
+        desc = reader["ANN"]["Description"]
+        annotation_parts = [x.strip("\"'") for x in re.split("\s*\|\s*", desc.split(":", 1)[1].strip('" '))]
+
         # Filter out variants with minor allele frequencies above the threshold but
         # retain any that are above the threshold but in COSMIC or in ClinVar and not listed as benign.
         for variant in vcf:
+            impacts = utils.get_impacts(variant, annotation_parts)
+            top_impact = utils.get_top_impact(impacts)
+
             cassandra_variant = Variant(chr=variant.INFO.get('chrom'),
                                         start=variant.INFO.get('start'),
                                         end=variant.INFO.get('end'),
@@ -56,16 +66,17 @@ if __name__ == "__main__":
                                         date_annotated=datetime.now(),
                                         subtype=variant.INFO.get('sub_type'),
                                         type=variant.INFO.get('type'),
-                                        gene=variant.INFO.get('gene'),
+                                        gene=top_impact['gene'],
+                                        transcript=top_impact['transcript'],
+                                        exon=top_impact['exon'],
+                                        codon_change=top_impact['codon_change'],
+                                        biotype=top_impact['biotype'],
+                                        aa_change=top_impact['aa_change'],
+                                        impact=top_impact['impact'],
+                                        impact_so=top_impact['impact_so'],
                                         max_aaf_all=variant.INFO.get('max_aaf_all'),
-                                        max_aaf_no_fin=variant.INFO.get('max_aaf_no_fin'),
-                                        transcript=variant.INFO.get('transcript'),
-                                        exon=variant.INFO.get('exon'),
-                                        codon_change=variant.INFO.get('codon_change'),
-                                        biotype=variant.INFO.get('biotype'),
-                                        aa_change=variant.INFO.get('aa_change'),
-                                        impact=variant.INFO.get('impact'),
-                                        impact_so=variant.INFO.get('impact_so'))
+                                        max_aaf_no_fin=variant.INFO.get('max_aaf_no_fin')
+                                        )
 
             cassandra_variant['in_clinvar'] = gemini_interface.var_is_in_clinvar(variant.INFO.get)
             cassandra_variant['in_cosmic'] = gemini_interface.var_is_in_cosmic(variant.INFO.get)
