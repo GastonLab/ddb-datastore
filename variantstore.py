@@ -50,7 +50,8 @@ class Variant(Model):
     # Complex Annotation Data
     population_freqs = columns.Map(columns.Text, columns.Float)
     clinvar_data = columns.Map(columns.Text, columns.Text)
-    max_aaf = columns.Float()
+    max_aaf_all = columns.Float()
+    max_aaf_no_fin = columns.Float()
 
     # Variant Caller Data
     freebayes = columns.Map(columns.Text, columns.Text)

@@ -14,6 +14,28 @@ from ddb import configuration
 from ddb import vcf_parsing
 
 
+def gemini_query(database):
+    query = "SELECT chrom, start, end, ref, alt, vcf_id, rs_ids, cosmic_ids, filter, qual, qual_depth, depth, " \
+            "type, sub_type, " \
+            "gene, transcript, exon, codon_change, aa_change, biotype, impact, impact_so, impact_severity, " \
+            "aa_length, is_lof, is_conserved, pfam_domain, in_omim, clinvar_sig, clinvar_disease_name, " \
+            "is_exonic, is_coding, is_splicing, " \
+            "clinvar_origin, clinvar_causal_allele, clinvar_dbsource, clinvar_dbsource_id, " \
+            "clinvar_on_diag_assay, rmsk, in_segdup, strand_bias, rms_map_qual, in_hom_run, num_mapq_zero, " \
+            "num_reads_w_dels, grc, gms_illumina, in_cse, num_alleles, allele_count, haplotype_score, " \
+            "is_somatic, somatic_score, aaf_esp_ea, aaf_esp_aa, aaf_esp_all, aaf_1kg_amr, " \
+            "aaf_1kg_eas, aaf_1kg_sas, aaf_1kg_afr, aaf_1kg_eur, aaf_1kg_all, aaf_exac_all, aaf_adj_exac_all, " \
+            "aaf_adj_exac_afr, aaf_adj_exac_amr, aaf_adj_exac_eas, aaf_adj_exac_fin, aaf_adj_exac_nfe, " \
+            "aaf_adj_exac_oth, aaf_adj_exac_sas, max_aaf_all, in_esp, in_1kg, in_exac, info," \
+            "(gts).(*), (gt_depths).(*), (gt_ref_depths).(*), (gt_alt_depths).(*) FROM variants"
+
+    sys.stdout.write("Running GEMINI query\n")
+    gq = GeminiQuery(samples[sample]['db'])
+    gq.run(query)
+
+    return gq
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--samples_file', help="Input configuration file for samples")
@@ -29,23 +51,7 @@ if __name__ == "__main__":
     connection.setup(['127.0.0.1'], "variantstore")
 
     for sample in samples:
-        query = "SELECT chrom, start, end, ref, alt, vcf_id, rs_ids, cosmic_ids, filter, qual, qual_depth, depth, " \
-                "type, sub_type, " \
-                "gene, transcript, exon, codon_change, aa_change, biotype, impact, impact_so, impact_severity, " \
-                "aa_length, is_lof, is_conserved, pfam_domain, in_omim, clinvar_sig, clinvar_disease_name, " \
-                "is_exonic, is_coding, is_splicing, " \
-                "clinvar_origin, clinvar_causal_allele, clinvar_dbsource, clinvar_dbsource_id, " \
-                "clinvar_on_diag_assay, rmsk, in_segdup, strand_bias, rms_map_qual, in_hom_run, num_mapq_zero, " \
-                "num_reads_w_dels, grc, gms_illumina, in_cse, num_alleles, allele_count, haplotype_score, " \
-                "is_somatic, somatic_score, aaf_esp_ea, aaf_esp_aa, aaf_esp_all, aaf_1kg_amr, " \
-                "aaf_1kg_eas, aaf_1kg_sas, aaf_1kg_afr, aaf_1kg_eur, aaf_1kg_all, aaf_exac_all, aaf_adj_exac_all, " \
-                "aaf_adj_exac_afr, aaf_adj_exac_amr, aaf_adj_exac_eas, aaf_adj_exac_fin, aaf_adj_exac_nfe, " \
-                "aaf_adj_exac_oth, aaf_adj_exac_sas, max_aaf_all, in_esp, in_1kg, in_exac, info," \
-                "(gts).(*), (gt_depths).(*), (gt_ref_depths).(*), (gt_alt_depths).(*) FROM variants"
-
-        sys.stdout.write("Running GEMINI query\n")
-        gq = GeminiQuery(samples[sample]['db'])
-        gq.run(query)
+        gq = gemini_query(samples[sample]['db'])
 
         caller_vcf_records = defaultdict(lambda: dict())
 
@@ -57,17 +63,29 @@ if __name__ == "__main__":
         # Filter out variants with minor allele frequencies above the threshold but
         # retain any that are above the threshold but in COSMIC or in ClinVar and not listed as benign.
         for variant_data in gq:
-            cassandra_variant = Variant(chr=variant_data['chrom'], start=variant_data['start'], end=variant_data['end'],
-                                        ref=variant_data['ref'], alt=variant_data['alt'],
-                                        sample=samples[sample]['sample_name'], extraction=samples[sample]['extraction'],
-                                        library_name=sample, panel_name=samples[sample]['panel'],
-                                        target_pool=samples[sample]['target_pool'], rs_id=variant_data['vcf_id'],
-                                        reference_genome=config['genome_version'], date_annotated=datetime.now(),
-                                        subtype=variant_data['sub_type'], type=variant_data['type'],
-                                        gene=variant_data['gene'], max_aaf=variant_data['max_aaf_all'],
-                                        transcript=variant_data['transcript'], exon=variant_data['exon'],
-                                        codon_change=variant_data['codon_change'], biotype=variant_data['biotype'],
-                                        aa_change=variant_data['aa_change'], impact=variant_data['impact'],
+            cassandra_variant = Variant(chr=variant_data['chrom'],
+                                        start=variant_data['start'],
+                                        end=variant_data['end'],
+                                        ref=variant_data['ref'],
+                                        alt=variant_data['alt'],
+                                        sample=samples[sample]['sample_name'],
+                                        extraction=samples[sample]['extraction'],
+                                        library_name=sample,
+                                        panel_name=samples[sample]['panel'],
+                                        target_pool=samples[sample]['target_pool'],
+                                        rs_id=variant_data['vcf_id'],
+                                        reference_genome=config['genome_version'],
+                                        date_annotated=datetime.now(),
+                                        subtype=variant_data['sub_type'],
+                                        type=variant_data['type'],
+                                        gene=variant_data['gene'],
+                                        max_aaf_no_fin=variant_data['max_aaf_all'],
+                                        transcript=variant_data['transcript'],
+                                        exon=variant_data['exon'],
+                                        codon_change=variant_data['codon_change'],
+                                        biotype=variant_data['biotype'],
+                                        aa_change=variant_data['aa_change'],
+                                        impact=variant_data['impact'],
                                         impact_so=variant_data['impact_so'])
 
             cassandra_variant['in_clinvar'] = gemini_interface.var_is_in_clinvar(variant_data)
