@@ -79,14 +79,14 @@ if __name__ == "__main__":
                                         max_aaf_no_fin=variant.INFO.get('max_aaf_no_fin')
                                         )
 
-            cassandra_variant['in_clinvar'] = gemini_interface.var_is_in_clinvar(variant.INFO.get)
-            cassandra_variant['in_cosmic'] = gemini_interface.var_is_in_cosmic(variant.INFO.get)
-            cassandra_variant['is_pathogenic'] = gemini_interface.var_is_pathogenic(variant.INFO.get)
-            cassandra_variant['is_lof'] = gemini_interface.var_is_lof(variant.INFO.get)
-            cassandra_variant['is_coding'] = gemini_interface.var_is_coding(variant.INFO.get)
-            cassandra_variant['is_splicing'] = gemini_interface.var_is_splicing(variant.INFO.get)
-            cassandra_variant['rs_ids'] = gemini_interface.parse_rs_ids(variant.INFO.get)
-            cassandra_variant['cosmic_ids'] = gemini_interface.parse_cosmic_ids(variant.INFO.get)
+            # cassandra_variant['in_clinvar'] = gemini_interface.var_is_in_clinvar(variant.INFO.get)
+            # cassandra_variant['in_cosmic'] = gemini_interface.var_is_in_cosmic(variant.INFO.get)
+            # cassandra_variant['is_pathogenic'] = gemini_interface.var_is_pathogenic(variant.INFO.get)
+            # cassandra_variant['is_lof'] = gemini_interface.var_is_lof(variant.INFO.get)
+            # cassandra_variant['is_coding'] = gemini_interface.var_is_coding(variant.INFO.get)
+            # cassandra_variant['is_splicing'] = gemini_interface.var_is_splicing(variant.INFO.get)
+            # cassandra_variant['rs_ids'] = gemini_interface.parse_rs_ids(variant.INFO.get)
+            # cassandra_variant['cosmic_ids'] = gemini_interface.parse_cosmic_ids(variant.INFO.get)
 
             if variant.INFO.get('CALLERS') is not None:
                 cassandra_variant['callers'] = variant.INFO.get('CALLERS').split(',')
