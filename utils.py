@@ -13,3 +13,5 @@ def get_top_impact(effects):
 
     if isinstance(top_impact, list):
         top_impact = top_impact[0]
+
+    return top_impact

@@ -34,6 +34,7 @@ class Variant(Model):
     codon_change = columns.Text()
     aa_change = columns.Text()
     biotype = columns.Text()
+    severity = columns.Text()
     impact = columns.Text()
     impact_so = columns.Text()
 

@@ -43,12 +43,12 @@ if __name__ == "__main__":
 
         reader = cyvcf2.VCFReader(samples[sample]['annotated_vcf'])
         desc = reader["ANN"]["Description"]
-        annotation_parts = [x.strip("\"'") for x in re.split("\s*\|\s*", desc.split(":", 1)[1].strip('" '))]
+        annotation_keys = [x.strip("\"'") for x in re.split("\s*\|\s*", desc.split(":", 1)[1].strip('" '))]
 
         # Filter out variants with minor allele frequencies above the threshold but
         # retain any that are above the threshold but in COSMIC or in ClinVar and not listed as benign.
         for variant in vcf:
-            impacts = utils.get_impacts(variant, annotation_parts)
+            impacts = utils.get_impacts(variant, annotation_keys)
             top_impact = utils.get_top_impact(impacts)
 
             cassandra_variant = Variant(chr=variant.INFO.get('chrom'),
@@ -66,14 +66,15 @@ if __name__ == "__main__":
                                         date_annotated=datetime.now(),
                                         subtype=variant.INFO.get('sub_type'),
                                         type=variant.INFO.get('type'),
-                                        gene=top_impact['gene'],
-                                        transcript=top_impact['transcript'],
-                                        exon=top_impact['exon'],
-                                        codon_change=top_impact['codon_change'],
-                                        biotype=top_impact['biotype'],
-                                        aa_change=top_impact['aa_change'],
-                                        impact=top_impact['impact'],
-                                        impact_so=top_impact['impact_so'],
+                                        gene=top_impact.gene,
+                                        transcript=top_impact.transcript,
+                                        exon=top_impact.exon,
+                                        codon_change=top_impact.codon_change,
+                                        biotype=top_impact.biotype,
+                                        aa_change=top_impact.aa_change,
+                                        severity=top_impact.effect_severity,
+                                        impact=top_impact.top_consequence,
+                                        impact_so=top_impact.so,
                                         max_aaf_all=variant.INFO.get('max_aaf_all'),
                                         max_aaf_no_fin=variant.INFO.get('max_aaf_no_fin')
                                         )
