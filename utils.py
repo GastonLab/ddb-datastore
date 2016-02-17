@@ -40,13 +40,13 @@ def get_transcript_effects(effects):
 def get_clinvar_info(variant):
     clinvar_data = dict()
 
-    clinvar_data['significance'] = variant.INFO.get('clinvar_sig')
-    clinvar_data['pathogenic'] = variant.INFO.get('clinvar_pathogenic')
-    clinvar_data['hgvs'] = variant.INFO.get('clinvar_hgvs')
-    clinvar_data['revstatus'] = variant.INFO.get('clinvar_revstatus')
-    clinvar_data['origin'] = variant.INFO.get('clinvar_origin')
-    clinvar_data['disease'] = variant.INFO.get('clinvar_diseasename')
-    clinvar_data['accession'] = variant.INFO.get('clinvar_accession')
+    clinvar_data['significance'] = variant.INFO.get('clinvar_sig') or 'None'
+    clinvar_data['pathogenic'] = variant.INFO.get('clinvar_pathogenic') or 'None'
+    clinvar_data['hgvs'] = variant.INFO.get('clinvar_hgvs') or 'None'
+    clinvar_data['revstatus'] = variant.INFO.get('clinvar_revstatus') or 'None'
+    clinvar_data['origin'] = variant.INFO.get('clinvar_origin') or 'None'
+    clinvar_data['disease'] = variant.INFO.get('clinvar_diseasename') or 'None'
+    clinvar_data['accession'] = variant.INFO.get('clinvar_accession') or 'None'
 
     return clinvar_data
 
@@ -54,10 +54,10 @@ def get_clinvar_info(variant):
 def get_cosmic_info(variant):
     cosmic_data = dict()
 
-    cosmic_data['ids'] = variant.INFO.get('cosmic_ids')
-    cosmic_data['num_samples'] = variant.INFO.get('cosmic_numsamples')
-    cosmic_data['cds'] = variant.INFO.get('cosmic_cds')
-    cosmic_data['aa'] = variant.INFO.get('cosmic_aa')
-    cosmic_data['gene'] = variant.INFO.get('cosmic_gene')
+    cosmic_data['ids'] = variant.INFO.get('cosmic_ids') or 'None'
+    cosmic_data['num_samples'] = variant.INFO.get('cosmic_numsamples') or 'None'
+    cosmic_data['cds'] = variant.INFO.get('cosmic_cds') or 'None'
+    cosmic_data['aa'] = variant.INFO.get('cosmic_aa') or 'None'
+    cosmic_data['gene'] = variant.INFO.get('cosmic_gene') or 'None'
 
     return cosmic_data
