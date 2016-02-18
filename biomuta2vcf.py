@@ -34,8 +34,10 @@ if __name__ == "__main__":
                 position = info[3]
                 pos_sect = position.split(':')
 
+                # Some lines don't have a position. Skip them
                 if len(pos_sect) < 2:
-                    sys.stderr.write("WARNING: Error processing coordinates ({}) for line {}\n".format(position, line))
+                    # sys.stderr.write("WARNING: Error processing coordinates ({}) for line {}\n".format(position,
+                    # line))
                     continue
 
                 chrom = pos_sect[0]
@@ -44,7 +46,7 @@ if __name__ == "__main__":
                 outfile.write("{chrom}\t{pos}\t.\t{ref}\t{alt}\t.\tPASS\t".format(chrom=chrom, pos=positions[0],
                                                                                   ref=info[5], alt=info[6]))
 
-                outfile.write("BM_Uniprot={uni}\tBM_Gene={gene}\tBM_PolyPhen={poly}\tBM_PMID={pmid}\t"
-                              "BM_cancertype={type}\tBM_source={source}\tBM_status={status}\t"
+                outfile.write("BM_Uniprot={uni};BM_Gene={gene};BM_PolyPhen={poly};BM_PMID={pmid};"
+                              "BM_cancertype={type};BM_source={source};BM_status={status};"
                               "BM_func={func}\n".format(uni=info[0], gene=info[1], poly=info[10], pmid=info[11],
                                                         type=info[12], source=info[13], status=info[14], func=info[15]))
