@@ -1,3 +1,4 @@
+import sys
 import argparse
 
 if __name__ == "__main__":
@@ -6,17 +7,19 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--outfile', help="Name of output VCF file")
     args = parser.parse_args()
 
-    header = '##fileformat=VCFv4.1\n" \
-             "##INFO=<ID=raw,Number=1,Type=Float,Description="raw cadd score">\n" \
-             "##INFO=<ID=phred,Number=1,Type=Float,Description="phred-scaled cadd score">\n" \
-             "##CADDCOMMENT=<ID=comment,comment="{comment}">\n" \
-             "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n'
+    header = '##fileformat=VCFv4.1\n' \
+             '##INFO=<ID=raw,Number=1,Type=Float,Description="raw cadd score">\n' \
+             '##INFO=<ID=phred,Number=1,Type=Float,Description="phred-scaled cadd score">\n' \
+             '##CADDCOMMENT=<ID=comment,comment="{comment}">\n' \
+             '#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n'
 
     with open(args.outfile, 'w') as outfile:
         outfile.write(header)
         with open(args.infile, 'r') as infile:
             infile.readline()
             for line in infile.readlines():
+                if len(info) < 15:
+                    sys.stderr.write("WARNING: Error processing line: {}\n".format(line))
                 info = line.split('\t')
                 position = info[3]
                 pos_sect = position.split(':')
