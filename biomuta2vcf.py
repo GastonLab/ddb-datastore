@@ -18,9 +18,13 @@ if __name__ == "__main__":
         with open(args.infile, 'r') as infile:
             infile.readline()
             for line in infile.readlines():
-                if len(info) < 15:
-                    sys.stderr.write("WARNING: Error processing line: {}\n".format(line))
                 info = line.split('\t')
+
+                # There are some malformed lines that are not complete. Skip them
+                if len(info) < 15:
+                    # sys.stderr.write("WARNING: Error processing line: {}\n".format(line))
+                    continue
+
                 position = info[3]
                 pos_sect = position.split(':')
                 chrom = pos_sect[0]
