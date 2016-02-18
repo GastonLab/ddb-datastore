@@ -35,7 +35,7 @@ if __name__ == "__main__":
                 pos_sect = position.split(':')
 
                 if len(pos_sect) < 2:
-                    sys.stderr.write("WARNING: Error processing coordinates for line {}\n".format(line))
+                    sys.stderr.write("WARNING: Error processing coordinates ({}) for line {}\n".format(position, line))
                     continue
 
                 chrom = pos_sect[0]
