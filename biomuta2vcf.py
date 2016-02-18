@@ -8,8 +8,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     header = '##fileformat=VCFv4.1\n' \
-             '##INFO=<ID=raw,Number=1,Type=Float,Description="raw cadd score">\n' \
-             '##INFO=<ID=phred,Number=1,Type=Float,Description="phred-scaled cadd score">\n' \
+             '##INFO=<ID=BM_Uniprot,Number=1,Type=String,Description="Uniprot ID">\n' \
+             '##INFO=<ID=BM_Gene,Number=1,Type=String,Description="Gene name">\n' \
+             '##INFO=<ID=BM_PolyPhen,Number=1,Type=String,Description="Polyphen score">\n' \
+             '##INFO=<ID=BM_PMID,Number=1,Type=String,Description="Pubmed ID(s)">\n' \
+             '##INFO=<ID=BM_cancertype,Number=1,Type=String,Description="Cancer Type">\n' \
+             '##INFO=<ID=BM_source,Number=1,Type=String,Description="Source of information">\n' \
+             '##INFO=<ID=BM_status,Number=1,Type=String,Description="Status of variant">\n' \
+             '##INFO=<ID=BM_func,Number=1,Type=String,Description="Functional consequence of variant">\n' \
              '##CADDCOMMENT=<ID=comment,comment="{comment}">\n' \
              '#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n'
 
@@ -27,8 +33,14 @@ if __name__ == "__main__":
 
                 position = info[3]
                 pos_sect = position.split(':')
+
+                if len(pos_sect < 2):
+                    sys.stderr.write("WARNING: Error processing coordinates for line {}\n".format(line))
+                    continue
+                    
                 chrom = pos_sect[0]
                 positions = pos_sect[1].split('-')
+
                 outfile.write("{chrom}\t{pos}\t.\t{ref}\t{alt}\t.\tPASS\t".format(chrom=chrom, pos=positions[0],
                                                                                   ref=info[5], alt=info[6]))
 
