@@ -34,10 +34,10 @@ if __name__ == "__main__":
                 position = info[3]
                 pos_sect = position.split(':')
 
-                if len(pos_sect < 2):
+                if len(pos_sect) < 2:
                     sys.stderr.write("WARNING: Error processing coordinates for line {}\n".format(line))
                     continue
-                    
+
                 chrom = pos_sect[0]
                 positions = pos_sect[1].split('-')
 
