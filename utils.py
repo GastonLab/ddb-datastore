@@ -40,11 +40,12 @@ def get_transcript_effects(effects):
 def get_clinvar_info(variant):
     clinvar_data = dict()
 
-    clinvar_data['significance'] = variant.INFO.get('clinvar_sig') or 'None'
+    clinvar_data['significance'] = variant.INFO.get('clinvar_significance') or 'None'
     clinvar_data['pathogenic'] = variant.INFO.get('clinvar_pathogenic') or 'None'
     clinvar_data['hgvs'] = variant.INFO.get('clinvar_hgvs') or 'None'
     clinvar_data['revstatus'] = variant.INFO.get('clinvar_revstatus') or 'None'
     clinvar_data['origin'] = variant.INFO.get('clinvar_origin') or 'None'
+    clinvar_data['org'] = variant.INFO.get('clinvar_org') or 'None'
     clinvar_data['disease'] = variant.INFO.get('clinvar_diseasename') or 'None'
     clinvar_data['accession'] = variant.INFO.get('clinvar_accession') or 'None'
 
