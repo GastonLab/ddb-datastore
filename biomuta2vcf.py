@@ -1,6 +1,9 @@
 import sys
 import argparse
 
+# This only works for BioMuta2. BioMuta3 appears to have a different format and order of columns, and is not documented
+# with a header
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--infile', help="BioMuta CSV input file")
