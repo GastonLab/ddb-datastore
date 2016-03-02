@@ -20,6 +20,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--samples_file', help="Input configuration file for samples")
     parser.add_argument('-c', '--configuration', help="Configuration file for various settings")
+    parser.add_argument('-r', '--report', help="Root name for reports (per sample)")
     args = parser.parse_args()
 
     sys.stdout.write("Parsing configuration data\n")
@@ -29,6 +30,13 @@ if __name__ == "__main__":
     samples = configuration.configure_samples(args.samples_file, config)
 
     connection.setup(['127.0.0.1'], "variantstore")
+
+    parse_functions = {'mutect': vcf_parsing.parse_mutect_vcf_record,
+                       'freebayes': vcf_parsing.parse_freebayes_vcf_record,
+                       'vardict': vcf_parsing.parse_vardict_vcf_record,
+                       'scalpel': vcf_parsing.parse_scalpel_vcf_record}
+
+    seen_callers = list()
 
     for sample in samples:
         caller_vcf_records = defaultdict(lambda: dict())
@@ -43,6 +51,8 @@ if __name__ == "__main__":
         reader = cyvcf2.VCFReader(samples[sample]['annotated_vcf'])
         desc = reader["ANN"]["Description"]
         annotation_keys = [x.strip("\"'") for x in re.split("\s*\|\s*", desc.split(":", 1)[1].strip('" '))]
+
+        report_variants = list()
 
         # Filter out variants with minor allele frequencies above the threshold but
         # retain any that are above the threshold but in COSMIC or in ClinVar and not listed as benign.
@@ -119,16 +129,25 @@ if __name__ == "__main__":
             key = (unicode("chr{}".format(variant.CHROM)), int(variant.start), int(variant.end), unicode(variant.REF),
                    unicode(variant.ALT[0]))
 
-            if 'mutect' in variant.INFO.get('CALLERS'):
-                cassandra_variant['mutect'] = vcf_parsing.parse_mutect_vcf_record(caller_vcf_records['mutect'][key])
+            for caller in cassandra_variant['callers']:
+                cassandra_variant[caller] = parse_functions[caller](caller_vcf_records[caller][key])
+                if caller not in seen_callers:
+                    seen_callers.append(caller)
 
-            if 'vardict' in variant.INFO.get('CALLERS'):
-                cassandra_variant['vardict'] = vcf_parsing.parse_vardict_vcf_record(caller_vcf_records['vardict'][key])
+            # if 'mutect' in variant.INFO.get('CALLERS'):
+            #     cassandra_variant['mutect'] = parse_functions['mutect'](caller_vcf_records['mutect'][key])
+            #
+            # if 'vardict' in variant.INFO.get('CALLERS'):
+            #     cassandra_variant['vardict'] = parse_functions['vardict'](caller_vcf_records['vardict'][key])
+            #
+            # if 'freebayes' in variant.INFO.get('CALLERS'):
+            #     cassandra_variant['freebayes'] = parse_functions['freebayes'](caller_vcf_records['freebayes'][key])
+            #
+            # if 'scalpel' in variant.INFO.get('CALLERS'):
+            #     cassandra_variant['scalpel'] = parse_functions['scalpel'](caller_vcf_records['scalpel'][key])
 
-            if 'freebayes' in variant.INFO.get('CALLERS'):
-                cassandra_variant['freebayes'] = vcf_parsing.parse_vardict_vcf_record(caller_vcf_records['freebayes'][key])
-
-            if 'scalpel' in variant.INFO.get('CALLERS'):
-                cassandra_variant['scalpel'] = vcf_parsing.parse_vardict_vcf_record(caller_vcf_records['scalpel'][key])
-
+            report_variants.append(cassandra_variant)
             cassandra_variant.save()
+
+        if args.report:
+            utils.write_sample_variant_report(args.report, sample, report_variants, seen_callers)
