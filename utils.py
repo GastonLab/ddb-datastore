@@ -79,8 +79,8 @@ def variant_filter(variant, callers, thresholds):
     return flag, info
 
 
-def write_sample_variant_report(report_file, sample, variants, callers, thresholds):
-    with open("{}.{}.txt".format(sample, report_file), 'w') as report:
+def write_sample_variant_report(report_root, sample, variants, callers, thresholds):
+    with open("{}.{}.txt".format(sample, report_root), 'w') as report:
         report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\tCOSMIC IDs\t"
                      "Clin_Sig\tClin_Pathogenic\tClin_HGVS\tClin_Disease\tClin_Rev\tClin_Origin\tClin_Acc\t"
                      "Biotype\tImpact\tImpact SO\tSeverity\t"

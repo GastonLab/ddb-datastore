@@ -36,6 +36,8 @@ if __name__ == "__main__":
                        'vardict': vcf_parsing.parse_vardict_vcf_record,
                        'scalpel': vcf_parsing.parse_scalpel_vcf_record}
 
+    thresholds = {'max_aaf': 0.01}
+
     seen_callers = list()
 
     for sample in samples:
@@ -134,20 +136,8 @@ if __name__ == "__main__":
                 if caller not in seen_callers:
                     seen_callers.append(caller)
 
-            # if 'mutect' in variant.INFO.get('CALLERS'):
-            #     cassandra_variant['mutect'] = parse_functions['mutect'](caller_vcf_records['mutect'][key])
-            #
-            # if 'vardict' in variant.INFO.get('CALLERS'):
-            #     cassandra_variant['vardict'] = parse_functions['vardict'](caller_vcf_records['vardict'][key])
-            #
-            # if 'freebayes' in variant.INFO.get('CALLERS'):
-            #     cassandra_variant['freebayes'] = parse_functions['freebayes'](caller_vcf_records['freebayes'][key])
-            #
-            # if 'scalpel' in variant.INFO.get('CALLERS'):
-            #     cassandra_variant['scalpel'] = parse_functions['scalpel'](caller_vcf_records['scalpel'][key])
-
             report_variants.append(cassandra_variant)
             cassandra_variant.save()
 
         if args.report:
-            utils.write_sample_variant_report(args.report, sample, report_variants, seen_callers)
+            utils.write_sample_variant_report(args.report, sample, report_variants, seen_callers, thresholds)
