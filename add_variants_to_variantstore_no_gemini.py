@@ -36,7 +36,8 @@ if __name__ == "__main__":
                        'vardict': vcf_parsing.parse_vardict_vcf_record,
                        'scalpel': vcf_parsing.parse_scalpel_vcf_record}
 
-    thresholds = {'max_aaf': 0.01}
+    thresholds = {'max_aaf': 0.01,
+                  'regions': '/data/Resources/solid_tumour_actionable_panel.bed'}
 
     seen_callers = list()
 

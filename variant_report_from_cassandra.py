@@ -22,7 +22,9 @@ if __name__ == "__main__":
 
     connection.setup(['127.0.0.1'], "variantstore")
 
-    thresholds = {'max_aaf': 0.01}
+    thresholds = {'max_aaf': 0.01,
+                  'regions': '/data/Resources/solid_tumour_actionable_panel.bed'}
+
     callers = ['mutect', 'freebayes', 'scalpel', 'vardict']
 
     for sample in samples:

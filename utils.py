@@ -1,5 +1,6 @@
 import sys
 import geneimpacts
+from pybedtools import BedTool
 
 
 def get_effects(variant, annotation_keys):
@@ -68,6 +69,15 @@ def get_cosmic_info(variant):
 def variant_filter(variant, callers, thresholds):
     flag = False
     info = dict()
+
+    if 'regions' in thresholds:
+        regions = BedTool(thresholds['regions'])
+        variant_coord = BedTool("{} {} {}".format(variant.chr, variant.start, variant.end), from_string=True)
+        intersections = variant_coord.intersect(regions)
+        if len(intersections) > 0:
+            flag = True
+        else:
+            return flag, info
 
     if variant.clinvar_data['significance'] is not 'benign':
         flag = True
