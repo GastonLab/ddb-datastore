@@ -82,9 +82,14 @@ def variant_filter(variant, callers, thresholds):
     if variant.clinvar_data['significance'] is not 'benign':
         flag = True
         info['clinvar'] = "Not Benign"
+    else:
+        info['clinvar'] = "Potentially Benign"
+
     if variant.max_aaf_no_fin < thresholds['max_aaf']:
         flag = True
         info['max_aaf'] = "Not Common"
+    else:
+        info['max_aaf'] = "Common"
 
     return flag, info
 
