@@ -37,7 +37,7 @@ if __name__ == "__main__":
                        'scalpel': vcf_parsing.parse_scalpel_vcf_record}
 
     thresholds = {'max_aaf': 0.01,
-                  'regions': '/data/Resources/solid_tumour_actionable_panel.bed'}
+                  'regions': '/mnt/shared-data/Resources/solid_tumour_actionable_panel.bed'}
 
     seen_callers = list()
 
@@ -65,7 +65,8 @@ if __name__ == "__main__":
 
             genes_list = utils.get_genes(effects)
 
-            cassandra_variant = Variant(chr=variant.CHROM,
+            cassandra_variant = Variant(reference_genome=config['genome_version'],
+                                        chr=variant.CHROM,
                                         start=variant.start,
                                         end=variant.end,
                                         ref=variant.REF,
@@ -76,7 +77,6 @@ if __name__ == "__main__":
                                         panel_name=samples[sample]['panel'],
                                         target_pool=samples[sample]['target_pool'],
                                         rs_id=variant.ID,
-                                        reference_genome=config['genome_version'],
                                         date_annotated=datetime.now(),
                                         subtype=variant.INFO.get('sub_type'),
                                         type=variant.INFO.get('type'),
