@@ -21,6 +21,7 @@ if __name__ == "__main__":
     parser.add_argument('-s', '--samples_file', help="Input configuration file for samples")
     parser.add_argument('-c', '--configuration', help="Configuration file for various settings")
     parser.add_argument('-r', '--report', help="Root name for reports (per sample)")
+    parser.add_argument('-v', '--variant_callers', help="Comma-delimited list of variant callers used")
     args = parser.parse_args()
 
     sys.stdout.write("Parsing configuration data\n")
@@ -34,9 +35,12 @@ if __name__ == "__main__":
     parse_functions = {'mutect': vcf_parsing.parse_mutect_vcf_record,
                        'freebayes': vcf_parsing.parse_freebayes_vcf_record,
                        'vardict': vcf_parsing.parse_vardict_vcf_record,
-                       'scalpel': vcf_parsing.parse_scalpel_vcf_record}
+                       'scalpel': vcf_parsing.parse_scalpel_vcf_record,
+                       'platypus': vcf_parsing.parse_platypus_vcf_record,
+                       'pindel': vcf_parsing.parse_pindel_vcf_record}
 
     thresholds = {'max_aaf': 0.01,
+                  'min_maf': 0.01,
                   'regions': '/mnt/shared-data/Resources/solid_tumour_actionable_panel.bed'}
 
     seen_callers = list()
@@ -44,14 +48,18 @@ if __name__ == "__main__":
     for sample in samples:
         caller_vcf_records = defaultdict(lambda: dict())
 
-        vcf_parsing.parse_vcf(samples[sample]['mutect'], "mutect", caller_vcf_records)
-        vcf_parsing.parse_vcf(samples[sample]['vardict'], "vardict", caller_vcf_records)
-        vcf_parsing.parse_vcf(samples[sample]['freebayes'], "freebayes", caller_vcf_records)
-        vcf_parsing.parse_vcf(samples[sample]['scalpel'], "scalpel", caller_vcf_records)
+        vcf_parsing.parse_vcf("{}.mutect.normalized.vcf".format(sample), "mutect", caller_vcf_records)
+        vcf_parsing.parse_vcf("{}.vardict.normalized.vcf".format(sample), "vardict", caller_vcf_records)
+        vcf_parsing.parse_vcf("{}.freebayes.normalized.vcf".format(sample), "freebayes", caller_vcf_records)
+        vcf_parsing.parse_vcf("{}.scalpel.normalized.vcf".format(sample), "scalpel", caller_vcf_records)
+        vcf_parsing.parse_vcf("{}.platypus.normalized.vcf".format(sample), "platypus", caller_vcf_records)
+        vcf_parsing.parse_vcf("{}.pindel.normalized.vcf".format(sample), "pindel", caller_vcf_records)
 
-        vcf = VCF(samples[sample]['annotated_vcf'])
+        annotated_vcf = "{}.vcfanno.snpEff.GRCh37.75.vcf".format(sample)
 
-        reader = cyvcf2.VCFReader(samples[sample]['annotated_vcf'])
+        vcf = VCF(annotated_vcf)
+
+        reader = cyvcf2.VCFReader(annotated_vcf)
         desc = reader["ANN"]["Description"]
         annotation_keys = [x.strip("\"'") for x in re.split("\s*\|\s*", desc.split(":", 1)[1].strip('" '))]
 
@@ -67,7 +75,7 @@ if __name__ == "__main__":
 
             cassandra_variant = Variant(reference_genome=config['genome_version'],
                                         chr=variant.CHROM,
-                                        start=variant.start,
+                                        pos=variant.start,
                                         end=variant.end,
                                         ref=variant.REF,
                                         alt=variant.ALT[0],
