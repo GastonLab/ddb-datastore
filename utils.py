@@ -33,8 +33,9 @@ def get_transcript_effects(effects):
     transcript_effects = dict()
 
     for effect in effects:
-        transcript_effects[effect.transcript] = "{biotype}|{effect}".format(biotype=effect.biotype,
-                                                                            effect=effect.impact_severity)
+        if effect.transcript is not None:
+            transcript_effects[effect.transcript] = "{biotype}|{effect}".format(biotype=effect.biotype,
+                                                                                effect=effect.impact_severity)
 
     return transcript_effects
 
@@ -131,7 +132,7 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
                              "{is_lof}\t{max_aaf_all}\t{max_aaf_no_fin}\t{callers}\t{mfilter}\t{mdp}\t{mad}\t{vfilter}\t"
                              "{vdp}\t{vad}\t{vaf}\t{ffilter}\t{fdp}\t{faf}\t{fro}\t{fao}\t{sfilter}\t"
                              "{sdp}\t{sad}\t{plfilter}\t{plad}\t{pldp}\t{pfilter}"
-                             "\n".format(chr=variant.chr, start=variant.start, end=variant.end,
+                             "\n".format(chr=variant.chr, start=variant.pos, end=variant.end,
                                          gene=variant.gene, ref=variant.ref, alt=variant.alt, exon=variant.exon,
                                          codon=variant.codon_change, aa=variant.aa_change,
                                          rsids=",".join(variant.rs_ids), cosmic=",".join(variant.cosmic_ids),
