@@ -114,6 +114,12 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
         if 'scalpel' in callers:
             report.write("Scalpel_FILTER\tScalpel_DP\tScalpel_AD\t")
 
+        if 'platypus' in callers:
+            report.write("Platypus_FILTER\tPlatypus_DP\tPlatypus_AD\t")
+
+        if 'pindel' in callers:
+            report.write("Scalpel_FILTER\t")
+
         report.write("\n")
 
         for variant in variants:
@@ -124,36 +130,41 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
                              "{biotype}\t{impact}\t{impact_so}\t{severity}\t{in_clin}\t{is_path}\t{is_code}\t{is_splice}\t"
                              "{is_lof}\t{max_aaf_all}\t{max_aaf_no_fin}\t{callers}\t{mfilter}\t{mdp}\t{mad}\t{vfilter}\t"
                              "{vdp}\t{vad}\t{vaf}\t{ffilter}\t{fdp}\t{faf}\t{fro}\t{fao}\t{sfilter}\t"
-                             "{sdp}\t{sad}\n".format(chr=variant.chr, start=variant.start, end=variant.end,
-                                                     gene=variant.gene, ref=variant.ref, alt=variant.alt, exon=variant.exon,
-                                                     codon=variant.codon_change, aa=variant.aa_change,
-                                                     rsids=",".join(variant.rs_ids), cosmic=",".join(variant.cosmic_ids),
-                                                     csig=variant.clinvar_data['significance'],
-                                                     cpath=variant.clinvar_data['pathogenic'],
-                                                     hgvs=variant.clinvar_data['hgvs'],
-                                                     cdis=variant.clinvar_data['disease'],
-                                                     crev=variant.clinvar_data['revstatus'],
-                                                     corigin=variant.clinvar_data['origin'],
-                                                     cacc=variant.clinvar_data['accession'],
-                                                     biotype=variant.biotype, impact=variant.impact,
-                                                     impact_so=variant.impact_so, severity=variant.severity,
-                                                     in_clin=variant.in_clinvar, is_path=variant.is_pathogenic,
-                                                     is_code=variant.is_coding, is_splice=variant.is_splicing,
-                                                     is_lof=variant.is_lof, max_aaf_all=variant.max_aaf_all,
-                                                     max_aaf_no_fin=variant.max_aaf_no_fin,
-                                                     callers=",".join(variant.callers),
-                                                     mfilter=variant.mutect.get('FILTER') or None,
-                                                     mdp=variant.mutect.get('GTF_DP') or None,
-                                                     mad=variant.mutect.get('GTF_AD') or None,
-                                                     vfilter=variant.vardict.get('FILTER') or None,
-                                                     vdp=variant.vardict.get('DP') or None,
-                                                     vad=variant.vardict.get('AD') or None,
-                                                     vaf=variant.vardict.get('AF') or None,
-                                                     ffilter=variant.freebayes.get('FILTER') or None,
-                                                     fdp=variant.freebayes.get('DP') or None,
-                                                     faf=variant.freebayes.get('AF') or None,
-                                                     fro=variant.freebayes.get('RO') or None,
-                                                     fao=variant.freebayes.get('AO') or None,
-                                                     sfilter=variant.scalpel.get('FILTER') or None,
-                                                     sdp=variant.scalpel.get('GTF_DP') or None,
-                                                     sad=variant.scalpel.get('GTF_AD') or None))
+                             "{sdp}\t{sad}\t{plfilter}\t{plad}\t{pldp}\t{pfilter}"
+                             "\n".format(chr=variant.chr, start=variant.start, end=variant.end,
+                                         gene=variant.gene, ref=variant.ref, alt=variant.alt, exon=variant.exon,
+                                         codon=variant.codon_change, aa=variant.aa_change,
+                                         rsids=",".join(variant.rs_ids), cosmic=",".join(variant.cosmic_ids),
+                                         csig=variant.clinvar_data['significance'],
+                                         cpath=variant.clinvar_data['pathogenic'],
+                                         hgvs=variant.clinvar_data['hgvs'],
+                                         cdis=variant.clinvar_data['disease'],
+                                         crev=variant.clinvar_data['revstatus'],
+                                         corigin=variant.clinvar_data['origin'],
+                                         cacc=variant.clinvar_data['accession'],
+                                         biotype=variant.biotype, impact=variant.impact,
+                                         impact_so=variant.impact_so, severity=variant.severity,
+                                         in_clin=variant.in_clinvar, is_path=variant.is_pathogenic,
+                                         is_code=variant.is_coding, is_splice=variant.is_splicing,
+                                         is_lof=variant.is_lof, max_aaf_all=variant.max_aaf_all,
+                                         max_aaf_no_fin=variant.max_aaf_no_fin,
+                                         callers=",".join(variant.callers),
+                                         mfilter=variant.mutect.get('FILTER') or None,
+                                         mdp=variant.mutect.get('GTF_DP') or None,
+                                         mad=variant.mutect.get('GTF_AD') or None,
+                                         vfilter=variant.vardict.get('FILTER') or None,
+                                         vdp=variant.vardict.get('DP') or None,
+                                         vad=variant.vardict.get('AD') or None,
+                                         vaf=variant.vardict.get('AF') or None,
+                                         ffilter=variant.freebayes.get('FILTER') or None,
+                                         fdp=variant.freebayes.get('DP') or None,
+                                         faf=variant.freebayes.get('AF') or None,
+                                         fro=variant.freebayes.get('RO') or None,
+                                         fao=variant.freebayes.get('AO') or None,
+                                         sfilter=variant.scalpel.get('FILTER') or None,
+                                         sdp=variant.scalpel.get('GTF_DP') or None,
+                                         sad=variant.scalpel.get('GTF_AD') or None,
+                                         plfilter=variant.platypus.get('FILTER') or None,
+                                         plad=variant.platypus.get('TR'),
+                                         pldp=variant.platypus.get('TC'),
+                                         pfilter=variant.pindel.get('FILTER')))
