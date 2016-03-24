@@ -43,8 +43,6 @@ if __name__ == "__main__":
                   'min_maf': 0.01,
                   'regions': config['actionable_regions']}
 
-    seen_callers = list()
-
     for sample in samples:
         caller_vcf_records = defaultdict(lambda: dict())
 
@@ -97,8 +95,8 @@ if __name__ == "__main__":
                                         severity=top_impact.effect_severity,
                                         impact=top_impact.top_consequence,
                                         impact_so=top_impact.so,
-                                        max_aaf_all=variant.INFO.get('max_aaf_all'),
-                                        max_aaf_no_fin=variant.INFO.get('max_aaf_no_fin'),
+                                        max_aaf_all=variant.INFO.get('max_aaf_all') or -1,
+                                        max_aaf_no_fin=variant.INFO.get('max_aaf_no_fin') or -1,
                                         # genes=utils.get_genes(effects),
                                         transcripts_data=utils.get_transcript_effects(effects),
                                         clinvar_data=utils.get_clinvar_info(variant),
@@ -142,11 +140,9 @@ if __name__ == "__main__":
 
             for caller in cassandra_variant['callers']:
                 cassandra_variant[caller] = parse_functions[caller](caller_vcf_records[caller][key])
-                if caller not in seen_callers:
-                    seen_callers.append(caller)
 
             report_variants.append(cassandra_variant)
             cassandra_variant.save()
 
         if args.report:
-            utils.write_sample_variant_report(args.report, sample, report_variants, seen_callers, thresholds)
+            utils.write_sample_variant_report(args.report, sample, report_variants, args.variant_callers, thresholds)
