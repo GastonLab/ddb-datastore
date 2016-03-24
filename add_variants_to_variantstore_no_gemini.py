@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     thresholds = {'max_aaf': 0.01,
                   'min_maf': 0.01,
-                  'regions': '/mnt/shared-data/Resources/solid_tumour_actionable_panel.bed'}
+                  'regions': config['actionable_regions']}
 
     seen_callers = list()
 

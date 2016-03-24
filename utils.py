@@ -72,7 +72,7 @@ def variant_filter(variant, callers, thresholds):
 
     if 'regions' in thresholds:
         regions = BedTool(thresholds['regions'])
-        variant_coord = BedTool("{} {} {}".format(variant.chr, variant.start, variant.end), from_string=True)
+        variant_coord = BedTool("{} {} {}".format(variant.chr, variant.pos, variant.end), from_string=True)
         intersections = variant_coord.intersect(regions)
         if len(intersections) > 0:
             flag = True
