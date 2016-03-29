@@ -68,6 +68,7 @@ def get_cosmic_info(variant):
 
 
 def variant_filter(variant, callers, thresholds):
+    in_region = False
     flag = False
     info = dict()
 
@@ -76,11 +77,14 @@ def variant_filter(variant, callers, thresholds):
         variant_coord = BedTool("{} {} {}".format(variant.chr, variant.pos, variant.end), from_string=True)
         intersections = variant_coord.intersect(regions)
         if len(intersections) > 0:
-            flag = True
-        else:
-            return flag, info
+            in_region = True
+    else:
+        in_region = True
 
-    if variant.clinvar_data['significance'] is not 'benign':
+    if variant.clinvar_data['significance'] is 'None':
+        flag = True
+        info['clinvar'] = "Unknown"
+    elif variant.clinvar_data['significance'] is not 'benign':
         flag = True
         info['clinvar'] = "Not Benign"
     else:
@@ -92,12 +96,12 @@ def variant_filter(variant, callers, thresholds):
     else:
         info['max_aaf'] = "Common"
 
-    return flag, info
+    return flag, in_region, info
 
 
 def write_sample_variant_report(report_root, sample, variants, callers, thresholds):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
-        report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\tCOSMIC IDs\t"
+        report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\tClinvar_Flag\tAAF_Flag\tCOSMIC IDs\t"
                      "Clin_Sig\tClin_Pathogenic\tClin_HGVS\tClin_Disease\tClin_Rev\tClin_Origin\tClin_Acc\t"
                      "Biotype\tImpact\tImpact SO\tSeverity\t"
                      "in_clinvar\tis_pathogenic\tis_coding\tis_splicing\tis_lof\tmax_aaf_all\tmax_aaf_no_fin\t"
@@ -124,18 +128,20 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
         report.write("\n")
 
         for variant in variants:
-            flag, info = variant_filter(variant, callers, thresholds)
-            if flag:
+            flag, in_region, info = variant_filter(variant, callers, thresholds)
+            if in_region:
                 report.write("{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t{codon}\t{aa}\t{rsids}\t"
-                             "{cosmic}\t{csig}\t{cpath}\t{hgvs}\t{cdis}\t{crev}\t{corigin}\t{cacc}\t"
-                             "{biotype}\t{impact}\t{impact_so}\t{severity}\t{in_clin}\t{is_path}\t{is_code}\t{is_splice}\t"
-                             "{is_lof}\t{max_aaf_all}\t{max_aaf_no_fin}\t{callers}\t{mfilter}\t{mdp}\t{mad}\t{vfilter}\t"
-                             "{vdp}\t{vad}\t{vaf}\t{ffilter}\t{fdp}\t{faf}\t{fro}\t{fao}\t{sfilter}\t"
+                             "{info_clin}\t{info_aaf}\t{cosmic}\t{csig}\t{cpath}\t{hgvs}\t{cdis}\t{crev}\t{corigin}\t"
+                             "{cacc}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t{in_clin}\t{is_path}\t{is_code}\t"
+                             "{is_splice}\t{is_lof}\t{max_aaf_all}\t{max_aaf_no_fin}\t{callers}\t{mfilter}\t{mdp}\t"
+                             "{mad}\t{vfilter}\t{vdp}\t{vad}\t{vaf}\t{ffilter}\t{fdp}\t{faf}\t{fro}\t{fao}\t{sfilter}\t"
                              "{sdp}\t{sad}\t{plfilter}\t{plad}\t{pldp}\t{pfilter}"
                              "\n".format(chr=variant.chr, start=variant.pos, end=variant.end,
                                          gene=variant.gene, ref=variant.ref, alt=variant.alt, exon=variant.exon,
                                          codon=variant.codon_change, aa=variant.aa_change,
                                          rsids=",".join(variant.rs_ids), cosmic=",".join(variant.cosmic_ids),
+                                         info_clin=info['clinvar'],
+                                         info_aaf=info['max_aaf'],
                                          csig=variant.clinvar_data['significance'],
                                          cpath=variant.clinvar_data['pathogenic'],
                                          hgvs=variant.clinvar_data['hgvs'],
