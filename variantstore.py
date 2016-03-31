@@ -57,12 +57,12 @@ class Variant(Model):
     population_freqs = columns.Map(columns.Text, columns.Float)
     clinvar_data = columns.Map(columns.Text, columns.Text)
     cosmic_data = columns.Map(columns.Text, columns.Text)
-    max_aaf_all = columns.Float()
-    max_aaf_no_fin = columns.Float()
+    max_maf_all = columns.Float()
+    max_maf_no_fin = columns.Float()
     min_depth = columns.Float()
     max_depth = columns.Float()
-    min_maf = columns.Float()
-    max_maf = columns.Float()
+    min_som_aaf = columns.Float()
+    max_som_aaf = columns.Float()
 
     # Variant Caller Data
     freebayes = columns.Map(columns.Text, columns.Text)

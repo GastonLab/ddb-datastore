@@ -104,8 +104,8 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
         report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\tClinvar_Flag\tAAF_Flag\tCOSMIC IDs\t"
                      "Clin_Sig\tClin_Pathogenic\tClin_HGVS\tClin_Disease\tClin_Rev\tClin_Origin\tClin_Acc\t"
                      "Biotype\tImpact\tImpact SO\tSeverity\t"
-                     "in_clinvar\tis_pathogenic\tis_coding\tis_splicing\tis_lof\tmax_aaf_all\tmax_aaf_no_fin\t"
-                     "Callers\t")
+                     "in_clinvar\tis_pathogenic\tis_coding\tis_splicing\tis_lof\tmax_maf_all\tmax_maf_no_fin\t"
+                     "max_somatic_aaf\tCallers\t")
 
         if 'mutect' in callers:
             report.write("MuTect_FILTER\tMuTect_DP\tMuTect_AD\t")
@@ -133,8 +133,9 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
                 report.write("{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t{codon}\t{aa}\t{rsids}\t"
                              "{info_clin}\t{info_aaf}\t{cosmic}\t{csig}\t{cpath}\t{hgvs}\t{cdis}\t{crev}\t{corigin}\t"
                              "{cacc}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t{in_clin}\t{is_path}\t{is_code}\t"
-                             "{is_splice}\t{is_lof}\t{max_aaf_all}\t{max_aaf_no_fin}\t{callers}\t{mfilter}\t{mdp}\t"
-                             "{mad}\t{vfilter}\t{vdp}\t{vad}\t{vaf}\t{ffilter}\t{fdp}\t{faf}\t{fro}\t{fao}\t{sfilter}\t"
+                             "{is_splice}\t{is_lof}\t{max_maf_all}\t{max_maf_no_fin}\t{callers}\t{max_som_aaf}\t"
+                             "{mfilter}\t{mdp}\t{mad}\t{vfilter}\t{vdp}\t{vad}\t{vaf}\t{ffilter}\t{fdp}\t{faf}\t{fro}\t"
+                             "{fao}\t{sfilter}\t"
                              "{sdp}\t{sad}\t{plfilter}\t{plad}\t{pldp}\t{pfilter}"
                              "\n".format(chr=variant.chr, start=variant.pos, end=variant.end,
                                          gene=variant.gene, ref=variant.ref, alt=variant.alt, exon=variant.exon,
@@ -153,8 +154,10 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
                                          impact_so=variant.impact_so, severity=variant.severity,
                                          in_clin=variant.in_clinvar, is_path=variant.is_pathogenic,
                                          is_code=variant.is_coding, is_splice=variant.is_splicing,
-                                         is_lof=variant.is_lof, max_aaf_all=variant.max_aaf_all,
-                                         max_aaf_no_fin=variant.max_aaf_no_fin,
+                                         is_lof=variant.is_lof,
+                                         max_maf_all=variant.max_maf_all,
+                                         max_maf_no_fin=variant.max_maf_no_fin,
+                                         max_som_aaf=variant.max_som_aaf,
                                          callers=",".join(variant.callers),
                                          mfilter=variant.mutect.get('FILTER') or None,
                                          mdp=variant.mutect.get('GTF_DP') or None,
