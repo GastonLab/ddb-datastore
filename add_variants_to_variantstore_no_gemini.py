@@ -20,7 +20,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--samples_file', help="Input configuration file for samples")
     parser.add_argument('-c', '--configuration', help="Configuration file for various settings")
-    parser.add_argument('-r', '--report', help="Root name for reports (per sample)")
+    parser.add_argument('-o', '--output_root', help="Root name for reports (per sample)")
     parser.add_argument('-v', '--variant_callers', help="Comma-delimited list of variant callers used")
     args = parser.parse_args()
 
