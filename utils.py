@@ -90,11 +90,11 @@ def variant_filter(variant, callers, thresholds):
     else:
         info['clinvar'] = "Potentially Benign"
 
-    if variant.max_aaf_no_fin < thresholds['max_aaf']:
+    if variant.max_maf_all < thresholds['max_maf']:
         flag = True
-        info['max_aaf'] = "Not Common"
+        info['max_maf'] = "Not Common"
     else:
-        info['max_aaf'] = "Common"
+        info['max_maf'] = "Common"
 
     return flag, in_region, info
 
@@ -131,7 +131,7 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
             flag, in_region, info = variant_filter(variant, callers, thresholds)
             if in_region:
                 report.write("{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t{codon}\t{aa}\t{rsids}\t"
-                             "{info_clin}\t{info_aaf}\t{cosmic}\t{csig}\t{cpath}\t{hgvs}\t{cdis}\t{crev}\t{corigin}\t"
+                             "{info_clin}\t{info_maf}\t{cosmic}\t{csig}\t{cpath}\t{hgvs}\t{cdis}\t{crev}\t{corigin}\t"
                              "{cacc}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t{in_clin}\t{is_path}\t{is_code}\t"
                              "{is_splice}\t{is_lof}\t{max_maf_all}\t{max_maf_no_fin}\t{callers}\t{max_som_aaf}\t"
                              "{mfilter}\t{mdp}\t{mad}\t{vfilter}\t{vdp}\t{vad}\t{vaf}\t{ffilter}\t{fdp}\t{faf}\t{fro}\t"
@@ -142,7 +142,7 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
                                          codon=variant.codon_change, aa=variant.aa_change,
                                          rsids=",".join(variant.rs_ids), cosmic=",".join(variant.cosmic_ids),
                                          info_clin=info['clinvar'],
-                                         info_aaf=info['max_aaf'],
+                                         info_maf=info['max_maf'],
                                          csig=variant.clinvar_data['significance'],
                                          cpath=variant.clinvar_data['pathogenic'],
                                          hgvs=variant.clinvar_data['hgvs'],
