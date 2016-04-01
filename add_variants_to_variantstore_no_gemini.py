@@ -152,7 +152,7 @@ if __name__ == "__main__":
             cassandra_variant['max_som_aaf'] = max_som_aaf
 
             report_variants.append(cassandra_variant)
-            sys.stdout.write("Saving data to Cassandra\n")
+            # sys.stdout.write("Saving data to Cassandra\n")
             cassandra_variant.save()
 
         if args.report:
