@@ -46,6 +46,7 @@ if __name__ == "__main__":
     for sample in samples:
         caller_vcf_records = defaultdict(lambda: dict())
 
+        sys.stdout.write("Parsing Caller VCF Files")
         vcf_parsing.parse_vcf("{}.mutect.normalized.vcf".format(sample), "mutect", caller_vcf_records)
         vcf_parsing.parse_vcf("{}.vardict.normalized.vcf".format(sample), "vardict", caller_vcf_records)
         vcf_parsing.parse_vcf("{}.freebayes.normalized.vcf".format(sample), "freebayes", caller_vcf_records)
@@ -55,8 +56,10 @@ if __name__ == "__main__":
 
         annotated_vcf = "{}.vcfanno.snpEff.GRCh37.75.vcf".format(sample)
 
+        sys.stdout.write("Parsing VCFAnno VCF\n")
         vcf = VCF(annotated_vcf)
 
+        sys.stdout.write("Parsing VCFAnno VCF with CyVCF2\n")
         reader = cyvcf2.VCFReader(annotated_vcf)
         desc = reader["ANN"]["Description"]
         annotation_keys = [x.strip("\"'") for x in re.split("\s*\|\s*", desc.split(":", 1)[1].strip('" '))]
@@ -65,6 +68,7 @@ if __name__ == "__main__":
 
         # Filter out variants with minor allele frequencies above the threshold but
         # retain any that are above the threshold but in COSMIC or in ClinVar and not listed as benign.
+        sys.stdout.write("Processing individual variants\n")
         for variant in vcf:
             effects = utils.get_effects(variant, annotation_keys)
             top_impact = utils.get_top_impact(effects)
@@ -138,15 +142,17 @@ if __name__ == "__main__":
             key = (unicode("chr{}".format(variant.CHROM)), int(variant.start), int(variant.end), unicode(variant.REF),
                    unicode(variant.ALT[0]))
 
-            max_som_aaf = -1
+            # sys.stdout.write("Processing data from individual callers\n")
+            max_som_aaf = -1.00
             for caller in cassandra_variant['callers']:
                 cassandra_variant[caller] = parse_functions[caller](caller_vcf_records[caller][key])
-                if cassandra_variant[caller]['AAF'] > max_som_aaf:
-                    max_som_aaf = cassandra_variant[caller]['AAF']
+                if float(cassandra_variant[caller]['AAF']) > max_som_aaf:
+                    max_som_aaf = float(cassandra_variant[caller]['AAF'])
 
             cassandra_variant['max_som_aaf'] = max_som_aaf
 
             report_variants.append(cassandra_variant)
+            sys.stdout.write("Saving data to Cassandra\n")
             cassandra_variant.save()
 
         if args.report:
