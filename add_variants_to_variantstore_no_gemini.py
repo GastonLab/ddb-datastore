@@ -148,12 +148,17 @@ if __name__ == "__main__":
             min_depth = 100000000
             for caller in cassandra_variant['callers']:
                 cassandra_variant[caller] = parse_functions[caller](caller_vcf_records[caller][key])
-                if float(cassandra_variant[caller]['AAF']) > max_som_aaf:
-                    max_som_aaf = float(cassandra_variant[caller]['AAF'])
-                if int(cassandra_variant[caller]['DP']) < min_depth:
-                    min_depth = int(cassandra_variant[caller]['DP'])
-                if int(cassandra_variant[caller]['DP']) > max_depth:
-                    max_depth = int(cassandra_variant[caller]['DP'])
+                # CyVCF2 parsing not yet working for parsing the format fields properly to get pindel's depth
+                if caller is not 'pindel':
+                    if float(cassandra_variant[caller]['AAF']) > max_som_aaf:
+                        max_som_aaf = float(cassandra_variant[caller]['AAF'])
+                    if int(cassandra_variant[caller]['DP']) < min_depth:
+                        min_depth = int(cassandra_variant[caller]['DP'])
+                    if int(cassandra_variant[caller]['DP']) > max_depth:
+                        max_depth = int(cassandra_variant[caller]['DP'])
+
+            if min_depth == 100000000:
+                min_depth = -1
 
             cassandra_variant['max_som_aaf'] = max_som_aaf
             cassandra_variant['min_depth'] = min_depth
