@@ -63,6 +63,8 @@ class Variant(Model):
     max_depth = columns.Float()
     min_som_aaf = columns.Float()
     max_som_aaf = columns.Float()
+    variant_filters = columns.List(columns.Text)
+    variant_categorization = columns.Text()
 
     # Variant Caller Data
     freebayes = columns.Map(columns.Text, columns.Text)

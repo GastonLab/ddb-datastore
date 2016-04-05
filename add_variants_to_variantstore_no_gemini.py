@@ -144,12 +144,20 @@ if __name__ == "__main__":
 
             # sys.stdout.write("Processing data from individual callers\n")
             max_som_aaf = -1.00
+            max_depth = -1
+            min_depth = 100000000
             for caller in cassandra_variant['callers']:
                 cassandra_variant[caller] = parse_functions[caller](caller_vcf_records[caller][key])
                 if float(cassandra_variant[caller]['AAF']) > max_som_aaf:
                     max_som_aaf = float(cassandra_variant[caller]['AAF'])
+                if int(cassandra_variant[caller]['DP']) < min_depth:
+                    min_depth = int(cassandra_variant[caller]['DP'])
+                if int(cassandra_variant[caller]['DP']) > max_depth:
+                    max_depth = int(cassandra_variant[caller]['DP'])
 
             cassandra_variant['max_som_aaf'] = max_som_aaf
+            cassandra_variant['min_depth'] = min_depth
+            cassandra_variant['max_depth'] = max_depth
 
             report_variants.append(cassandra_variant)
             # sys.stdout.write("Saving data to Cassandra\n")
