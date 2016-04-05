@@ -123,7 +123,7 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
             report.write("Platypus_FILTER\tPlatypus_DP\tPlatypus_AD\t")
 
         if 'pindel' in callers:
-            report.write("Scalpel_FILTER\t")
+            report.write("Pindel_FILTER\t")
 
         report.write("\n")
 
