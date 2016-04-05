@@ -133,7 +133,7 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
                 report.write("{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t{codon}\t{aa}\t{rsids}\t"
                              "{info_clin}\t{info_maf}\t{cosmic}\t{csig}\t{cpath}\t{hgvs}\t{cdis}\t{crev}\t{corigin}\t"
                              "{cacc}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t{in_clin}\t{is_path}\t{is_code}\t"
-                             "{is_splice}\t{is_lof}\t{max_maf_all}\t{max_maf_no_fin}\t{callers}\t{max_som_aaf}\t"
+                             "{is_splice}\t{is_lof}\t{max_maf_all}\t{max_maf_no_fin}\t{max_som_aaf}\t{callers}\t"
                              "{mfilter}\t{mdp}\t{mad}\t{vfilter}\t{vdp}\t{vad}\t{vaf}\t{ffilter}\t{fdp}\t{faf}\t{fro}\t"
                              "{fao}\t{sfilter}\t"
                              "{sdp}\t{sad}\t{plfilter}\t{plad}\t{pldp}\t{pfilter}"
