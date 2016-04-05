@@ -149,7 +149,8 @@ if __name__ == "__main__":
             for caller in cassandra_variant['callers']:
                 cassandra_variant[caller] = parse_functions[caller](caller_vcf_records[caller][key])
                 # CyVCF2 parsing not yet working for parsing the format fields properly to get pindel's depth
-                if caller is not 'pindel':
+                if caller != 'pindel':
+                    # sys.stdout.write("*{}*\n".format(caller))
                     if float(cassandra_variant[caller]['AAF']) > max_som_aaf:
                         max_som_aaf = float(cassandra_variant[caller]['AAF'])
                     if int(cassandra_variant[caller]['DP']) < min_depth:
