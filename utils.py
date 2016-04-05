@@ -105,7 +105,7 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
                      "Clin_Sig\tClin_Pathogenic\tClin_HGVS\tClin_Disease\tClin_Rev\tClin_Origin\tClin_Acc\t"
                      "Biotype\tImpact\tImpact SO\tSeverity\t"
                      "in_clinvar\tis_pathogenic\tis_coding\tis_splicing\tis_lof\tmax_maf_all\tmax_maf_no_fin\t"
-                     "max_somatic_aaf\tCallers\t")
+                     "max_somatic_aaf\tmin_depth\tmax_depth\tCallers\t")
 
         if 'mutect' in callers:
             report.write("MuTect_FILTER\tMuTect_DP\tMuTect_AD\t")
@@ -133,10 +133,10 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
                 report.write("{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t{codon}\t{aa}\t{rsids}\t"
                              "{info_clin}\t{info_maf}\t{cosmic}\t{csig}\t{cpath}\t{hgvs}\t{cdis}\t{crev}\t{corigin}\t"
                              "{cacc}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t{in_clin}\t{is_path}\t{is_code}\t"
-                             "{is_splice}\t{is_lof}\t{max_maf_all}\t{max_maf_no_fin}\t{max_som_aaf}\t{callers}\t"
-                             "{mfilter}\t{mdp}\t{mad}\t{vfilter}\t{vdp}\t{vad}\t{vaf}\t{ffilter}\t{fdp}\t{faf}\t{fro}\t"
-                             "{fao}\t{sfilter}\t"
-                             "{sdp}\t{sad}\t{plfilter}\t{plad}\t{pldp}\t{pfilter}"
+                             "{is_splice}\t{is_lof}\t{max_maf_all}\t{max_maf_no_fin}\t{max_som_aaf}\t{min_depth}\t"
+                             "{max_depth}\t{callers}\t{mfilter}\t{mdp}\t{mad}\t{vfilter}\t{vdp}\t{vad}\t{vaf}\t"
+                             "{ffilter}\t{fdp}\t{faf}\t{fro}\t{fao}\t{sfilter}\t{sdp}\t{sad}\t{plfilter}\t{plad}\t"
+                             "{pldp}\t{pfilter}"
                              "\n".format(chr=variant.chr, start=variant.pos, end=variant.end,
                                          gene=variant.gene, ref=variant.ref, alt=variant.alt, exon=variant.exon,
                                          codon=variant.codon_change, aa=variant.aa_change,
@@ -158,6 +158,8 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
                                          max_maf_all=variant.max_maf_all,
                                          max_maf_no_fin=variant.max_maf_no_fin,
                                          max_som_aaf=variant.max_som_aaf,
+                                         min_depth=variant.min_depth,
+                                         max_depth=variant.max_depth,
                                          callers=",".join(variant.callers),
                                          mfilter=variant.mutect.get('FILTER') or None,
                                          mdp=variant.mutect.get('GTF_DP') or None,
