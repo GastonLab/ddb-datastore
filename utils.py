@@ -108,7 +108,7 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
                      "max_somatic_aaf\tmin_depth\tmax_depth\tCallers\t")
 
         if 'mutect' in callers:
-            report.write("MuTect_FILTER\tMuTect_DP\tMuTect_AD\t")
+            report.write("MuTect_FILTER\tMuTect_DP\tMuTect_AD\tMuTect_AF\t")
 
         if 'vardict' in callers:
             report.write("VarDict_FILTER\tVarDict_DP\tVarDict_AD\tVarDict_AF\t")
@@ -117,13 +117,13 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
             report.write("FreeBayes_FILTER\tFreeBayes_DP\tFreeBayes_AF\tFreeBayes_RO\tFreeBayes_AO\t")
 
         if 'scalpel' in callers:
-            report.write("Scalpel_FILTER\tScalpel_DP\tScalpel_AD\t")
+            report.write("Scalpel_FILTER\tScalpel_DP\tScalpel_AD\tScalpel_AF\t")
 
         if 'platypus' in callers:
-            report.write("Platypus_FILTER\tPlatypus_DP\tPlatypus_AD\t")
+            report.write("Platypus_FILTER\tPlatypus_DP\tPlatypus_AD\tPlatypus_AF\t")
 
         if 'pindel' in callers:
-            report.write("Pindel_FILTER\t")
+            report.write("Pindel_FILTER\tPindel_DP\tPindel_AD\tPindel_AF")
 
         report.write("\n")
 
@@ -134,9 +134,9 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
                              "{info_clin}\t{info_maf}\t{cosmic}\t{csig}\t{cpath}\t{hgvs}\t{cdis}\t{crev}\t{corigin}\t"
                              "{cacc}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t{in_clin}\t{is_path}\t{is_code}\t"
                              "{is_splice}\t{is_lof}\t{max_maf_all}\t{max_maf_no_fin}\t{max_som_aaf}\t{min_depth}\t"
-                             "{max_depth}\t{callers}\t{mfilter}\t{mdp}\t{mad}\t{vfilter}\t{vdp}\t{vad}\t{vaf}\t"
-                             "{ffilter}\t{fdp}\t{faf}\t{fro}\t{fao}\t{sfilter}\t{sdp}\t{sad}\t{plfilter}\t{plad}\t"
-                             "{pldp}\t{pfilter}"
+                             "{max_depth}\t{callers}\t{mfilter}\t{mdp}\t{mad}\t{maf}\t{vfilter}\t{vdp}\t{vad}\t{vaf}\t"
+                             "{ffilter}\t{fdp}\t{faf}\t{fro}\t{fao}\t{sfilter}\t{sdp}\t{sad}\t{saf}\t{plfilter}\t"
+                             "{pldp}\t{plad}\t{plaf}\t{pfilter}\t{pdp}\t{pad}\t{paf}"
                              "\n".format(chr=variant.chr, start=variant.pos, end=variant.end,
                                          gene=variant.gene, ref=variant.ref, alt=variant.alt, exon=variant.exon,
                                          codon=variant.codon_change, aa=variant.aa_change,
@@ -164,19 +164,25 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
                                          mfilter=variant.mutect.get('FILTER') or None,
                                          mdp=variant.mutect.get('GTF_DP') or None,
                                          mad=variant.mutect.get('GTF_AD') or None,
+                                         maf=variant.mutect.get('AAF') or None,
                                          vfilter=variant.vardict.get('FILTER') or None,
                                          vdp=variant.vardict.get('DP') or None,
                                          vad=variant.vardict.get('AD') or None,
-                                         vaf=variant.vardict.get('AF') or None,
+                                         vaf=variant.vardict.get('AAF') or None,
                                          ffilter=variant.freebayes.get('FILTER') or None,
                                          fdp=variant.freebayes.get('DP') or None,
-                                         faf=variant.freebayes.get('AF') or None,
+                                         faf=variant.freebayes.get('AAF') or None,
                                          fro=variant.freebayes.get('RO') or None,
                                          fao=variant.freebayes.get('AO') or None,
                                          sfilter=variant.scalpel.get('FILTER') or None,
                                          sdp=variant.scalpel.get('GTF_DP') or None,
                                          sad=variant.scalpel.get('GTF_AD') or None,
+                                         saf=variant.scalpel.get('AAF') or None,
                                          plfilter=variant.platypus.get('FILTER') or None,
                                          plad=variant.platypus.get('TR'),
                                          pldp=variant.platypus.get('TC'),
-                                         pfilter=variant.pindel.get('FILTER')))
+                                         plaf=variant.platypus.get('AAF') or None,
+                                         pfilter=variant.pindel.get('FILTER'),
+                                         pdp=variant.pindel.get('DP'),
+                                         pad=variant.pindel.get('GTF_AD'),
+                                         paf=variant.pindel.get('AAF')))
