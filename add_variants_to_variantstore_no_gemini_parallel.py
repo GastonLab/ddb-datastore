@@ -110,9 +110,10 @@ def process_variant(variant, caller_vcf_records):
     cassandra_variant['min_depth'] = min_depth
     cassandra_variant['max_depth'] = max_depth
 
-    report_variants.append(cassandra_variant)
     # sys.stdout.write("Saving data to Cassandra\n")
     cassandra_variant.save()
+
+    return cassandra_variant
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -163,16 +164,16 @@ if __name__ == "__main__":
         desc = reader["ANN"]["Description"]
         annotation_keys = [x.strip("\"'") for x in re.split("\s*\|\s*", desc.split(":", 1)[1].strip('" '))]
 
-        report_variants = list()
-
         sys.stdout.write("Setting up multiprocessing pool\n")
         pool = Pool(processes=int(args.num_cpus))
+        arguments = list()
 
         # Filter out variants with minor allele frequencies above the threshold but
         # retain any that are above the threshold but in COSMIC or in ClinVar and not listed as benign.
         sys.stdout.write("Processing individual variants\n")
         for record in vcf:
-            pool.apply_async(process_variant, args=(record, caller_records))
+            arguments.append((record, caller_records))
+        report_variants = pool.map(process_variant, arguments)
 
         sys.stdout.write("Outputting variants to report\n")
         if args.report:
