@@ -2,11 +2,15 @@
 
 import re
 import sys
+import dill
+import logging
 import argparse
 import utils
 import cyvcf2
+import multiprocess
 
-from multiprocessing import Pool
+from multiprocess import Pool
+# from multiprocessing import Pool
 from cyvcf2 import VCF
 from datetime import datetime
 from collections import defaultdict
@@ -17,11 +21,16 @@ from ddb import configuration
 from ddb import vcf_parsing
 
 
-def process_variant(variant, caller_vcf_records):
+def process_variant(arguments):
+    variant, caller_vcf_records, logger = arguments
     effects = utils.get_effects(variant, annotation_keys)
     top_impact = utils.get_top_impact(effects)
 
-    genes_list = utils.get_genes(effects)
+    try:
+        variant.INFO.get('type')
+    except:
+        logger.info("Variant: {}\n".format(variant))
+        sys.exit()
 
     cassandra_variant = Variant(reference_genome=config['genome_version'],
                                 chr=variant.CHROM,
@@ -49,7 +58,6 @@ def process_variant(variant, caller_vcf_records):
                                 impact_so=top_impact.so,
                                 max_maf_all=variant.INFO.get('max_aaf_all') or -1,
                                 max_maf_no_fin=variant.INFO.get('max_aaf_no_fin') or -1,
-                                # genes=utils.get_genes(effects),
                                 transcripts_data=utils.get_transcript_effects(effects),
                                 clinvar_data=utils.get_clinvar_info(variant),
                                 cosmic_data=utils.get_cosmic_info(variant),
@@ -124,6 +132,13 @@ if __name__ == "__main__":
     parser.add_argument('-n', '--num_cpus', help="Number of CPUs to use in multiprocessing")
     args = parser.parse_args()
 
+    multiprocess.log_to_stderr()
+    logger = multiprocess.get_logger()
+    logger.setLevel(logging.INFO)
+
+    fh = logging.FileHandler('stderr.log')
+    logger.addHandler(fh)
+
     sys.stdout.write("Parsing configuration data\n")
     config = configuration.configure_runtime(args.configuration)
 
@@ -172,8 +187,12 @@ if __name__ == "__main__":
         # retain any that are above the threshold but in COSMIC or in ClinVar and not listed as benign.
         sys.stdout.write("Processing individual variants\n")
         for record in vcf:
-            arguments.append((record, caller_records))
-        report_variants = pool.map(process_variant, arguments)
+            arguments.append((record, caller_records, logger))
+
+        result = pool.map_async(process_variant, arguments)
+        report_variants = result.get()
+        pool.close()
+        pool.join()
 
         sys.stdout.write("Outputting variants to report\n")
         if args.report:
