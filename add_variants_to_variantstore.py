@@ -27,7 +27,7 @@ if __name__ == "__main__":
     parser.add_argument('-r', '--report', help="Root name for reports (per sample)")
     parser.add_argument('-v', '--variant_callers', help="Comma-delimited list of variant callers used")
     parser.add_argument('-n', '--num_cpus', help="Number of CPUs to use in multiprocessing")
-    parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.01.1')
+    parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
     args = parser.parse_args()
 
     sys.stdout.write("Parsing configuration data\n")
