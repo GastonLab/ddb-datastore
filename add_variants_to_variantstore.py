@@ -71,6 +71,7 @@ if __name__ == "__main__":
         annotation_keys = [x.strip("\"'") for x in re.split("\s*\|\s*", desc.split(":", 1)[1].strip('" '))]
 
         report_variants = list()
+        passed = 0
 
         # Filter out variants with minor allele frequencies above the threshold but
         # retain any that are above the threshold but in COSMIC or in ClinVar and not listed as benign.
@@ -172,7 +173,6 @@ if __name__ == "__main__":
                     manta=caller_variant_data_dicts['manta'] or dict(),
                     )
 
-            passed = 0
             flag, info = utils.variant_filter(cassandra_variant, callers, thresholds)
             if cassandra_variant.max_som_aaf >= thresholds['min_saf']:
                 passed += 1
