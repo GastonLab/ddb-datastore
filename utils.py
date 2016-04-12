@@ -68,18 +68,8 @@ def get_cosmic_info(variant):
 
 
 def variant_filter(variant, callers, thresholds):
-    in_region = False
     flag = False
     info = dict()
-
-    if 'regions' in thresholds:
-        regions = BedTool(thresholds['regions'])
-        variant_coord = BedTool("{} {} {}".format(variant.chr, variant.pos, variant.end), from_string=True)
-        intersections = variant_coord.intersect(regions)
-        if len(intersections) > 0:
-            in_region = True
-    else:
-        in_region = True
 
     if variant.clinvar_data['significance'] is 'None':
         flag = True
@@ -96,10 +86,10 @@ def variant_filter(variant, callers, thresholds):
     else:
         info['max_maf'] = "Common"
 
-    return flag, in_region, info
+    return flag, info
 
 
-def write_sample_variant_report(report_root, sample, variants, callers, thresholds, flag, info):
+def write_sample_variant_report(report_root, sample, variants, callers, thresholds):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
         report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\tClinvar_Flag\tAAF_Flag\tCOSMIC IDs\t"
                      "Clin_Sig\tClin_Pathogenic\tClin_HGVS\tClin_Disease\tClin_Rev\tClin_Origin\tClin_Acc\t"

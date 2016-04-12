@@ -35,12 +35,12 @@ if __name__ == "__main__":
     parser.add_argument('-n', '--num_cpus', help="Number of CPUs to use in multiprocessing")
     args = parser.parse_args()
 
-    multiprocess.log_to_stderr()
-    logger = multiprocess.get_logger()
-    logger.setLevel(logging.INFO)
-
-    fh = logging.FileHandler('stderr.log')
-    logger.addHandler(fh)
+    # multiprocess.log_to_stderr()
+    # logger = multiprocess.get_logger()
+    # logger.setLevel(logging.INFO)
+    #
+    # fh = logging.FileHandler('stderr.log')
+    # logger.addHandler(fh)
 
     sys.stdout.write("Parsing configuration data\n")
     config = configuration.configure_runtime(args.configuration)
@@ -87,7 +87,7 @@ if __name__ == "__main__":
         # arguments = list()
 
         report_variants = list()
-        b = BatchQuery()
+        # b = BatchQuery()
 
         # Filter out variants with minor allele frequencies above the threshold but
         # retain any that are above the threshold but in COSMIC or in ClinVar and not listed as benign.
@@ -189,10 +189,12 @@ if __name__ == "__main__":
                     manta=caller_variant_data_dicts['manta'] or dict(),
                     )
 
-            flag, in_region, info = utils.variant_filter(variant, callers, thresholds)
-            if in_region:
+            passed = 0
+            flag, info = utils.variant_filter(cassandra_variant, callers, thresholds)
+            if cassandra_variant.max_som_aaf >= thresholds['min_saf']:
+                passed += 1
                 report_variants.append((cassandra_variant, flag, info))
 
-        sys.stdout.write("Outputting variants to report\n")
+        sys.stdout.write("Outputting {} variants to report\n".format(passed))
         if args.report:
             utils.write_sample_variant_report(args.report, sample, report_variants, args.variant_callers, thresholds)
