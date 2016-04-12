@@ -1,46 +1,47 @@
 #!/usr/bin/env python
 
+import re
 import sys
+import dill
+import logging
 import argparse
+import utils
+import cyvcf2
+import multiprocess
 
+from multiprocess import Pool
+# from multiprocessing import Pool
+from cyvcf2 import VCF
 from datetime import datetime
-from gemini import GeminiQuery
 from collections import defaultdict
 from cassandra.cqlengine import connection
+from cassandra.cqlengine.query import BatchQuery
 
 from variantstore import Variant
-from ddb import gemini_interface
 from ddb import configuration
 from ddb import vcf_parsing
 
 
-def gemini_query(database):
-    query = "SELECT chrom, start, end, ref, alt, vcf_id, rs_ids, cosmic_ids, filter, qual, qual_depth, depth, " \
-            "type, sub_type, " \
-            "gene, transcript, exon, codon_change, aa_change, biotype, impact, impact_so, impact_severity, " \
-            "aa_length, is_lof, is_conserved, pfam_domain, in_omim, clinvar_sig, clinvar_disease_name, " \
-            "is_exonic, is_coding, is_splicing, " \
-            "clinvar_origin, clinvar_causal_allele, clinvar_dbsource, clinvar_dbsource_id, " \
-            "clinvar_on_diag_assay, rmsk, in_segdup, strand_bias, rms_map_qual, in_hom_run, num_mapq_zero, " \
-            "num_reads_w_dels, grc, gms_illumina, in_cse, num_alleles, allele_count, haplotype_score, " \
-            "is_somatic, somatic_score, aaf_esp_ea, aaf_esp_aa, aaf_esp_all, aaf_1kg_amr, " \
-            "aaf_1kg_eas, aaf_1kg_sas, aaf_1kg_afr, aaf_1kg_eur, aaf_1kg_all, aaf_exac_all, aaf_adj_exac_all, " \
-            "aaf_adj_exac_afr, aaf_adj_exac_amr, aaf_adj_exac_eas, aaf_adj_exac_fin, aaf_adj_exac_nfe, " \
-            "aaf_adj_exac_oth, aaf_adj_exac_sas, max_aaf_all, in_esp, in_1kg, in_exac, info," \
-            "(gts).(*), (gt_depths).(*), (gt_ref_depths).(*), (gt_alt_depths).(*) FROM variants"
-
-    sys.stdout.write("Running GEMINI query\n")
-    gq = GeminiQuery(samples[sample]['db'])
-    gq.run(query)
-
-    return gq
+def process_variant(arguments):
+    pass
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--samples_file', help="Input configuration file for samples")
     parser.add_argument('-c', '--configuration', help="Configuration file for various settings")
+    parser.add_argument('-r', '--report', help="Root name for reports (per sample)")
+    parser.add_argument('-v', '--variant_callers', help="Comma-delimited list of variant callers used")
+    parser.add_argument('-n', '--num_cpus', help="Number of CPUs to use in multiprocessing")
+    parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.01.1')
     args = parser.parse_args()
+
+    # multiprocess.log_to_stderr()
+    # logger = multiprocess.get_logger()
+    # logger.setLevel(logging.INFO)
+    #
+    # fh = logging.FileHandler('stderr.log')
+    # logger.addHandler(fh)
 
     sys.stdout.write("Parsing configuration data\n")
     config = configuration.configure_runtime(args.configuration)
@@ -48,92 +49,153 @@ if __name__ == "__main__":
     sys.stdout.write("Parsing sample data\n")
     samples = configuration.configure_samples(args.samples_file, config)
 
-    connection.setup(['127.0.0.1'], "variantstore")
+    connection.setup([args.address], "variantstore")
+
+    parse_functions = {'mutect': vcf_parsing.parse_mutect_vcf_record,
+                       'freebayes': vcf_parsing.parse_freebayes_vcf_record,
+                       'vardict': vcf_parsing.parse_vardict_vcf_record,
+                       'scalpel': vcf_parsing.parse_scalpel_vcf_record,
+                       'platypus': vcf_parsing.parse_platypus_vcf_record,
+                       'pindel': vcf_parsing.parse_pindel_vcf_record}
+
+    thresholds = {'min_saf': 0.01,
+                  'max_maf': 0.01,
+                  'regions': config['actionable_regions']}
 
     for sample in samples:
-        gq = gemini_query(samples[sample]['db'])
+        caller_records = defaultdict(lambda: dict())
 
-        caller_vcf_records = defaultdict(lambda: dict())
+        sys.stdout.write("Parsing Caller VCF Files")
+        vcf_parsing.parse_vcf("{}.mutect.normalized.vcf".format(sample), "mutect", caller_records)
+        vcf_parsing.parse_vcf("{}.vardict.normalized.vcf".format(sample), "vardict", caller_records)
+        vcf_parsing.parse_vcf("{}.freebayes.normalized.vcf".format(sample), "freebayes", caller_records)
+        vcf_parsing.parse_vcf("{}.scalpel.normalized.vcf".format(sample), "scalpel", caller_records)
+        vcf_parsing.parse_vcf("{}.platypus.normalized.vcf".format(sample), "platypus", caller_records)
+        vcf_parsing.parse_vcf("{}.pindel.normalized.vcf".format(sample), "pindel", caller_records)
 
-        vcf_parsing.parse_vcf(samples[sample]['mutect'], "mutect", caller_vcf_records)
-        vcf_parsing.parse_vcf(samples[sample]['vardict'], "vardict", caller_vcf_records)
-        vcf_parsing.parse_vcf(samples[sample]['freebayes'], "freebayes", caller_vcf_records)
-        vcf_parsing.parse_vcf(samples[sample]['scalpel'], "scalpel", caller_vcf_records)
+        annotated_vcf = "{}.vcfanno.snpEff.GRCh37.75.vcf".format(sample)
+
+        sys.stdout.write("Parsing VCFAnno VCF\n")
+        vcf = VCF(annotated_vcf)
+
+        sys.stdout.write("Parsing VCFAnno VCF with CyVCF2\n")
+        reader = cyvcf2.VCFReader(annotated_vcf)
+        desc = reader["ANN"]["Description"]
+        annotation_keys = [x.strip("\"'") for x in re.split("\s*\|\s*", desc.split(":", 1)[1].strip('" '))]
+
+        # sys.stdout.write("Setting up multiprocessing pool\n")
+        # pool = Pool(processes=int(args.num_cpus))
+        # arguments = list()
+
+        report_variants = list()
+        # b = BatchQuery()
 
         # Filter out variants with minor allele frequencies above the threshold but
         # retain any that are above the threshold but in COSMIC or in ClinVar and not listed as benign.
-        for variant_data in gq:
-            cassandra_variant = Variant(chr=variant_data['chrom'],
-                                        start=variant_data['start'],
-                                        end=variant_data['end'],
-                                        ref=variant_data['ref'],
-                                        alt=variant_data['alt'],
-                                        sample=samples[sample]['sample_name'],
-                                        extraction=samples[sample]['extraction'],
-                                        library_name=sample,
-                                        panel_name=samples[sample]['panel'],
-                                        target_pool=samples[sample]['target_pool'],
-                                        rs_id=variant_data['vcf_id'],
-                                        reference_genome=config['genome_version'],
-                                        date_annotated=datetime.now(),
-                                        subtype=variant_data['sub_type'],
-                                        type=variant_data['type'],
-                                        gene=variant_data['gene'],
-                                        max_aaf_no_fin=variant_data['max_aaf_all'],
-                                        transcript=variant_data['transcript'],
-                                        exon=variant_data['exon'],
-                                        codon_change=variant_data['codon_change'],
-                                        biotype=variant_data['biotype'],
-                                        aa_change=variant_data['aa_change'],
-                                        impact=variant_data['impact'],
-                                        impact_so=variant_data['impact_so'])
+        sys.stdout.write("Processing individual variants\n")
+        for variant in vcf:
+            # Parsing VCF and creating data structures for Cassandra model
+            callers = variant.INFO.get('CALLERS').split(',')
+            effects = utils.get_effects(variant, annotation_keys)
+            top_impact = utils.get_top_impact(effects)
 
-            cassandra_variant['in_clinvar'] = gemini_interface.var_is_in_clinvar(variant_data)
-            cassandra_variant['in_cosmic'] = gemini_interface.var_is_in_cosmic(variant_data)
-            cassandra_variant['is_pathogenic'] = gemini_interface.var_is_pathogenic(variant_data)
-            cassandra_variant['is_lof'] = gemini_interface.var_is_lof(variant_data)
-            cassandra_variant['is_coding'] = gemini_interface.var_is_coding(variant_data)
-            cassandra_variant['is_splicing'] = gemini_interface.var_is_splicing(variant_data)
-            cassandra_variant['rs_ids'] = gemini_interface.parse_rs_ids(variant_data)
-            cassandra_variant['cosmic_ids'] = gemini_interface.parse_cosmic_ids(variant_data)
+            population_freqs = {'esp_ea': variant.INFO.get('aaf_esp_ea') or -1,
+                                'esp_aa': variant.INFO.get('aaf_esp_aa') or -1,
+                                'esp_all': variant.INFO.get('aaf_esp_all') or -1,
+                                '1kg_amr': variant.INFO.get('aaf_1kg_amr') or -1,
+                                '1kg_eas': variant.INFO.get('aaf_1kg_eas') or -1,
+                                '1kg_sas': variant.INFO.get('aaf_1kg_sas') or -1,
+                                '1kg_afr': variant.INFO.get('aaf_1kg_afr') or -1,
+                                '1kg_eur': variant.INFO.get('aaf_1kg_eur') or -1,
+                                '1kg_all': variant.INFO.get('aaf_1kg_all') or -1,
+                                'exac_all': variant.INFO.get('aaf_exac_all') or -1,
+                                'adj_exac_all': variant.INFO.get('aaf_adj_exac_all') or -1,
+                                'adj_exac_afr': variant.INFO.get('aaf_adj_exac_afr') or -1,
+                                'adj_exac_amr': variant.INFO.get('aaf_adj_exac_amr') or -1,
+                                'adj_exac_eas': variant.INFO.get('aaf_adj_exac_eas') or -1,
+                                'adj_exac_fin': variant.INFO.get('aaf_adj_exac_fin') or -1,
+                                'adj_exac_nfe': variant.INFO.get('aaf_adj_exac_nfe') or -1,
+                                'adj_exac_oth': variant.INFO.get('aaf_adj_exac_oth') or -1,
+                                'adj_exac_sas': variant.INFO.get('aaf_adj_exac_sas') or -1}
 
-            if variant_data['info']['CALLERS'] is not None:
-                cassandra_variant['callers'] = variant_data['info']['CALLERS'].split(',')
+            key = (unicode("chr{}".format(variant.CHROM)), int(variant.start), int(variant.end), unicode(variant.REF),
+                   unicode(variant.ALT[0]))
+            caller_variant_data_dicts = defaultdict(dict)
+            max_som_aaf = -1.00
+            max_depth = -1
+            min_depth = 100000000
 
-            population_freqs = {'esp_ea': variant_data['aaf_esp_ea'],
-                                'esp_aa': variant_data['aaf_esp_aa'],
-                                'esp_all': variant_data['aaf_esp_all'],
-                                '1kg_amr': variant_data['aaf_1kg_amr'],
-                                '1kg_eas': variant_data['aaf_1kg_eas'],
-                                '1kg_sas': variant_data['aaf_1kg_sas'],
-                                '1kg_afr': variant_data['aaf_1kg_afr'],
-                                '1kg_eur': variant_data['aaf_1kg_eur'],
-                                '1kg_all': variant_data['aaf_1kg_all'],
-                                'exac_all': variant_data['aaf_exac_all'],
-                                'adj_exac_all': variant_data['aaf_adj_exac_all'],
-                                'adj_exac_afr': variant_data['aaf_adj_exac_afr'],
-                                'adj_exac_amr': variant_data['aaf_adj_exac_amr'],
-                                'adj_exac_eas': variant_data['aaf_adj_exac_eas'],
-                                'adj_exac_fin': variant_data['aaf_adj_exac_fin'],
-                                'adj_exac_nfe': variant_data['aaf_adj_exac_nfe'],
-                                'adj_exac_oth': variant_data['aaf_adj_exac_oth'],
-                                'adj_exac_sas': variant_data['aaf_adj_exac_sas']}
+            for caller in callers:
+                caller_variant_data_dicts[caller] = parse_functions[caller](caller_records[caller][key])
+                if float(caller_variant_data_dicts[caller]['AAF']) > max_som_aaf:
+                    max_som_aaf = float(caller_variant_data_dicts[caller]['AAF'])
+                if int(caller_variant_data_dicts[caller]['DP']) < min_depth:
+                    min_depth = int(caller_variant_data_dicts[caller]['DP'])
+                if int(caller_variant_data_dicts[caller]['DP']) > max_depth:
+                    max_depth = int(caller_variant_data_dicts[caller]['DP'])
 
-            cassandra_variant['population_freqs'] = population_freqs
+            if min_depth == 100000000:
+                min_depth = -1
 
-            key = (variant_data['chrom'], variant_data['start'], variant_data['end'], variant_data['ref'],
-                   variant_data['alt'])
+            # Create Cassandra Object
+            cassandra_variant = Variant.create(
+                    reference_genome=config['genome_version'],
+                    chr=variant.CHROM,
+                    pos=variant.start,
+                    end=variant.end,
+                    ref=variant.REF,
+                    alt=variant.ALT[0],
+                    sample=samples[sample]['sample_name'],
+                    extraction=samples[sample]['extraction'],
+                    library_name=sample,
+                    panel_name=samples[sample]['panel'],
+                    target_pool=samples[sample]['target_pool'],
+                    rs_id=variant.ID,
+                    date_annotated=datetime.now(),
+                    subtype=variant.INFO.get('sub_type'),
+                    type=variant.INFO.get('type'),
+                    gene=top_impact.gene,
+                    transcript=top_impact.transcript,
+                    exon=top_impact.exon,
+                    codon_change=top_impact.codon_change,
+                    biotype=top_impact.biotype,
+                    aa_change=top_impact.aa_change,
+                    severity=top_impact.effect_severity,
+                    impact=top_impact.top_consequence,
+                    impact_so=top_impact.so,
+                    max_maf_all=variant.INFO.get('max_aaf_all') or -1,
+                    max_maf_no_fin=variant.INFO.get('max_aaf_no_fin') or -1,
+                    transcripts_data=utils.get_transcript_effects(effects),
+                    clinvar_data=utils.get_clinvar_info(variant),
+                    cosmic_data=utils.get_cosmic_info(variant),
+                    in_clinvar=vcf_parsing.var_is_in_clinvar(variant),
+                    in_cosmic=vcf_parsing.var_is_in_cosmic(variant),
+                    is_pathogenic=vcf_parsing.var_is_pathogenic(variant),
+                    is_lof=vcf_parsing.var_is_lof(variant),
+                    is_coding=vcf_parsing.var_is_coding(variant),
+                    is_splicing=vcf_parsing.var_is_splicing(variant),
+                    rs_ids=vcf_parsing.parse_rs_ids(variant),
+                    cosmic_ids=vcf_parsing.parse_cosmic_ids(variant),
+                    callers=callers,
+                    population_freqs=population_freqs,
+                    max_som_aaf=max_som_aaf,
+                    min_depth=min_depth,
+                    max_depth=max_depth,
+                    mutect=caller_variant_data_dicts['mutect'] or dict(),
+                    freebayes=caller_variant_data_dicts['freebayes'] or dict(),
+                    scalpel=caller_variant_data_dicts['scalpel'] or dict(),
+                    platypus=caller_variant_data_dicts['platypus'] or dict(),
+                    pindel=caller_variant_data_dicts['pindel'] or dict(),
+                    vardict=caller_variant_data_dicts['vardict'] or dict(),
+                    manta=caller_variant_data_dicts['manta'] or dict(),
+                    )
 
-            if 'mutect' in variant_data['info']['CALLERS']:
-                cassandra_variant['mutect'] = vcf_parsing.parse_mutect_vcf_record(caller_vcf_records['mutect'][key])
+            passed = 0
+            flag, info = utils.variant_filter(cassandra_variant, callers, thresholds)
+            if cassandra_variant.max_som_aaf >= thresholds['min_saf']:
+                passed += 1
+                report_variants.append((cassandra_variant, flag, info))
 
-            if 'vardict' in variant_data['info']['CALLERS']:
-                cassandra_variant['vardict'] = vcf_parsing.parse_vardict_vcf_record(caller_vcf_records['vardict'][key])
-
-            if 'freebayes' in variant_data['info']['CALLERS']:
-                cassandra_variant['freebayes'] = vcf_parsing.parse_vardict_vcf_record(caller_vcf_records['freebayes'][key])
-
-            if 'scalpel' in variant_data['info']['CALLERS']:
-                cassandra_variant['scalpel'] = vcf_parsing.parse_vardict_vcf_record(caller_vcf_records['scalpel'][key])
-
-            cassandra_variant.save()
+        sys.stdout.write("Outputting {} variants to report\n".format(passed))
+        if args.report:
+            utils.write_sample_variant_report(args.report, sample, report_variants, args.variant_callers, thresholds)
