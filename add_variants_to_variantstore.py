@@ -2,20 +2,14 @@
 
 import re
 import sys
-import dill
-import logging
 import argparse
 import utils
 import cyvcf2
-import multiprocess
 
-from multiprocess import Pool
-# from multiprocessing import Pool
 from cyvcf2 import VCF
 from datetime import datetime
 from collections import defaultdict
 from cassandra.cqlengine import connection
-from cassandra.cqlengine.query import BatchQuery
 
 from variantstore import Variant
 from ddb import configuration
