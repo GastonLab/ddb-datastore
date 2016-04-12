@@ -30,13 +30,6 @@ if __name__ == "__main__":
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.01.1')
     args = parser.parse_args()
 
-    # multiprocess.log_to_stderr()
-    # logger = multiprocess.get_logger()
-    # logger.setLevel(logging.INFO)
-    #
-    # fh = logging.FileHandler('stderr.log')
-    # logger.addHandler(fh)
-
     sys.stdout.write("Parsing configuration data\n")
     config = configuration.configure_runtime(args.configuration)
 
@@ -77,12 +70,7 @@ if __name__ == "__main__":
         desc = reader["ANN"]["Description"]
         annotation_keys = [x.strip("\"'") for x in re.split("\s*\|\s*", desc.split(":", 1)[1].strip('" '))]
 
-        # sys.stdout.write("Setting up multiprocessing pool\n")
-        # pool = Pool(processes=int(args.num_cpus))
-        # arguments = list()
-
         report_variants = list()
-        # b = BatchQuery()
 
         # Filter out variants with minor allele frequencies above the threshold but
         # retain any that are above the threshold but in COSMIC or in ClinVar and not listed as benign.
