@@ -12,12 +12,12 @@ class Variant(Model):
     alt = columns.Text(primary_key=True)
 
     # Sample and Panel/Run Level data annotations
-    sample = columns.Text(index=True)
-    library_name = columns.Text(index=True)
+    sample = columns.Text(index=True, primary_key=True)
+    library_name = columns.Text(index=True, primary_key=True)
+    date_annotated = columns.DateTime(index=True, primary_key=True)
     target_pool = columns.Text(index=True)
     panel_name = columns.Text(index=True)
     extraction = columns.Text(index=True)
-    date_annotated = columns.DateTime(index=True)
 
     # Simple Annotation Data
     end = columns.Integer()
