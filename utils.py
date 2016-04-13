@@ -98,22 +98,23 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
                      "max_somatic_aaf\tmin_depth\tmax_depth\tCallers\t")
 
         if 'mutect' in callers:
-            report.write("MuTect_FILTER\tMuTect_DP\tMuTect_AD\tMuTect_AF\t")
+            report.write("MuTect_FILTER\tMuTect_Multiallelic\tMuTect_DP\tMuTect_AD\tMuTect_AF\t")
 
         if 'vardict' in callers:
-            report.write("VarDict_FILTER\tVarDict_DP\tVarDict_AD\tVarDict_AF\t")
+            report.write("VarDict_FILTER\tVarDict_Multiallelic\tVarDict_DP\tVarDict_AD\tVarDict_AF\t")
 
         if 'freebayes' in callers:
-            report.write("FreeBayes_FILTER\tFreeBayes_DP\tFreeBayes_AF\tFreeBayes_RO\tFreeBayes_AO\t")
+            report.write("FreeBayes_FILTER\tFreeBayes_Multiallelic\tFreeBayes_DP\tFreeBayes_AF\tFreeBayes_RO\t"
+                         "FreeBayes_AO\t")
 
         if 'scalpel' in callers:
-            report.write("Scalpel_FILTER\tScalpel_DP\tScalpel_AD\tScalpel_AF\t")
+            report.write("Scalpel_FILTER\tScalpel_Multiallelic\tScalpel_DP\tScalpel_AD\tScalpel_AF\t")
 
         if 'platypus' in callers:
-            report.write("Platypus_FILTER\tPlatypus_DP\tPlatypus_AD\tPlatypus_AF\t")
+            report.write("Platypus_FILTER\tPlatypus_Multiallelic\tPlatypus_DP\tPlatypus_AD\tPlatypus_AF\t")
 
         if 'pindel' in callers:
-            report.write("Pindel_FILTER\tPindel_DP\tPindel_AD\tPindel_AF")
+            report.write("Pindel_FILTER\tPindel_Multiallelic\tPindel_DP\tPindel_AD\tPindel_AF")
 
         report.write("\n")
 
@@ -123,9 +124,10 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
                          "{info_clin}\t{info_maf}\t{cosmic}\t{csig}\t{cpath}\t{hgvs}\t{cdis}\t{crev}\t{corigin}\t"
                          "{cacc}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t{in_clin}\t{is_path}\t{is_code}\t"
                          "{is_splice}\t{is_lof}\t{max_maf_all}\t{max_maf_no_fin}\t{max_som_aaf}\t{min_depth}\t"
-                         "{max_depth}\t{callers}\t{mfilter}\t{mdp}\t{mad}\t{maf}\t{vfilter}\t{vdp}\t{vad}\t{vaf}\t"
-                         "{ffilter}\t{fdp}\t{faf}\t{fro}\t{fao}\t{sfilter}\t{sdp}\t{sad}\t{saf}\t{plfilter}\t"
-                         "{pldp}\t{plad}\t{plaf}\t{pfilter}\t{pdp}\t{pad}\t{paf}"
+                         "{max_depth}\t{callers}\t{mfilter}\t{mmulti}\t{mdp}\t{mad}\t{maf}\t{vfilter}\t{vmulti}\t"
+                         "{vdp}\t{vad}\t{vaf}\t{ffilter}\t{fmulti}\t{fdp}\t{faf}\t{fro}\t{fao}\t{sfilter}\t{smulti}\t"
+                         "{sdp}\t{sad}\t{saf}\t{plfilter}\t{plmulti}\t{pldp}\t{plad}\t{plaf}\t{pfilter}\t{pmulti}\t"
+                         "{pdp}\t{pad}\t{paf}"
                          "\n".format(chr=variant.chr, start=variant.pos, end=variant.end,
                                      gene=variant.gene, ref=variant.ref, alt=variant.alt, exon=variant.exon,
                                      codon=variant.codon_change, aa=variant.aa_change,
@@ -151,27 +153,33 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
                                      max_depth=variant.max_depth,
                                      callers=",".join(variant.callers),
                                      mfilter=variant.mutect.get('FILTER') or None,
+                                     mmulti=variant.mutect.get('MULTIALLELIC') or None,
                                      mdp=variant.mutect.get('GTF_DP') or None,
                                      mad=variant.mutect.get('GTF_AD') or None,
                                      maf=variant.mutect.get('AAF') or None,
                                      vfilter=variant.vardict.get('FILTER') or None,
+                                     vmulti=variant.vardict.get('MULTIALLELIC') or None,
                                      vdp=variant.vardict.get('DP') or None,
                                      vad=variant.vardict.get('AD') or None,
                                      vaf=variant.vardict.get('AAF') or None,
                                      ffilter=variant.freebayes.get('FILTER') or None,
+                                     fmulti=variant.freebayes.get('MULTIALLELIC') or None,
                                      fdp=variant.freebayes.get('DP') or None,
                                      faf=variant.freebayes.get('AAF') or None,
                                      fro=variant.freebayes.get('RO') or None,
                                      fao=variant.freebayes.get('AO') or None,
                                      sfilter=variant.scalpel.get('FILTER') or None,
+                                     smulti=variant.scalpel.get('MULTIALLELIC') or None,
                                      sdp=variant.scalpel.get('GTF_DP') or None,
                                      sad=variant.scalpel.get('GTF_AD') or None,
                                      saf=variant.scalpel.get('AAF') or None,
                                      plfilter=variant.platypus.get('FILTER') or None,
+                                     plmulti=variant.platypus.get('MULTIALLELIC') or None,
                                      plad=variant.platypus.get('TR') or None,
                                      pldp=variant.platypus.get('TC') or None,
                                      plaf=variant.platypus.get('AAF') or None,
                                      pfilter=variant.pindel.get('FILTER') or None,
+                                     pmulti=variant.pindel.get('MULTIALLELIC') or None,
                                      pdp=variant.pindel.get('DP') or None,
                                      pad=variant.pindel.get('GTF_AD') or None,
                                      paf=variant.pindel.get('AAF') or None))
