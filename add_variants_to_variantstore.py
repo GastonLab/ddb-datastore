@@ -109,7 +109,7 @@ if __name__ == "__main__":
             min_depth = 100000000
 
             for caller in callers:
-                caller_variant_data_dicts[caller] = parse_functions[caller](caller_records[caller][key], multi_allelic)
+                caller_variant_data_dicts[caller] = parse_functions[caller](caller_records[caller][key])
                 if float(caller_variant_data_dicts[caller]['AAF']) > max_som_aaf:
                     max_som_aaf = float(caller_variant_data_dicts[caller]['AAF'])
                 if int(caller_variant_data_dicts[caller]['DP']) < min_depth:
