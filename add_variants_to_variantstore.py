@@ -12,12 +12,36 @@ from collections import defaultdict
 from cassandra.cqlengine import connection
 
 from variantstore import Variant
+from variantstore import SampleVariant
 from ddb import configuration
 from ddb import vcf_parsing
 
 
 def process_variant(arguments):
     pass
+
+
+def get_population_freqs(variant):
+    freqs = {'esp_ea': variant.INFO.get('aaf_esp_ea') or -1,
+             'esp_aa': variant.INFO.get('aaf_esp_aa') or -1,
+             'esp_all': variant.INFO.get('aaf_esp_all') or -1,
+             '1kg_amr': variant.INFO.get('aaf_1kg_amr') or -1,
+             '1kg_eas': variant.INFO.get('aaf_1kg_eas') or -1,
+             '1kg_sas': variant.INFO.get('aaf_1kg_sas') or -1,
+             '1kg_afr': variant.INFO.get('aaf_1kg_afr') or -1,
+             '1kg_eur': variant.INFO.get('aaf_1kg_eur') or -1,
+             '1kg_all': variant.INFO.get('aaf_1kg_all') or -1,
+             'exac_all': variant.INFO.get('aaf_exac_all') or -1,
+             'adj_exac_all': variant.INFO.get('aaf_adj_exac_all') or -1,
+             'adj_exac_afr': variant.INFO.get('aaf_adj_exac_afr') or -1,
+             'adj_exac_amr': variant.INFO.get('aaf_adj_exac_amr') or -1,
+             'adj_exac_eas': variant.INFO.get('aaf_adj_exac_eas') or -1,
+             'adj_exac_fin': variant.INFO.get('aaf_adj_exac_fin') or -1,
+             'adj_exac_nfe': variant.INFO.get('aaf_adj_exac_nfe') or -1,
+             'adj_exac_oth': variant.INFO.get('aaf_adj_exac_oth') or -1,
+             'adj_exac_sas': variant.INFO.get('aaf_adj_exac_sas') or -1}
+
+    return freqs
 
 
 if __name__ == "__main__":
@@ -81,28 +105,11 @@ if __name__ == "__main__":
             callers = variant.INFO.get('CALLERS').split(',')
             effects = utils.get_effects(variant, annotation_keys)
             top_impact = utils.get_top_impact(effects)
-
-            population_freqs = {'esp_ea': variant.INFO.get('aaf_esp_ea') or -1,
-                                'esp_aa': variant.INFO.get('aaf_esp_aa') or -1,
-                                'esp_all': variant.INFO.get('aaf_esp_all') or -1,
-                                '1kg_amr': variant.INFO.get('aaf_1kg_amr') or -1,
-                                '1kg_eas': variant.INFO.get('aaf_1kg_eas') or -1,
-                                '1kg_sas': variant.INFO.get('aaf_1kg_sas') or -1,
-                                '1kg_afr': variant.INFO.get('aaf_1kg_afr') or -1,
-                                '1kg_eur': variant.INFO.get('aaf_1kg_eur') or -1,
-                                '1kg_all': variant.INFO.get('aaf_1kg_all') or -1,
-                                'exac_all': variant.INFO.get('aaf_exac_all') or -1,
-                                'adj_exac_all': variant.INFO.get('aaf_adj_exac_all') or -1,
-                                'adj_exac_afr': variant.INFO.get('aaf_adj_exac_afr') or -1,
-                                'adj_exac_amr': variant.INFO.get('aaf_adj_exac_amr') or -1,
-                                'adj_exac_eas': variant.INFO.get('aaf_adj_exac_eas') or -1,
-                                'adj_exac_fin': variant.INFO.get('aaf_adj_exac_fin') or -1,
-                                'adj_exac_nfe': variant.INFO.get('aaf_adj_exac_nfe') or -1,
-                                'adj_exac_oth': variant.INFO.get('aaf_adj_exac_oth') or -1,
-                                'adj_exac_sas': variant.INFO.get('aaf_adj_exac_sas') or -1}
+            population_freqs = get_population_freqs(variant)
 
             key = (unicode("chr{}".format(variant.CHROM)), int(variant.start), int(variant.end), unicode(variant.REF),
                    unicode(variant.ALT[0]))
+
             caller_variant_data_dicts = defaultdict(dict)
             max_som_aaf = -1.00
             max_depth = -1
@@ -120,7 +127,8 @@ if __name__ == "__main__":
             if min_depth == 100000000:
                 min_depth = -1
 
-            # Create Cassandra Object
+            # Create Cassandra Objects
+            # Create the general variant ordered table
             cassandra_variant = Variant.create(
                     reference_genome=config['genome_version'],
                     chr=variant.CHROM,
@@ -131,6 +139,59 @@ if __name__ == "__main__":
                     sample=samples[sample]['sample_name'],
                     extraction=samples[sample]['extraction'],
                     library_name=sample,
+                    panel_name=samples[sample]['panel'],
+                    target_pool=samples[sample]['target_pool'],
+                    rs_id=variant.ID,
+                    date_annotated=datetime.now(),
+                    subtype=variant.INFO.get('sub_type'),
+                    type=variant.INFO.get('type'),
+                    gene=top_impact.gene,
+                    transcript=top_impact.transcript,
+                    exon=top_impact.exon,
+                    codon_change=top_impact.codon_change,
+                    biotype=top_impact.biotype,
+                    aa_change=top_impact.aa_change,
+                    severity=top_impact.effect_severity,
+                    impact=top_impact.top_consequence,
+                    impact_so=top_impact.so,
+                    max_maf_all=variant.INFO.get('max_aaf_all') or -1,
+                    max_maf_no_fin=variant.INFO.get('max_aaf_no_fin') or -1,
+                    transcripts_data=utils.get_transcript_effects(effects),
+                    clinvar_data=utils.get_clinvar_info(variant),
+                    cosmic_data=utils.get_cosmic_info(variant),
+                    in_clinvar=vcf_parsing.var_is_in_clinvar(variant),
+                    in_cosmic=vcf_parsing.var_is_in_cosmic(variant),
+                    is_pathogenic=vcf_parsing.var_is_pathogenic(variant),
+                    is_lof=vcf_parsing.var_is_lof(variant),
+                    is_coding=vcf_parsing.var_is_coding(variant),
+                    is_splicing=vcf_parsing.var_is_splicing(variant),
+                    rs_ids=vcf_parsing.parse_rs_ids(variant),
+                    cosmic_ids=vcf_parsing.parse_cosmic_ids(variant),
+                    callers=callers,
+                    population_freqs=population_freqs,
+                    max_som_aaf=max_som_aaf,
+                    min_depth=min_depth,
+                    max_depth=max_depth,
+                    mutect=caller_variant_data_dicts['mutect'] or dict(),
+                    freebayes=caller_variant_data_dicts['freebayes'] or dict(),
+                    scalpel=caller_variant_data_dicts['scalpel'] or dict(),
+                    platypus=caller_variant_data_dicts['platypus'] or dict(),
+                    pindel=caller_variant_data_dicts['pindel'] or dict(),
+                    vardict=caller_variant_data_dicts['vardict'] or dict(),
+                    manta=caller_variant_data_dicts['manta'] or dict(),
+                    )
+
+            # Create Cassandra Object
+            sample_variant = SampleVariant.create(
+                    sample=samples[sample]['sample_name'],
+                    library_name=sample,
+                    reference_genome=config['genome_version'],
+                    chr=variant.CHROM,
+                    pos=variant.start,
+                    end=variant.end,
+                    ref=variant.REF,
+                    alt=variant.ALT[0],
+                    extraction=samples[sample]['extraction'],
                     panel_name=samples[sample]['panel'],
                     target_pool=samples[sample]['target_pool'],
                     rs_id=variant.ID,
