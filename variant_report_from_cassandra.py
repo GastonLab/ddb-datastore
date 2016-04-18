@@ -3,9 +3,11 @@
 import sys
 import argparse
 import utils
+import getpass
 from ddb import configuration
 from variantstore import SampleVariant
 from cassandra.cqlengine import connection
+from cassandra.auth import PlainTextAuthProvider
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -13,6 +15,7 @@ if __name__ == "__main__":
     parser.add_argument('-c', '--configuration', help="Configuration file for various settings")
     parser.add_argument('-r', '--report', help="Root name for reports (per sample)")
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
+    parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
     parser.add_argument('-v', '--variant_callers', help="Comma-delimited list of variant callers used")
 
     args = parser.parse_args()
@@ -23,7 +26,12 @@ if __name__ == "__main__":
     sys.stdout.write("Parsing sample data\n")
     samples = configuration.configure_samples(args.samples_file, config)
 
-    connection.setup([args.address], "variantstore")
+    if args.username:
+        password = getpass.getpass()
+        auth_provider = PlainTextAuthProvider(username=args.username, password=password)
+        connection.setup([args.address], "variantstore", auth_provider=auth_provider)
+    else:
+        connection.setup([args.address], "variantstore")
 
     thresholds = {'min_saf': 0.01,
                   'max_maf': 0.01,

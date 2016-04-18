@@ -2,6 +2,7 @@
 
 import re
 import sys
+import getpass
 import argparse
 import utils
 import cyvcf2
@@ -10,6 +11,7 @@ from cyvcf2 import VCF
 from datetime import datetime
 from collections import defaultdict
 from cassandra.cqlengine import connection
+from cassandra.auth import PlainTextAuthProvider
 
 from variantstore import Variant
 from variantstore import SampleVariant
@@ -52,6 +54,7 @@ if __name__ == "__main__":
     parser.add_argument('-v', '--variant_callers', help="Comma-delimited list of variant callers used")
     parser.add_argument('-n', '--num_cpus', help="Number of CPUs to use in multiprocessing")
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
+    parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
     args = parser.parse_args()
 
     sys.stdout.write("Parsing configuration data\n")
@@ -60,7 +63,12 @@ if __name__ == "__main__":
     sys.stdout.write("Parsing sample data\n")
     samples = configuration.configure_samples(args.samples_file, config)
 
-    connection.setup([args.address], "variantstore")
+    if args.username:
+        password = getpass.getpass()
+        auth_provider = PlainTextAuthProvider(username=args.username, password=password)
+        connection.setup([args.address], "variantstore", auth_provider=auth_provider)
+    else:
+        connection.setup([args.address], "variantstore")
 
     parse_functions = {'mutect': vcf_parsing.parse_mutect_vcf_record,
                        'freebayes': vcf_parsing.parse_freebayes_vcf_record,
