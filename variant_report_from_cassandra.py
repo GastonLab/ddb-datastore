@@ -60,9 +60,7 @@ if __name__ == "__main__":
         for variant in ordered_variants:
             iterated += 1
             flag, info = utils.variant_filter(variant, callers, thresholds)
-            if variant.max_som_aaf >= thresholds['min_saf']:
-                passed += 1
-                passing_variants.append((variant, flag, info))
+            passing_variants.append((variant, flag, info))
 
         sys.stdout.write("Writing {} passing variants (of {}) to sample report\n".format(passed, iterated))
         utils.write_sample_variant_report(args.report, sample, passing_variants, args.variant_callers, thresholds)
