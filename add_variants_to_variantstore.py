@@ -23,7 +23,7 @@ from toil.job import Job
 
 
 def process_sample(job, addresses, keyspace, authenticator, parse_functions, thresholds, report_root, variant_callers,
-                   sample):
+                   sample, config):
     connection.setup(addresses, keyspace, auth_provider=authenticator)
 
     caller_records = defaultdict(lambda: dict())
@@ -266,7 +266,7 @@ if __name__ == "__main__":
 
     for sample in samples:
         sample_job = Job.wrapJobFn(process_sample, [args.address], "variantstore", auth_provider, parse_functions,
-                                   thresholds, args.report, args.variant_callers, sample,
+                                   thresholds, args.report, args.variant_callers, sample, config,
                                    cores=1)
         root_job.addChild(sample_job)
 
