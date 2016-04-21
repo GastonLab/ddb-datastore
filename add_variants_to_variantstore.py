@@ -22,7 +22,8 @@ from ddb_ngsflow import pipeline
 from toil.job import Job
 
 
-def process_sample(job, addresses, keyspace, authenticator, parse_functions, thresholds, report_root, variant_callers):
+def process_sample(job, addresses, keyspace, authenticator, parse_functions, thresholds, report_root, variant_callers,
+                   sample):
     connection.setup(addresses, keyspace, auth_provider=authenticator)
 
     caller_records = defaultdict(lambda: dict())
@@ -256,15 +257,16 @@ if __name__ == "__main__":
                        'platypus': vcf_parsing.parse_platypus_vcf_record,
                        'pindel': vcf_parsing.parse_pindel_vcf_record}
 
-    thresholds = {'min_saf': 0.01,
-                  'max_maf': 0.01,
+    thresholds = {'min_saf': 0.02,
+                  'max_maf': 0.005,
+                  'min_depth': 500,
                   'regions': config['actionable_regions']}
 
     root_job = Job.wrapJobFn(pipeline.spawn_batch_jobs, cores=1)
 
     for sample in samples:
         sample_job = Job.wrapJobFn(process_sample, [args.address], "variantstore", auth_provider, parse_functions,
-                                   thresholds, args.report, args.variant_callers,
+                                   thresholds, args.report, args.variant_callers, sample,
                                    cores=1)
         root_job.addChild(sample_job)
 
