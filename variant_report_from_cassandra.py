@@ -45,11 +45,12 @@ if __name__ == "__main__":
         sys.stdout.write("Running Cassandra query for sample {}\n".format(sample))
         variants = SampleVariant.objects.timeout(None).filter(SampleVariant.sample == samples[sample]['sample_name'],
                                                               SampleVariant.max_som_aaf >= thresholds['min_saf'],
+                                                              SampleVariant.max_maf_no_fin <= thresholds['max_maf'],
                                                               SampleVariant.max_depth >= thresholds['depth']
                                                               ).allow_filtering()
 
         ordered_variants = variants.order_by('library_name', 'reference_genome',
-                                             'chr', 'pos').limit(variants.count() + 1)
+                                             'chr', 'pos').limit(variants.count() + 1000)
 
         sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
         sys.stdout.write("Running filters on sample variants\n")
