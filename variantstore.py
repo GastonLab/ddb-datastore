@@ -15,6 +15,7 @@ class Variant(Model):
     sample = columns.Text(index=True, primary_key=True)
     library_name = columns.Text(index=True, primary_key=True)
     date_annotated = columns.DateTime(index=True, primary_key=True)
+    sequencer = columns.Text(index=True)
     target_pool = columns.Text(index=True)
     panel_name = columns.Text(index=True)
     extraction = columns.Text(index=True)
@@ -64,7 +65,8 @@ class Variant(Model):
     min_som_aaf = columns.Float()
     max_som_aaf = columns.Float()
     variant_filters = columns.List(columns.Text)
-    variant_categorization = columns.Text()
+    variant_reportable = columns.Text()
+    panel_coverage = columns.List(columns.Text)
 
     # Variant Caller Data
     freebayes = columns.Map(columns.Text, columns.Text)
@@ -98,6 +100,7 @@ class SampleVariant(Model):
     target_pool = columns.Text(index=True)
     panel_name = columns.Text(index=True)
     extraction = columns.Text(index=True)
+    sequencer = columns.Text(index=True)
 
     # Simple Annotation Data
     end = columns.Integer()
