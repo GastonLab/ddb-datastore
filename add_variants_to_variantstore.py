@@ -22,7 +22,7 @@ from ddb_ngsflow import pipeline
 from toil.job import Job
 
 
-def process_sample(addresses, keyspace, authenticator, parse_functions, thresholds, report_root, variant_callers):
+def process_sample(job, addresses, keyspace, authenticator, parse_functions, thresholds, report_root, variant_callers):
     connection.setup(addresses, keyspace, auth_provider=authenticator)
 
     caller_records = defaultdict(lambda: dict())
@@ -194,6 +194,8 @@ def process_sample(addresses, keyspace, authenticator, parse_functions, threshol
     if args.report:
         sys.stdout.write("Outputting {} variants to report\n".format(passed))
         utils.write_sample_variant_report(report_root, sample, report_variants, variant_callers, thresholds)
+
+    job.fileStore.logToMaster("Data saved to Cassandra for sample {}\n".format(sample))
 
 
 def get_population_freqs(variant):
