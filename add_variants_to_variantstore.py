@@ -19,8 +19,8 @@ from ddb import configuration
 from ddb import vcf_parsing
 
 
-def process_sample(address, keyspace, authenticator, parse_functions, thresholds, report_root, variant_callers):
-    connection.setup([address], keyspace, auth_provider=authenticator)
+def process_sample(addresses, keyspace, authenticator, parse_functions, thresholds, report_root, variant_callers):
+    connection.setup(addresses, keyspace, auth_provider=authenticator)
 
     caller_records = defaultdict(lambda: dict())
 
@@ -142,6 +142,7 @@ def process_sample(address, keyspace, authenticator, parse_functions, thresholds
                 extraction=samples[sample]['extraction'],
                 panel_name=samples[sample]['panel'],
                 target_pool=samples[sample]['target_pool'],
+                sequencer=samples[sample]['sequencer'],
                 rs_id=variant.ID,
                 date_annotated=datetime.now(),
                 subtype=variant.INFO.get('sub_type'),
