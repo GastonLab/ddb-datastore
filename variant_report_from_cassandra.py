@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     thresholds = {'min_saf': 0.02,
                   'max_maf': 0.005,
-                  'min_depth': 500,
+                  'depth': 500,
                   'regions': config['actionable_regions']}
 
     callers = ['mutect', 'freebayes', 'scalpel', 'vardict', 'platypus', 'pindel']
@@ -44,8 +44,13 @@ if __name__ == "__main__":
     for sample in samples:
         sys.stdout.write("Running Cassandra query for sample {}\n".format(sample))
         variants = SampleVariant.objects.timeout(None).filter(SampleVariant.sample == samples[sample]['sample_name'],
-                                                SampleVariant.max_som_aaf >= thresholds['min_saf']).allow_filtering()
-        ordered_variants = variants.order_by('library_name', 'reference_genome', 'chr', 'pos').limit(variants.count() + 1)
+                                                              SampleVariant.max_som_aaf >= thresholds['min_saf'],
+                                                              SampleVariant.max_depth >= thresholds['depth']
+                                                              ).allow_filtering()
+
+        ordered_variants = variants.order_by('library_name', 'reference_genome',
+                                             'chr', 'pos').limit(variants.count() + 1)
+
         sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
         sys.stdout.write("Running filters on sample variants\n")
         passing_variants = list()
