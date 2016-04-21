@@ -17,6 +17,9 @@ from variantstore import Variant
 from variantstore import SampleVariant
 from ddb import configuration
 from ddb import vcf_parsing
+from ddb_ngsflow import pipeline
+
+from toil.job import Job
 
 
 def process_sample(addresses, keyspace, authenticator, parse_functions, thresholds, report_root, variant_callers):
@@ -188,8 +191,8 @@ def process_sample(addresses, keyspace, authenticator, parse_functions, threshol
             passed += 1
             report_variants.append((cassandra_variant, flag, info))
 
-    sys.stdout.write("Outputting {} variants to report\n".format(passed))
     if args.report:
+        sys.stdout.write("Outputting {} variants to report\n".format(passed))
         utils.write_sample_variant_report(report_root, sample, report_variants, variant_callers, thresholds)
 
 
@@ -225,7 +228,9 @@ if __name__ == "__main__":
     parser.add_argument('-n', '--num_cpus', help="Number of CPUs to use in multiprocessing")
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
+    Job.Runner.addToilOptions(parser)
     args = parser.parse_args()
+    args.logLevel = "INFO"
 
     sys.stdout.write("Parsing configuration data\n")
     config = configuration.configure_runtime(args.configuration)
@@ -253,6 +258,13 @@ if __name__ == "__main__":
                   'max_maf': 0.01,
                   'regions': config['actionable_regions']}
 
+    root_job = Job.wrapJobFn(pipeline.spawn_batch_jobs, cores=1)
+
     for sample in samples:
-        process_sample([args.address], "variantstore", auth_provider, parse_functions, thresholds, args.report,
-                       args.variant_callers)
+        sample_job = Job.wrapJobFn(process_sample, [args.address], "variantstore", auth_provider, parse_functions,
+                                   thresholds, args.report, args.variant_callers,
+                                   cores=1)
+        root_job.addChild(sample_job)
+
+    # Start workflow execution
+    Job.Runner.startToil(root_job, args)
