@@ -58,6 +58,7 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, thr
         effects = utils.get_effects(variant, annotation_keys)
         top_impact = utils.get_top_impact(effects)
         population_freqs = get_population_freqs(variant)
+        amplicon_data = get_amplicon_data(variant)
 
         key = (unicode("chr{}".format(variant.CHROM)), int(variant.start), int(variant.end), unicode(variant.REF),
                unicode(variant.ALT[0]))
@@ -121,6 +122,7 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, thr
                 cosmic_ids=vcf_parsing.parse_cosmic_ids(variant),
                 callers=callers,
                 population_freqs=population_freqs,
+                amplicon_data=amplicon_data,
                 max_som_aaf=max_som_aaf,
                 min_depth=min_depth,
                 max_depth=max_depth,
@@ -220,6 +222,19 @@ def get_population_freqs(variant):
              'adj_exac_sas': variant.INFO.get('aaf_adj_exac_sas') or -1}
 
     return freqs
+
+
+def get_amplicon_data(variant):
+    data = {'amplicon': variant.INFO.get('amplicon') or None,
+            'amplicon_myeloid': variant.INFO.get('amplicon_myeloid') or None,
+            'ampliconA': variant.INFO.get('ampliconA') or None,
+            'ampliconB': variant.INFO.get('ampliconB') or None}
+    if data['amplicon'] or data['amplicon_myeloid'] or data['ampliconA'] or data['ampliconB']:
+        data['in_amplicon'] = True
+    else:
+        data['in_amplicon'] = False
+
+    return data
 
 
 if __name__ == "__main__":

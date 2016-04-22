@@ -91,7 +91,9 @@ def variant_filter(variant, callers, thresholds):
 
 def write_sample_variant_report(report_root, sample, variants, callers, thresholds):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
-        report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\tClinvar_Flag\tAAF_Flag\tCOSMIC IDs\t"
+        report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\tClinvar_Flag\tAAF_Flag\t"
+                     "In_Amplicon\tAmplicon\tAmplicon_Myeloid\tAmpliconA\tAmpliconB\t"
+                     "COSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\t"
                      "Clin_Sig\tClin_Pathogenic\tClin_HGVS\tClin_Disease\tClin_Rev\tClin_Origin\tClin_Acc\t"
                      "Biotype\tImpact\tImpact SO\tSeverity\t"
                      "in_clinvar\tis_pathogenic\tis_coding\tis_splicing\tis_lof\tmax_maf_all\tmax_maf_no_fin\t"
@@ -121,7 +123,9 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
         for data in variants:
             variant, flag, info = data
             report.write("{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t{codon}\t{aa}\t{rsids}\t"
-                         "{info_clin}\t{info_maf}\t{cosmic}\t{csig}\t{cpath}\t{hgvs}\t{cdis}\t{crev}\t{corigin}\t"
+                         "{info_clin}\t{info_maf}\t{in_amp}\t{amp}\t{ampm}\t{ampa}\t{ampb}\t"
+                         "{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
+                         "{csig}\t{cpath}\t{hgvs}\t{cdis}\t{crev}\t{corigin}\t"
                          "{cacc}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t{in_clin}\t{is_path}\t{is_code}\t"
                          "{is_splice}\t{is_lof}\t{max_maf_all}\t{max_maf_no_fin}\t{max_som_aaf}\t{min_depth}\t"
                          "{max_depth}\t{callers}\t{mfilter}\t{mmulti}\t{mdp}\t{mad}\t{maf}\t{vfilter}\t{vmulti}\t"
@@ -133,8 +137,15 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
                                      codon=variant.codon_change, aa=variant.aa_change,
                                      rsids=",".join(variant.rs_ids),
                                      cosmic=",".join(variant.cosmic_ids) or None,
+                                     cosmic_nsamples=variant.cosmic_data['num_samples'],
+                                     cosmic_aa=variant.cosmic_data['aa'],
                                      info_clin=info['clinvar'],
                                      info_maf=info['max_maf'],
+                                     in_amp=variant.amplicon_data['in_amplicon'],
+                                     amp=variant.amplicon_data['amplicon'],
+                                     ampm=variant.amplicon_data['amplicon_myeloid'],
+                                     ampa=variant.amplicon_data['ampliconA'],
+                                     ampb=variant.amplicon_data['ampliconB'],
                                      csig=variant.clinvar_data['significance'],
                                      cpath=variant.clinvar_data['pathogenic'],
                                      hgvs=variant.clinvar_data['hgvs'],
