@@ -45,7 +45,7 @@ if __name__ == "__main__":
         sys.stdout.write("Running Cassandra query for sample {}\n".format(sample))
         variants = SampleVariant.objects.timeout(None).filter(SampleVariant.sample == samples[sample]['sample_name'],
                                                               SampleVariant.max_som_aaf >= thresholds['min_saf'],
-                                                              SampleVariant.max_maf_no_fin <= thresholds['max_maf'],
+                                                              SampleVariant.max_maf_all <= thresholds['max_maf'],
                                                               SampleVariant.max_depth >= thresholds['depth']
                                                               ).allow_filtering()
 
