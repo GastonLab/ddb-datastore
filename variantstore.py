@@ -140,6 +140,7 @@ class SampleVariant(Model):
     population_freqs = columns.Map(columns.Text, columns.Float)
     clinvar_data = columns.Map(columns.Text, columns.Text)
     cosmic_data = columns.Map(columns.Text, columns.Text)
+    amplicon_data = columns.Map(columns.Text, columns.Text)
     max_maf_all = columns.Float()
     max_maf_no_fin = columns.Float()
     min_depth = columns.Float()
