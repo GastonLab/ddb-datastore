@@ -90,7 +90,7 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, thr
                 alt=variant.ALT[0],
                 sample=samples[sample]['sample_name'],
                 extraction=samples[sample]['extraction'],
-                library_name=sample,
+                library_name=samples[sample]['library_name'],
                 panel_name=samples[sample]['panel'],
                 target_pool=samples[sample]['target_pool'],
                 rs_id=variant.ID,
@@ -136,7 +136,7 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, thr
         # Create Cassandra Object
         sample_variant = SampleVariant.create(
                 sample=samples[sample]['sample_name'],
-                library_name=sample,
+                library_name=samples[sample]['library_name'],
                 reference_genome=config['genome_version'],
                 chr=variant.CHROM,
                 pos=variant.start,
