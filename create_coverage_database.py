@@ -4,6 +4,7 @@ import argparse
 import getpass
 from cassandra.cqlengine.management import sync_table
 from cassandra.cqlengine.management import create_keyspace_simple
+from cassandra.cluster import Cluster
 from cassandra.cqlengine import connection
 from cassandra.auth import PlainTextAuthProvider
 from coveragestore import SampleCoverage
@@ -19,10 +20,15 @@ if __name__ == "__main__":
     if args.username:
         password = getpass.getpass()
         auth_provider = PlainTextAuthProvider(username=args.username, password=password)
-        connection.setup([args.address], None, auth_provider=auth_provider)
+        cluster = Cluster([args.address], auth_provider=auth_provider)
+        session = cluster.connect()
+        # connection.setup([args.address], None, auth_provider=auth_provider)
     else:
-        connection.setup([args.address])
+        cluster = Cluster([args.address])
+        session = cluster.connect()
+        # connection.setup([args.address])
 
+    connection.set_session(session)
     create_keyspace_simple("coveragestore", None, args.replication_factor)
 
     sync_table(SampleCoverage)
