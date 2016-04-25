@@ -3,6 +3,7 @@ from cassandra.cqlengine.models import Model
 
 
 class Variant(Model):
+    __keyspace__ = 'variantstore'
     reference_genome = columns.Text(primary_key=True, partition_key=True)
     chr = columns.Text(primary_key=True, partition_key=True)
     pos = columns.Integer(primary_key=True, partition_key=True)
@@ -85,6 +86,7 @@ class Variant(Model):
 
 
 class SampleVariant(Model):
+    __keyspace__ = 'variantstore'
     sample = columns.Text(primary_key=True, partition_key=True)
     library_name = columns.Text(primary_key=True)
 

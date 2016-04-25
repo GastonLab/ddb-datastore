@@ -3,6 +3,7 @@
 import argparse
 import getpass
 from cassandra.cqlengine.management import sync_table
+from cassandra.cqlengine.management import create_keyspace_simple
 from cassandra.cqlengine import connection
 from cassandra.auth import PlainTextAuthProvider
 from variantstore import Variant
