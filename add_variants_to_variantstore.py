@@ -230,9 +230,9 @@ def get_amplicon_data(variant):
             'ampliconA': variant.INFO.get('ampliconA') or None,
             'ampliconB': variant.INFO.get('ampliconB') or None}
     if data['amplicon'] or data['amplicon_myeloid'] or data['ampliconA'] or data['ampliconB']:
-        data['in_amplicon'] = True
+        data['in_amplicon'] = "True"
     else:
-        data['in_amplicon'] = False
+        data['in_amplicon'] = "False"
 
     return data
 
