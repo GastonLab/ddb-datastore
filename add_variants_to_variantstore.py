@@ -132,7 +132,7 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, thr
                 platypus=caller_variant_data_dicts['platypus'] or dict(),
                 pindel=caller_variant_data_dicts['pindel'] or dict(),
                 vardict=caller_variant_data_dicts['vardict'] or dict(),
-                manta=caller_variant_data_dicts['manta'] or dict(),
+                manta=caller_variant_data_dicts['manta'] or dict()
                 )
 
         # Create Cassandra Object
@@ -186,7 +186,7 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, thr
                 platypus=caller_variant_data_dicts['platypus'] or dict(),
                 pindel=caller_variant_data_dicts['pindel'] or dict(),
                 vardict=caller_variant_data_dicts['vardict'] or dict(),
-                manta=caller_variant_data_dicts['manta'] or dict(),
+                manta=caller_variant_data_dicts['manta'] or dict()
                 )
 
         flag, info = utils.variant_filter(cassandra_variant, callers, thresholds)

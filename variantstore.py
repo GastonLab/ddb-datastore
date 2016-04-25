@@ -67,6 +67,7 @@ class Variant(Model):
     variant_filters = columns.List(columns.Text)
     variant_reportable = columns.Text()
     panel_coverage = columns.List(columns.Text)
+    amplicon_data = columns.Map(columns.Text, columns.Text)
 
     # Variant Caller Data
     freebayes = columns.Map(columns.Text, columns.Text)
