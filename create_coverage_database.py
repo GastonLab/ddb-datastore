@@ -19,11 +19,11 @@ if __name__ == "__main__":
     if args.username:
         password = getpass.getpass()
         auth_provider = PlainTextAuthProvider(username=args.username, password=password)
-        connection.setup([args.address], auth_provider=auth_provider)
+        connection.setup([args.address], None, auth_provider=auth_provider)
     else:
         connection.setup([args.address])
 
-    create_keyspace_simple("coveragestore", args.replication_factor)
+    create_keyspace_simple("coveragestore", None, args.replication_factor)
 
     sync_table(SampleCoverage)
     sync_table(AmpliconCoverage)
