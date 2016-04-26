@@ -26,27 +26,17 @@ def process_sample_coverage(job, addresses, keyspace, auth, report_root, sample,
         threshold_indices = list()
         thresholds = list()
         index = 0
-        print header
         for element in header:
-            print element
             if element.startswith("percentage"):
                 threshold = element.replace('percentage', '')
                 threshold_indices.append(index)
                 thresholds.append(int(threshold))
-
-                print index
-                print threshold
-                print "******"
-
-                index += 1
+            index += 1
 
         for row in reader:
             threshold_data = defaultdict(float)
             index = 0
             for threshold in thresholds:
-                # print threshold
-                # print row[threshold_indices[index]]
-                # print "*************"
                 threshold_data[threshold] = row[threshold_indices[index]]
                 index += 1
 
