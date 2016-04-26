@@ -16,7 +16,7 @@ class SampleCoverage(Model):
     extraction = columns.Text()
 
     num_reads = columns.Integer()
-    mean_depth = columns.Float()
+    mean_coverage = columns.Float()
     thresholds = columns.List(columns.Integer)
     perc_bp_cov_at_thresholds = columns.Map(columns.Integer, columns.Float)
 
@@ -35,6 +35,6 @@ class AmpliconCoverage(Model):
     extraction = columns.Text()
 
     num_reads = columns.Integer()
-    mean_depth = columns.Float()
+    mean_coverage = columns.Float()
     thresholds = columns.List(columns.Integer)
     perc_bp_cov_at_thresholds = columns.Map(columns.Integer, columns.Float)
