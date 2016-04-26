@@ -22,7 +22,7 @@ if __name__ == "__main__":
         password = getpass.getpass()
         auth_provider = PlainTextAuthProvider(username=args.username, password=password)
         cluster = Cluster([args.address], auth_provider=auth_provider)
-        session = cluster.connect(row_factory=query.dict_factory())
+        session = cluster.connect(row_factory=query.dict_factory)
         # connection.setup([args.address], None, auth_provider=auth_provider)
     else:
         cluster = Cluster([args.address])
