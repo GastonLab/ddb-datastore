@@ -1,14 +1,10 @@
 #!/usr/bin/env python
 
-import re
 import sys
+import csv
 import getpass
 import argparse
-import utils
-import cyvcf2
 
-from cyvcf2 import VCF
-from datetime import datetime
 from collections import defaultdict
 from cassandra.cqlengine import connection
 from cassandra.auth import PlainTextAuthProvider
@@ -21,8 +17,27 @@ from ddb_ngsflow import pipeline
 from toil.job import Job
 
 
-def process_sample_coverage(job, address, keyspace, auth, thresholds, report_root, sample, samples, config):
-    extraction=samples[sample]['extraction']
+def process_sample_coverage(job, addresses, keyspace, auth, report_root, sample, program, samples, config):
+    connection.setup(addresses, keyspace, auth_provider=auth)
+
+    with open("{}.sambamba_coverage.bed".format(sample), 'rb') as coverage:
+        reader = csv.reader(coverage, delimiter='\t')
+        header = reader.next()
+        for row in reader:
+
+            sample_data = SampleCoverage.create(sample=sample,
+                                                library_name=samples[sample]['library_name'],
+                                                run_id=samples[sample]['run_id'],
+                                                program_name=program,
+                                                extraction=samples[sample]['extraction'],
+                                                amplicon_name=row[3])
+
+            amplicon_data = AmpliconCoverage.create(amplicon_name=row[3],
+                                                    sample=sample,
+                                                    library_name=samples[sample]['library_name'],
+                                                    run_id=samples[sample]['run_id'],
+                                                    program_name=program,
+                                                    extraction=samples[sample]['extraction'])
 
 
 if __name__ == "__main__":
@@ -32,6 +47,7 @@ if __name__ == "__main__":
     parser.add_argument('-r', '--report', help="Root name for reports (per sample)", default=None)
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
+    parser.add_argument('-p', '--program', help='Coverage estimation program', default='sambamba')
     Job.Runner.addToilOptions(parser)
     args = parser.parse_args()
     args.logLevel = "INFO"
@@ -48,15 +64,11 @@ if __name__ == "__main__":
     else:
         auth_provider = None
 
-    thresholds = {'threshold1': 500,
-                  'threshold2': 1000,
-                  'regions': config['actionable_regions']}
-
     root_job = Job.wrapJobFn(pipeline.spawn_batch_jobs, cores=1)
 
     for sample in samples:
         sample_job = Job.wrapJobFn(process_sample_coverage, [args.address], "coveragestore", auth_provider,
-                                   thresholds, args.report, sample, samples, config,
+                                   args.report, sample, args.program, samples, config,
                                    cores=1)
         root_job.addChild(sample_job)
 

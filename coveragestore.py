@@ -6,6 +6,7 @@ class SampleCoverage(Model):
     __keyspace__ = 'coveragestore'
     sample = columns.Text(primary_key=True, partition_key=True)
 
+    amplicon_name = columns.Text(primary_key=True)
     run_id = columns.Text(primary_key=True)
     library_name = columns.Text(primary_key=True)
     program_name = columns.Text(primary_key=True)
@@ -14,7 +15,7 @@ class SampleCoverage(Model):
     sequencer_id = columns.Text()
     extraction = columns.Text()
 
-    amplicon_depth = columns.Map(columns.Text, columns.Integer)
+    amplicon_depth = columns.Integer()
     thresholds = columns.List(columns.Integer)
     perc_bp_cov_at_thresholds = columns.Map(columns.Integer, columns.Float)
 
