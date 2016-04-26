@@ -32,7 +32,7 @@ if __name__ == "__main__":
         # connection.setup([args.address])
 
     connection.set_session(session)
-    create_keyspace_simple("coveragestore", None, args.replication_factor)
+    create_keyspace_simple("coveragestore", args.replication_factor)
 
     sync_table(SampleCoverage)
     sync_table(AmpliconCoverage)
