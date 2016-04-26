@@ -12,6 +12,7 @@ class SampleCoverage(Model):
 
     num_libraries_in_run = columns.Integer()
     sequencer_id = columns.Text()
+    extraction = columns.Text()
 
     amplicon_depth = columns.Map(columns.Text, columns.Integer)
     thresholds = columns.List(columns.Integer)
@@ -29,6 +30,7 @@ class AmpliconCoverage(Model):
 
     num_libraries_in_run = columns.Integer()
     sequencer_id = columns.Text()
+    extraction = columns.Text()
 
     depth = columns.Integer()
     thresholds = columns.List(columns.Integer)

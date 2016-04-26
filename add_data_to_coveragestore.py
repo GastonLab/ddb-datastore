@@ -22,7 +22,7 @@ from toil.job import Job
 
 
 def process_sample_coverage(job, address, keyspace, auth, thresholds, report_root, sample, samples, config):
-    pass
+    extraction=samples[sample]['extraction']
 
 
 if __name__ == "__main__":
