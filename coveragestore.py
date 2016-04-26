@@ -14,6 +14,8 @@ class SampleCoverage(Model):
     num_libraries_in_run = columns.Integer()
     sequencer_id = columns.Text()
     extraction = columns.Text()
+    panel = columns.Text()
+    target_pool = columns.Text()
 
     num_reads = columns.Integer()
     mean_coverage = columns.Float()
@@ -33,6 +35,8 @@ class AmpliconCoverage(Model):
     num_libraries_in_run = columns.Integer()
     sequencer_id = columns.Text()
     extraction = columns.Text()
+    panel = columns.Text()
+    target_pool = columns.Text()
 
     num_reads = columns.Integer()
     mean_coverage = columns.Float()
