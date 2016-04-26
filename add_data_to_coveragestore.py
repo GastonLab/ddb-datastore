@@ -23,22 +23,48 @@ def process_sample_coverage(job, addresses, keyspace, auth, report_root, sample,
     with open("{}.sambamba_coverage.bed".format(sample), 'rb') as coverage:
         reader = csv.reader(coverage, delimiter='\t')
         header = reader.next()
+        threshold_indices = list()
+        thresholds = list()
+        index = 0
+        for element in header:
+            if element.startswith("percentage"):
+                threshold = element.replace('percentage', '')
+                threshold_indices.append(index)
+                thresholds.append(int(threshold))
+                index += 1
+
         for row in reader:
+            threshold_data = defaultdict(float)
+            index = 0
+            for threshold in thresholds:
+                threshold_data[threshold] = row[threshold_indices[index]]
+                index += 1
 
             sample_data = SampleCoverage.create(sample=sample,
                                                 library_name=samples[sample]['library_name'],
                                                 run_id=samples[sample]['run_id'],
+                                                num_libraries_in_run=samples[sample]['num_libraries_in_run'],
+                                                sequencer=samples[sample]['sequencer'],
                                                 program_name=program,
                                                 extraction=samples[sample]['extraction'],
                                                 amplicon_name=row[3],
-                                                amplicon_depth=row[4])
+                                                num_reads=row[4],
+                                                mean_coverage=row[5],
+                                                thresholds=thresholds,
+                                                perc_bp_cov_at_thresholds=threshold_data)
 
             amplicon_data = AmpliconCoverage.create(amplicon_name=row[3],
                                                     sample=sample,
                                                     library_name=samples[sample]['library_name'],
                                                     run_id=samples[sample]['run_id'],
+                                                    num_libraries_in_run=samples[sample]['num_libraries_in_run'],
+                                                    sequencer=samples[sample]['sequencer'],
                                                     program_name=program,
-                                                    extraction=samples[sample]['extraction'])
+                                                    extraction=samples[sample]['extraction'],
+                                                    num_reads=row[4],
+                                                    mean_coverage=row[5],
+                                                    thresholds=thresholds,
+                                                    perc_bp_cov_at_thresholds=threshold_data)
 
 
 if __name__ == "__main__":
