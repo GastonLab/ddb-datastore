@@ -37,6 +37,8 @@ def process_sample_coverage(job, addresses, keyspace, auth, report_root, sample,
             threshold_data = defaultdict(float)
             index = 0
             for threshold in thresholds:
+                print threshold
+                print row[threshold_indices[index]]
                 threshold_data[threshold] = row[threshold_indices[index]]
                 index += 1
 
