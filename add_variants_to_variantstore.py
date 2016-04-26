@@ -23,7 +23,7 @@ from toil.job import Job
 
 
 def process_sample(job, addresses, keyspace, authenticator, parse_functions, thresholds, report_root, variant_callers,
-                   sample, samples, config, report):
+                   sample, samples, config):
     connection.setup(addresses, keyspace, auth_provider=authenticator)
 
     caller_records = defaultdict(lambda: dict())
@@ -194,7 +194,7 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, thr
             passed += 1
             report_variants.append((cassandra_variant, flag, info))
 
-    if report:
+    if report_root:
         sys.stdout.write("Outputting {} variants to report\n".format(passed))
         utils.write_sample_variant_report(report_root, sample, report_variants, variant_callers, thresholds)
 
@@ -243,7 +243,6 @@ if __name__ == "__main__":
     parser.add_argument('-c', '--configuration', help="Configuration file for various settings")
     parser.add_argument('-r', '--report', help="Root name for reports (per sample)", default=None)
     parser.add_argument('-v', '--variant_callers', help="Comma-delimited list of variant callers used")
-    parser.add_argument('-n', '--num_cpus', help="Number of CPUs to use in multiprocessing")
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
     Job.Runner.addToilOptions(parser)
@@ -259,10 +258,7 @@ if __name__ == "__main__":
     if args.username:
         password = getpass.getpass()
         auth_provider = PlainTextAuthProvider(username=args.username, password=password)
-
-        # connection.setup([args.address], "variantstore", auth_provider=auth_provider)
     else:
-        # connection.setup([args.address], "variantstore")
         auth_provider = None
 
     parse_functions = {'mutect': vcf_parsing.parse_mutect_vcf_record,
@@ -281,7 +277,7 @@ if __name__ == "__main__":
 
     for sample in samples:
         sample_job = Job.wrapJobFn(process_sample, [args.address], "variantstore", auth_provider, parse_functions,
-                                   thresholds, args.report, args.variant_callers, sample, samples, config, args.report,
+                                   thresholds, args.report, args.variant_callers, sample, samples, config,
                                    cores=1)
         root_job.addChild(sample_job)
 
