@@ -23,13 +23,11 @@ if __name__ == "__main__":
         auth_provider = PlainTextAuthProvider(username=args.username, password=password)
         cluster = Cluster([args.address], auth_provider=auth_provider)
         session = cluster.connect()
-        session.row_factory=query.dict_factory
-        # connection.setup([args.address], None, auth_provider=auth_provider)
+        session.row_factory = query.dict_factory
     else:
         cluster = Cluster([args.address])
         session = cluster.connect()
-        session.row_factory=query.dict_factory
-        # connection.setup([args.address])
+        session.row_factory = query.dict_factory
 
     connection.set_session(session)
     create_keyspace_simple("coveragestore", args.replication_factor)

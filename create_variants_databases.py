@@ -2,8 +2,10 @@
 
 import argparse
 import getpass
+from cassandra import query
 from cassandra.cqlengine.management import sync_table
 from cassandra.cqlengine.management import create_keyspace_simple
+from cassandra.cluster import Cluster
 from cassandra.cqlengine import connection
 from cassandra.auth import PlainTextAuthProvider
 from variantstore import Variant
@@ -18,9 +20,16 @@ if __name__ == "__main__":
     if args.username:
         password = getpass.getpass()
         auth_provider = PlainTextAuthProvider(username=args.username, password=password)
-        connection.setup([args.address], "variantstore", auth_provider=auth_provider)
+        cluster = Cluster([args.address], auth_provider=auth_provider)
+        session = cluster.connect()
+        session.row_factory=query.dict_factory
     else:
-        connection.setup([args.address], "variantstore")
+        cluster = Cluster([args.address])
+        session = cluster.connect()
+        session.row_factory = query.dict_factory
+
+    connection.set_session(session)
+    create_keyspace_simple("variantstore", args.replication_factor)
 
     sync_table(Variant)
     sync_table(SampleVariant)
