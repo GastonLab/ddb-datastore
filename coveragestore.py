@@ -15,7 +15,8 @@ class SampleCoverage(Model):
     sequencer_id = columns.Text()
     extraction = columns.Text()
 
-    amplicon_depth = columns.Integer()
+    num_reads = columns.Integer()
+    mean_depth = columns.Float()
     thresholds = columns.List(columns.Integer)
     perc_bp_cov_at_thresholds = columns.Map(columns.Integer, columns.Float)
 
@@ -33,6 +34,7 @@ class AmpliconCoverage(Model):
     sequencer_id = columns.Text()
     extraction = columns.Text()
 
-    depth = columns.Integer()
+    num_reads = columns.Integer()
+    mean_depth = columns.Float()
     thresholds = columns.List(columns.Integer)
     perc_bp_cov_at_thresholds = columns.Map(columns.Integer, columns.Float)

@@ -30,7 +30,8 @@ def process_sample_coverage(job, addresses, keyspace, auth, report_root, sample,
                                                 run_id=samples[sample]['run_id'],
                                                 program_name=program,
                                                 extraction=samples[sample]['extraction'],
-                                                amplicon_name=row[3])
+                                                amplicon_name=row[3],
+                                                amplicon_depth=row[4])
 
             amplicon_data = AmpliconCoverage.create(amplicon_name=row[3],
                                                     sample=sample,
