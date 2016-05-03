@@ -15,7 +15,8 @@ class Variant(Model):
     # Sample and Panel/Run Level data annotations
     sample = columns.Text(index=True, primary_key=True)
     library_name = columns.Text(index=True, primary_key=True)
-    date_annotated = columns.DateTime(index=True, primary_key=True)
+    run_id = columns.Text(index=True, primary_key=True)
+    date_annotated = columns.DateTime(index=True)
     sequencer = columns.Text(index=True)
     target_pool = columns.Text(index=True)
     panel_name = columns.Text(index=True)
@@ -88,6 +89,7 @@ class Variant(Model):
 class SampleVariant(Model):
     __keyspace__ = 'variantstore'
     sample = columns.Text(primary_key=True, partition_key=True)
+    run_id = columns.Text(primary_key=True, partition_key=True)
     library_name = columns.Text(primary_key=True)
 
     reference_genome = columns.Text(primary_key=True)

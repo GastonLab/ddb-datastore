@@ -28,7 +28,7 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, thr
 
     caller_records = defaultdict(lambda: dict())
 
-    sys.stdout.write("Parsing Caller VCF Files")
+    sys.stdout.write("Parsing Caller VCF Files\n")
     vcf_parsing.parse_vcf("{}.mutect.normalized.vcf".format(sample), "mutect", caller_records)
     vcf_parsing.parse_vcf("{}.vardict.normalized.vcf".format(sample), "vardict", caller_records)
     vcf_parsing.parse_vcf("{}.freebayes.normalized.vcf".format(sample), "freebayes", caller_records)
@@ -92,6 +92,7 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, thr
                 sample=samples[sample]['sample_name'],
                 extraction=samples[sample]['extraction'],
                 library_name=samples[sample]['library_name'],
+                run_id=samples[sample]['run_id'],
                 panel_name=samples[sample]['panel'],
                 target_pool=samples[sample]['target_pool'],
                 rs_id=variant.ID,
@@ -138,6 +139,7 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, thr
         # Create Cassandra Object
         sample_variant = SampleVariant.create(
                 sample=samples[sample]['sample_name'],
+                run_id=samples[sample]['run_id'],
                 library_name=samples[sample]['library_name'],
                 reference_genome=config['genome_version'],
                 chr=variant.CHROM,
