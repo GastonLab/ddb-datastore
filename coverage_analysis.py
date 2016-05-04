@@ -5,6 +5,7 @@ import csv
 import argparse
 import utils
 import getpass
+import plotly
 
 from coveragestore import AmpliconCoverage
 from cassandra.cqlengine import connection
@@ -25,6 +26,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-r', '--regions', help="Regions file with Amplicon names")
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
+    parser.add_argument('-n', '--num_libraries', help='Number of libraries to consider when calculating coverage '
+                                                      'stats', default=8)
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
 
     args = parser.parse_args()
@@ -44,12 +47,18 @@ if __name__ == "__main__":
     sys.stdout.write("Calculation coverage data per amplicon/region\n")
     for region in regions:
         sys.stdout.write("Running Cassandra query for region {}\n".format(region))
-        samples = AmpliconCoverage.objects.timeout(None).filter(amplicon=region).allow_filtering()
+        samples = AmpliconCoverage.objects.timeout(None).filter(amplicon=region,
+                                                                num_libraries_in_run=args.num_libraries).allow_filtering()
+
+        ordered_samples = samples.order_by('sample', 'run_id', 'library_name').limit(samples.count() + 1000)
 
         sys.stdout.write("Retrieved data for {} total samples\n".format(samples.count()))
         sys.stdout.write("Running filters on sample variants\n")
         passing_variants = list()
         passed = 0
         iterated = 0
-        for sample in samples:
+        for sample in ordered_samples:
+
             iterated += 1
+
+        plotly.offline.plot()
