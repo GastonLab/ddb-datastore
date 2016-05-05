@@ -15,7 +15,7 @@ from cassandra.auth import PlainTextAuthProvider
 def get_regions(infile):
     regions = list()
     with open(infile, 'r') as csvfile:
-        reader = csv.reader(csvfile)
+        reader = csv.reader(csvfile, dialect='excel-tab')
         for row in reader:
             print row
             regions.append(row[3])
