@@ -7,6 +7,8 @@ import utils
 import getpass
 import plotly
 
+from collections import defaultdict
+
 from coveragestore import AmpliconCoverage
 from cassandra.cqlengine import connection
 from cassandra.auth import PlainTextAuthProvider
@@ -52,13 +54,20 @@ if __name__ == "__main__":
 
         ordered_samples = samples.order_by('sample', 'run_id', 'library_name').limit(samples.count() + 1000)
 
-        sys.stdout.write("Retrieved data for {} total samples\n".format(samples.count()))
+        sys.stdout.write("Retrieved data for {} libraries\n".format(samples.count()))
         passing_variants = list()
         passed = 0
         iterated = 0
+        data = defaultdict(list)
+        counts = defaultdict(int)
         for sample in ordered_samples:
+            counts[sample.extraction] += 1
+            data[sample.extraction].append(sample.num_reads)
+
             iterated += 1
 
-        sys.stdout.write("Processed {} samples\n".format(iterated))
+        sys.stdout.write("Processed {} libraries\n".format(iterated))
+        for extraction in data:
+            sys.stdout.write("Extraction: {}, Num Libraries {}\n".format(extraction, counts[extraction]))
 
         # plotly.offline.plot()
