@@ -53,12 +53,12 @@ if __name__ == "__main__":
         ordered_samples = samples.order_by('sample', 'run_id', 'library_name').limit(samples.count() + 1000)
 
         sys.stdout.write("Retrieved data for {} total samples\n".format(samples.count()))
-        sys.stdout.write("Running filters on sample variants\n")
         passing_variants = list()
         passed = 0
         iterated = 0
         for sample in ordered_samples:
-
             iterated += 1
 
-        plotly.offline.plot()
+        sys.stdout.write("Processed {} samples\n".format(iterated))
+
+        # plotly.offline.plot()
