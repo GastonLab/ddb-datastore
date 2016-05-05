@@ -17,6 +17,7 @@ def get_regions(infile):
     with open(infile, 'r') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
+            print row
             regions.append(row[3])
 
     return regions
