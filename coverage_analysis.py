@@ -35,6 +35,8 @@ if __name__ == "__main__":
                                                       'stats', default=8)
     parser.add_argument('-s', '--stat', help="Statistic to plot")
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
+    parser.add_argument('-o', '--output', help="Output file name for summary of problematic data",
+                        default="coverage_issues.txt")
 
     args = parser.parse_args()
 
@@ -48,44 +50,56 @@ if __name__ == "__main__":
         connection.setup([args.address], "coveragestore")
 
     summary_data = defaultdict(lambda: defaultdict(list))
+    problem_amplicons1 = defaultdict(list)
+    problem_amplicons2 = defaultdict(list)
     sys.stdout.write("Calculation coverage data per amplicon/region\n")
     num_regions = len(regions)
-    for region in regions:
-        sys.stdout.write("Running Cassandra query for region {}\n".format(region))
-        samples = AmpliconCoverage.objects.timeout(None).filter(amplicon=region,
-                                                                num_libraries_in_run=args.num_libraries).allow_filtering()
 
-        ordered_samples = samples.order_by('sample', 'run_id', 'library_name').limit(samples.count() + 1000)
+    with open(args.output, 'w') as output:
+        for region in regions:
+            sys.stdout.write("Running Cassandra query for region {}\n".format(region))
+            samples = AmpliconCoverage.objects.timeout(None).filter(amplicon=region,
+                                                                    num_libraries_in_run=args.num_libraries).allow_filtering()
 
-        # sys.stdout.write("Retrieved data for {} libraries\n".format(samples.count()))
-        passing_variants = list()
-        passed = 0
-        iterated = 0
-        data = defaultdict(lambda: defaultdict(list))
-        counts = defaultdict(int)
-        for sample in ordered_samples:
-            counts[sample.extraction] += 1
-            data[sample.extraction]['num_reads'].append(sample.num_reads)
-            data[sample.extraction]['mean_coverage'].append(sample.mean_coverage)
-            data[sample.extraction]['percent_bp1'].append(sample.perc_bp_cov_at_thresholds[500])
-            data[sample.extraction]['percent_bp2'].append(sample.perc_bp_cov_at_thresholds[1000])
+            ordered_samples = samples.order_by('sample', 'run_id', 'library_name').limit(samples.count() + 1000)
 
-            summary_data[sample.extraction]['num_reads'].append(sample.num_reads)
-            summary_data[sample.extraction]['mean_coverage'].append(sample.mean_coverage)
-            summary_data[sample.extraction]['percent_bp1'].append(sample.perc_bp_cov_at_thresholds[500])
-            summary_data[sample.extraction]['percent_bp2'].append(sample.perc_bp_cov_at_thresholds[1000])
+            # sys.stdout.write("Retrieved data for {} libraries\n".format(samples.count()))
+            passing_variants = list()
+            passed = 0
+            iterated = 0
+            data = defaultdict(lambda: defaultdict(list))
+            counts = defaultdict(int)
+            for sample in ordered_samples:
+                counts[sample.extraction] += 1
+                data[sample.extraction]['num_reads'].append(sample.num_reads)
+                data[sample.extraction]['mean_coverage'].append(sample.mean_coverage)
+                data[sample.extraction]['percent_bp1'].append(sample.perc_bp_cov_at_thresholds[500])
+                data[sample.extraction]['percent_bp2'].append(sample.perc_bp_cov_at_thresholds[1000])
 
-            iterated += 1
+                summary_data[sample.extraction]['num_reads'].append(sample.num_reads)
+                summary_data[sample.extraction]['mean_coverage'].append(sample.mean_coverage)
+                summary_data[sample.extraction]['percent_bp1'].append(sample.perc_bp_cov_at_thresholds[500])
+                summary_data[sample.extraction]['percent_bp2'].append(sample.perc_bp_cov_at_thresholds[1000])
 
-        # sys.stdout.write("Processed {} libraries\n".format(iterated))
-        # traces = list()
-        # for extraction in data:
-        #     # sys.stdout.write("Extraction: {}, Num Libraries {}\n".format(extraction, counts[extraction]))
-        #     trace = go.Box(y=data[extraction][args.stat], boxpoints='all', jitter=0.3, pointpos=1.8,
-        #                    name="{} ({})".format(extraction, len(data[extraction][args.stat])))
-        #     traces.append(trace)
-        #
-        # plotly.offline.plot(traces, filename="{}_{}_boxplot.html".format(region, args.stat))
+                if sample.perc_bp_cov_at_thresholds[500] < 100.00:
+                    problem_amplicons1[region].append((sample.sample, sample.run_id, sample.library_name))
+
+                if sample.perc_bp_cov_at_thresholds[1000] < 100.00:
+                    problem_amplicons2[region].append((sample.sample, sample.run_id, sample.library_name))
+
+                iterated += 1
+
+            output.write("")
+
+            # sys.stdout.write("Processed {} libraries\n".format(iterated))
+            # traces = list()
+            # for extraction in data:
+            #     # sys.stdout.write("Extraction: {}, Num Libraries {}\n".format(extraction, counts[extraction]))
+            #     trace = go.Box(y=data[extraction][args.stat], boxpoints='all', jitter=0.3, pointpos=1.8,
+            #                    name="{} ({})".format(extraction, len(data[extraction][args.stat])))
+            #     traces.append(trace)
+            #
+            # plotly.offline.plot(traces, filename="{}_{}_boxplot.html".format(region, args.stat))
 
     traces = list()
     for extraction in summary_data:
