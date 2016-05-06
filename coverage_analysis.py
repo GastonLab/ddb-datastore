@@ -6,6 +6,9 @@ import argparse
 import utils
 import getpass
 import plotly
+import plotly.plotly as py
+import plotly.graph_objs as go
+
 
 from collections import defaultdict
 
@@ -30,6 +33,7 @@ if __name__ == "__main__":
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
     parser.add_argument('-n', '--num_libraries', help='Number of libraries to consider when calculating coverage '
                                                       'stats', default=8)
+    parser.add_argument('-s', '--stat', help="Statistic to plot")
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
 
     args = parser.parse_args()
@@ -39,14 +43,13 @@ if __name__ == "__main__":
     if args.username:
         password = getpass.getpass()
         auth_provider = PlainTextAuthProvider(username=args.username, password=password)
-        connection.setup([args.address], "variantstore", auth_provider=auth_provider)
+        connection.setup([args.address], "coveragestore", auth_provider=auth_provider)
     else:
-        connection.setup([args.address], "variantstore")
+        connection.setup([args.address], "coveragestore")
 
-    thresholds = {'threshold1': 500,
-                  'threshold2': 1000}
-
+    summary_data = defaultdict(lambda: defaultdict(list))
     sys.stdout.write("Calculation coverage data per amplicon/region\n")
+    num_regions = len(regions)
     for region in regions:
         sys.stdout.write("Running Cassandra query for region {}\n".format(region))
         samples = AmpliconCoverage.objects.timeout(None).filter(amplicon=region,
@@ -54,20 +57,41 @@ if __name__ == "__main__":
 
         ordered_samples = samples.order_by('sample', 'run_id', 'library_name').limit(samples.count() + 1000)
 
-        sys.stdout.write("Retrieved data for {} libraries\n".format(samples.count()))
+        # sys.stdout.write("Retrieved data for {} libraries\n".format(samples.count()))
         passing_variants = list()
         passed = 0
         iterated = 0
-        data = defaultdict(list)
+        data = defaultdict(lambda: defaultdict(list))
         counts = defaultdict(int)
         for sample in ordered_samples:
             counts[sample.extraction] += 1
-            data[sample.extraction].append(sample.num_reads)
+            data[sample.extraction]['num_reads'].append(sample.num_reads)
+            data[sample.extraction]['mean_coverage'].append(sample.mean_coverage)
+            data[sample.extraction]['percent_bp1'].append(sample.perc_bp_cov_at_thresholds[500])
+            data[sample.extraction]['percent_bp2'].append(sample.perc_bp_cov_at_thresholds[1000])
+
+            summary_data[sample.extraction]['num_reads'].append(sample.num_reads)
+            summary_data[sample.extraction]['mean_coverage'].append(sample.mean_coverage)
+            summary_data[sample.extraction]['percent_bp1'].append(sample.perc_bp_cov_at_thresholds[500])
+            summary_data[sample.extraction]['percent_bp2'].append(sample.perc_bp_cov_at_thresholds[1000])
 
             iterated += 1
 
-        sys.stdout.write("Processed {} libraries\n".format(iterated))
-        for extraction in data:
-            sys.stdout.write("Extraction: {}, Num Libraries {}\n".format(extraction, counts[extraction]))
+        # sys.stdout.write("Processed {} libraries\n".format(iterated))
+        # traces = list()
+        # for extraction in data:
+        #     # sys.stdout.write("Extraction: {}, Num Libraries {}\n".format(extraction, counts[extraction]))
+        #     trace = go.Box(y=data[extraction][args.stat], boxpoints='all', jitter=0.3, pointpos=1.8,
+        #                    name="{} ({})".format(extraction, len(data[extraction][args.stat])))
+        #     traces.append(trace)
+        #
+        # plotly.offline.plot(traces, filename="{}_{}_boxplot.html".format(region, args.stat))
 
-        # plotly.offline.plot()
+    traces = list()
+    for extraction in summary_data:
+        # sys.stdout.write("Extraction: {}, Num Libraries {}\n".format(extraction, counts[extraction]))
+        trace = go.Box(y=summary_data[extraction][args.stat], boxpoints='all', jitter=0.3, pointpos=1.8,
+                       name="{} ({})".format(extraction, len(summary_data[extraction][args.stat]) / num_regions))
+        traces.append(trace)
+
+    plotly.offline.plot(traces, filename="{}_{}_{}_regions-boxplot.html".format("All", args.stat, num_regions))
