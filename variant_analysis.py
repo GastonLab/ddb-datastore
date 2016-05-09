@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
     callers = ['mutect', 'freebayes', 'scalpel', 'vardict', 'platypus', 'pindel']
 
-    summary_data = defaultdict(lambda: defaultdict(dict))
+    summary_data = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
 
     sys.stdout.write("Processing samples\n")
     for sample in samples:
@@ -61,8 +61,7 @@ if __name__ == "__main__":
                                                               SampleVariant.max_depth >= thresholds['depth']
                                                               ).allow_filtering()
 
-        ordered_variants = variants.order_by('library_name', 'reference_genome',
-                                             'chr', 'pos').limit(variants.count() + 1000)
+        ordered_variants = variants.order_by('reference_genome', 'chr', 'pos').limit(variants.count() + 1000)
 
         sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
         sys.stdout.write("Running filters on sample variants\n")
@@ -73,3 +72,11 @@ if __name__ == "__main__":
             iterated += 1
             flag, info = utils.variant_filter(variant, callers, thresholds)
             passing_variants.append((variant, flag, info))
+            if info['clinvar'] == "Not Benign":
+                summary_data["{}_{}".format(samples[sample]['sample_name'], samples[sample]['target_pool'])][samples[sample]['num_libraries_in_run']]['clinvar'] += 1
+            if variant.severity != "LOW":
+                summary_data["{}_{}".format(samples[sample]['sample_name'], samples[sample]['target_pool'])][samples[sample]['num_libraries_in_run']]['med_high'] += 1
+
+        summary_data["{}_{}".format(samples[sample]['sample_name'], samples[sample]['target_pool'])][samples[sample]['num_libraries_in_run']]['total'] = iterated
+
+    # Output
