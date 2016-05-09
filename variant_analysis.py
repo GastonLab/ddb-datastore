@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
     sys.stdout.write("Processing samples\n")
     for sample in samples:
-        sys.stdout.write("Running Cassandra query for sample {}\n".format(sample))
+        sys.stdout.write("Running Cassandra query for library {}\n".format(samples[sample]['library_name']))
         variants = SampleVariant.objects.timeout(None).filter(SampleVariant.sample == samples[sample]['sample_name'],
                                                               SampleVariant.run_id == samples[sample]['run_id'],
                                                               SampleVariant.library_name == samples[sample]['library_name'],
