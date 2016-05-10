@@ -34,9 +34,10 @@ if __name__ == "__main__":
     parser.add_argument('-n', '--num_libraries', help='Number of libraries to consider when calculating coverage '
                                                       'stats', default=8)
     parser.add_argument('-s', '--stat', help="Statistic to plot")
+    parser.add_argument('-i', '--include_simulated', help="Statistic to plot", default=False)
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
     parser.add_argument('-o', '--output', help="Output file name for summary of problematic data",
-                        default="coverage_issues.txt")
+                        default="coverage_issues.txt",)
 
     args = parser.parse_args()
 
@@ -56,6 +57,11 @@ if __name__ == "__main__":
     num_regions = len(regions)
 
     with open(args.output, 'w') as output:
+        output.write("Amplicon\tNum Samples\tNum Samples < 10% bp @ 500x\tNum Samples < 10% bp @ 1000x\t"
+                     "Num Samples < 20% bp @ 500x\tNum Samples < 20% bp @ 1000x\tNum Samples < 30% bp @ 500x\t"
+                     "Num Samples < 30% bp @ 1000x\tNum Samples < 50% bp @ 500x\tNum Samples < 50% bp @ 1000x\t"
+                     "Num Samples < 80% bp @ 500x\tNum Samples < 80% bp @ 1000x\tNum Samples < 100% bp @ 500x\t"
+                     "Num Samples < 100% bp @ 1000x\tNum Samples OK 500x\tNum Samples OK 1000x\n")
         for region in regions:
             sys.stdout.write("Running Cassandra query for region {}\n".format(region))
             samples = AmpliconCoverage.objects.timeout(None).filter(amplicon=region,
@@ -69,7 +75,12 @@ if __name__ == "__main__":
             iterated = 0
             data = defaultdict(lambda: defaultdict(list))
             counts = defaultdict(int)
+            problem_counts = defaultdict(lambda: defaultdict(int))
             for sample in ordered_samples:
+                if not args.include_simulated:
+                    if sample.library_name.startswith("subsample-"):
+                        continue
+
                 counts[sample.extraction] += 1
                 data[sample.extraction]['num_reads'].append(sample.num_reads)
                 data[sample.extraction]['mean_coverage'].append(sample.mean_coverage)
@@ -87,25 +98,78 @@ if __name__ == "__main__":
                 if sample.perc_bp_cov_at_thresholds[1000] < 100.00:
                     problem_amplicons2[region].append((sample.sample, sample.run_id, sample.library_name))
 
+                if sample.perc_bp_cov_at_thresholds[500] <= 10.00:
+                    problem_counts[500][10] += 1
+                elif 10.00 < sample.perc_bp_cov_at_thresholds[500] <= 20.00:
+                    problem_counts[500][20] += 1
+                elif 20.00 < sample.perc_bp_cov_at_thresholds[500] <= 30.00:
+                    problem_counts[500][30] += 1
+                elif 30.00 < sample.perc_bp_cov_at_thresholds[500] <= 50.00:
+                    problem_counts[500][50] += 1
+                elif 50.00 < sample.perc_bp_cov_at_thresholds[500] <= 80.00:
+                    problem_counts[500][80] += 1
+                elif 80.00 < sample.perc_bp_cov_at_thresholds[500] < 100.00:
+                    problem_counts[500][100] += 1
+                else:
+                    problem_counts[500]['ok'] += 1
+
+                if sample.perc_bp_cov_at_thresholds[1000] <= 10.00:
+                    problem_counts[1000][10] += 1
+                elif 10.00 < sample.perc_bp_cov_at_thresholds[1000] <= 20.00:
+                    problem_counts[1000][20] += 1
+                elif 20.00 < sample.perc_bp_cov_at_thresholds[1000] <= 30.00:
+                    problem_counts[1000][30] += 1
+                elif 30.00 < sample.perc_bp_cov_at_thresholds[1000] <= 50.00:
+                    problem_counts[1000][50] += 1
+                elif 50.00 < sample.perc_bp_cov_at_thresholds[1000] <= 80.00:
+                    problem_counts[1000][80] += 1
+                elif 80.00 < sample.perc_bp_cov_at_thresholds[1000] < 100.00:
+                    problem_counts[1000][100] += 1
+                else:
+                    problem_counts[1000]['ok'] += 1
+
                 iterated += 1
 
-            output.write("")
+            if problem_counts[500]['ok'] < iterated:
+                output.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}"
+                             "\n".format(region, iterated,
+                                         problem_counts[500][10], problem_counts[1000][10],
+                                         problem_counts[500][20], problem_counts[1000][20],
+                                         problem_counts[500][30], problem_counts[1000][30],
+                                         problem_counts[500][50], problem_counts[1000][50],
+                                         problem_counts[500][80], problem_counts[1000][80],
+                                         problem_counts[500][100], problem_counts[1000][100],
+                                         problem_counts[500]['ok'], problem_counts[1000]['ok']))
 
-            # sys.stdout.write("Processed {} libraries\n".format(iterated))
-            # traces = list()
-            # for extraction in data:
-            #     # sys.stdout.write("Extraction: {}, Num Libraries {}\n".format(extraction, counts[extraction]))
-            #     trace = go.Box(y=data[extraction][args.stat], boxpoints='all', jitter=0.3, pointpos=1.8,
-            #                    name="{} ({})".format(extraction, len(data[extraction][args.stat])))
-            #     traces.append(trace)
-            #
-            # plotly.offline.plot(traces, filename="{}_{}_boxplot.html".format(region, args.stat))
+                traces = list()
+                for extraction in data:
+                    trace = go.Box(y=data[extraction][args.stat], boxpoints='all', jitter=0.3, pointpos=1.8,
+                                   name="{} ({})".format(extraction, len(data[extraction][args.stat])))
+                    traces.append(trace)
 
-    traces = list()
+                plotly.offline.plot(traces, filename="{}_{}_boxplot.html".format(region, args.stat))
+
+    boxplots = list()
+    histograms = list()
     for extraction in summary_data:
         # sys.stdout.write("Extraction: {}, Num Libraries {}\n".format(extraction, counts[extraction]))
-        trace = go.Box(y=summary_data[extraction][args.stat], boxpoints='all', jitter=0.3, pointpos=1.8,
-                       name="{} ({})".format(extraction, len(summary_data[extraction][args.stat]) / num_regions))
-        traces.append(trace)
+        boxplot = go.Box(y=summary_data[extraction][args.stat], boxpoints='all', jitter=0.3, pointpos=1.8,
+                         name="{} ({})".format(extraction, len(summary_data[extraction][args.stat]) / num_regions))
+        histogram = go.Histogram(x=summary_data[extraction][args.stat], opacity=0.75, autobinx=False,
+                                 xbins=dict(
+                                    start=0,
+                                    end=100,
+                                    size=10
+                                 ))
 
-    plotly.offline.plot(traces, filename="{}_{}_{}_regions-boxplot.html".format("All", args.stat, num_regions))
+        boxplots.append(boxplot)
+        histograms.append(histogram)
+
+    plotly.offline.plot(boxplots, filename="{}_{}_{}_regions-boxplot.html".format("All", args.stat, num_regions))
+
+    layout = go.Layout(
+        barmode='overlay'
+    )
+
+    fig = go.Figure(data=histograms, layout=layout)
+    plotly.offline.plot(fig, filename="{}_{}_{}_regions-distribution.html".format("All", args.stat, num_regions))
