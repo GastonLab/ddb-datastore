@@ -80,3 +80,6 @@ if __name__ == "__main__":
         summary_data["{}_{}".format(samples[sample]['sample_name'], samples[sample]['target_pool'])][samples[sample]['num_libraries_in_run']]['total'] = iterated
 
     # Output
+    with open("variant_report.txt", 'w') as output:
+        for library in summary_data:
+            output.write("{}".format(library))

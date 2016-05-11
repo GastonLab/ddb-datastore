@@ -3,10 +3,8 @@
 import sys
 import csv
 import argparse
-import utils
 import getpass
 import plotly
-import plotly.plotly as py
 import plotly.graph_objs as go
 
 
@@ -53,6 +51,7 @@ if __name__ == "__main__":
     summary_data = defaultdict(lambda: defaultdict(list))
     problem_amplicons1 = defaultdict(list)
     problem_amplicons2 = defaultdict(list)
+    problem_amplicon_traces = list()
     sys.stdout.write("Calculation coverage data per amplicon/region\n")
     num_regions = len(regions)
 
@@ -141,13 +140,10 @@ if __name__ == "__main__":
                                          problem_counts[500][100], problem_counts[1000][100],
                                          problem_counts[500]['ok'], problem_counts[1000]['ok']))
 
-                traces = list()
                 for extraction in data:
                     trace = go.Box(y=data[extraction][args.stat], boxpoints='all', jitter=0.3, pointpos=1.8,
-                                   name="{} ({})".format(extraction, len(data[extraction][args.stat])))
-                    traces.append(trace)
-
-                plotly.offline.plot(traces, filename="{}_{}_boxplot.html".format(region, args.stat))
+                                   name="{} ({})".format(region, extraction))
+                    problem_amplicon_traces.append(trace)
 
     boxplots = list()
     histograms = list()
@@ -173,3 +169,5 @@ if __name__ == "__main__":
 
     fig = go.Figure(data=histograms, layout=layout)
     plotly.offline.plot(fig, filename="{}_{}_{}_regions-distribution.html".format("All", args.stat, num_regions))
+
+    plotly.offline.plot(problem_amplicon_traces, filename="problem_amplicons_{}.html".format(args.stat))
