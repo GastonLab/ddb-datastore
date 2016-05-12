@@ -76,6 +76,6 @@ if __name__ == "__main__":
                                           sample.program_name))
                 session.execute("DELETE FROM sample_coverage WHERE sample = '{}' AND amplicon = '{}' AND "
                                 "run_id = '{}' AND library_name = '{}' AND program_name = '{}'"
-                                "".format(region, sample.sample, sample.run_id, sample.library_name,
+                                "".format(sample.sample, region, sample.run_id, sample.library_name,
                                           sample.program_name))
                 iterated += 1

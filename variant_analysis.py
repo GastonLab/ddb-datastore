@@ -21,7 +21,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--samples_file', help="Input configuration file for samples")
     parser.add_argument('-c', '--configuration', help="Configuration file for various settings")
-    parser.add_argument('-r', '--report', help="Root name for reports (per sample)")
+    parser.add_argument('-r', '--report', help="Name for output report")
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
     parser.add_argument('-v', '--variant_callers', help="Comma-delimited list of variant callers used")
@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
     callers = ['mutect', 'freebayes', 'scalpel', 'vardict', 'platypus', 'pindel']
 
-    summary_data = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
+    summary_data = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 
     sys.stdout.write("Processing samples\n")
     for sample in samples:
@@ -61,9 +61,9 @@ if __name__ == "__main__":
                                                               SampleVariant.max_depth >= thresholds['depth']
                                                               ).allow_filtering()
 
-        ordered_variants = variants.order_by('reference_genome', 'chr', 'pos').limit(variants.count() + 1000)
-
-        sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
+        ordered_variants = variants.order_by('library_name', 'reference_genome', 'chr',
+                                             'pos').limit(variants.count() + 1000)
+        
         sys.stdout.write("Running filters on sample variants\n")
         passing_variants = list()
         passed = 0
@@ -73,13 +73,18 @@ if __name__ == "__main__":
             flag, info = utils.variant_filter(variant, callers, thresholds)
             passing_variants.append((variant, flag, info))
             if info['clinvar'] == "Not Benign":
-                summary_data["{}_{}".format(samples[sample]['sample_name'], samples[sample]['target_pool'])][samples[sample]['num_libraries_in_run']]['clinvar'] += 1
+                summary_data["{}_{}".format(variant.sample, variant.target_pool)][samples[sample]['num_libraries_in_run']]['clinvar'] += 1
             if variant.severity != "LOW":
-                summary_data["{}_{}".format(samples[sample]['sample_name'], samples[sample]['target_pool'])][samples[sample]['num_libraries_in_run']]['med_high'] += 1
+                summary_data["{}_{}".format(variant.sample, variant.target_pool)][samples[sample]['num_libraries_in_run']]['med_high'] += 1
 
-        summary_data["{}_{}".format(samples[sample]['sample_name'], samples[sample]['target_pool'])][samples[sample]['num_libraries_in_run']]['total'] = iterated
+        summary_data["{}_{}".format(variant.sample, variant.target_pool)][samples[sample]['num_libraries_in_run']]['all'] = iterated
 
     # Output
     with open("variant_report.txt", 'w') as output:
+        output.write("Sample and Target Pool\tNum Libraries in Run\tNum Clinvar\tNum Med+High\tAll\n")
         for library in summary_data:
-            output.write("{}".format(library))
+            for num_libs in summary_data[library]:
+                output.write("{}\t{}\t{}\t{}\t{}\n".format(library, num_libs,
+                                                           summary_data[library][num_libs]['clinvar'],
+                                                           summary_data[library][num_libs]['med_high'],
+                                                           summary_data[library][num_libs]['all']))
