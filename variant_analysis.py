@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
         ordered_variants = variants.order_by('library_name', 'reference_genome', 'chr',
                                              'pos').limit(variants.count() + 1000)
-        
+
         sys.stdout.write("Running filters on sample variants\n")
         passing_variants = list()
         passed = 0
