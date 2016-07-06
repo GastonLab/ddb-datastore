@@ -86,13 +86,18 @@ def variant_filter(variant, callers, thresholds):
     else:
         info['max_maf'] = "Common"
 
+    if variant.amplicon_data['amplicon'] is not 'None':
+        info['dual'] = True
+    else:
+        info['dual'] = False
+
     return flag, info
 
 
 def write_sample_variant_report(report_root, sample, variants, callers, thresholds):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
         report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\tClinvar_Flag\tAAF_Flag\t"
-                     "In_Amplicon\tAmplicon\tAmplicon_Myeloid\tAmpliconA\tAmpliconB\t"
+                     "In_Amplicon\tDual Flag\tAmplicon\tAmplicon_Myeloid\tAmpliconA\tAmpliconB\t"
                      "COSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\t"
                      "Clin_Sig\tClin_Pathogenic\tClin_HGVS\tClin_Disease\tClin_Rev\tClin_Origin\tClin_Acc\t"
                      "Biotype\tImpact\tImpact SO\tSeverity\t"
@@ -123,7 +128,7 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
         for data in variants:
             variant, flag, info = data
             report.write("{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t{codon}\t{aa}\t{rsids}\t"
-                         "{info_clin}\t{info_maf}\t{in_amp}\t{amp}\t{ampm}\t{ampa}\t{ampb}\t"
+                         "{info_clin}\t{info_maf}\t{in_amp}\t{info_dual}\t{amp}\t{ampm}\t{ampa}\t{ampb}\t"
                          "{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
                          "{csig}\t{cpath}\t{hgvs}\t{cdis}\t{crev}\t{corigin}\t"
                          "{cacc}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t{in_clin}\t{is_path}\t{is_code}\t"
@@ -142,6 +147,7 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
                                      info_clin=info['clinvar'],
                                      info_maf=info['max_maf'],
                                      in_amp=variant.amplicon_data['in_amplicon'],
+                                     info_dual=info['dual'],
                                      amp=variant.amplicon_data['amplicon'],
                                      ampm=variant.amplicon_data['amplicon_myeloid'],
                                      ampa=variant.amplicon_data['ampliconA'],
