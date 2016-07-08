@@ -87,7 +87,7 @@ def variant_filter(variant, callers, thresholds):
         info['max_maf'] = "Common"
 
     print variant.amplicon_data
-    
+
     if variant.amplicon_data['amplicon'] is not 'None':
         info['dual'] = True
     else:
