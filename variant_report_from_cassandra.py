@@ -5,7 +5,7 @@ import argparse
 import utils
 import getpass
 from ddb import configuration
-from variantstore import SampleVariant
+from variantstore import Variant
 from cassandra.cqlengine import connection
 from cassandra.auth import PlainTextAuthProvider
 
@@ -33,36 +33,23 @@ if __name__ == "__main__":
     else:
         connection.setup([args.address], "variantstore")
 
-    thresholds = {'min_saf': 0.02,
-                  'max_maf': 0.005,
-                  'depth': 500,
-                  'regions': config['actionable_regions']}
-
     callers = ['mutect', 'freebayes', 'scalpel', 'vardict', 'platypus', 'pindel']
 
     sys.stdout.write("Processing samples\n")
+
+    sys.stdout.write("Running Cassandra query\n")
+    variants = list()
     for sample in samples:
-        sys.stdout.write("Running Cassandra query for sample {}\n".format(sample))
-        variants = SampleVariant.objects.timeout(None).filter(SampleVariant.sample == samples[sample]['sample_name'],
-                                                              SampleVariant.run_id == samples[sample]['run_id'],
-                                                              SampleVariant.library_name == samples[sample]['library_name'],
-                                                              SampleVariant.max_som_aaf >= thresholds['min_saf'],
-                                                              SampleVariant.max_maf_all <= thresholds['max_maf'],
-                                                              SampleVariant.max_depth >= thresholds['depth']
-                                                              ).allow_filtering()
+        variants = Variant.objects.timeout(None).filter(Variant.chr == '7',
+                                                        Variant.pos == 55249070,
+                                                        Variant.sample == samples[sample]['sample_name'],
+                                                        Variant.run_id == samples[sample]['run_id'],
+                                                        Variant.library_name == samples[sample]['library_name'],
+                                                        ).allow_filtering()
 
-        ordered_variants = variants.order_by('library_name', 'reference_genome',
-                                             'chr', 'pos').limit(variants.count() + 1000)
+        ordered_variants = variants.order_by('reference_genome', 'chr', 'pos', 'ref', 'alt', 'sample',
+                                             'library_name', 'run_id').limit(variants.count() + 1000)
+        variants.extend(ordered_variants)
 
-        sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
-        sys.stdout.write("Running filters on sample variants\n")
-        passing_variants = list()
-        passed = 0
-        iterated = 0
-        for variant in ordered_variants:
-            iterated += 1
-            flag, info = utils.variant_filter(variant, callers, thresholds)
-            passing_variants.append((variant, flag, info))
-
-        sys.stdout.write("Writing {} passing variants (of {}) to sample report\n".format(passed, iterated))
-        utils.write_sample_variant_report(args.report, sample, passing_variants, args.variant_callers, thresholds)
+    sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
+    utils.write_variant_report(args.report, variants, callers)
