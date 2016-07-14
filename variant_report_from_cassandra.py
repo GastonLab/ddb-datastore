@@ -38,7 +38,7 @@ if __name__ == "__main__":
     sys.stdout.write("Processing samples\n")
 
     sys.stdout.write("Running Cassandra query\n")
-    variants = list()
+    output_variants = list()
     for sample in samples:
         variants = Variant.objects.timeout(None).filter(Variant.chr == '7',
                                                         Variant.pos == 55249070,
@@ -48,7 +48,7 @@ if __name__ == "__main__":
                                                         ).allow_filtering()
 
         ordered_variants = variants.order_by('sample', 'library_name', 'run_id').limit(variants.count() + 1000)
-        variants.extend(ordered_variants)
+        output_variants.extend(ordered_variants)
 
     sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
     utils.write_variant_report(args.report, variants, callers)
