@@ -35,6 +35,11 @@ if __name__ == "__main__":
 
     callers = ['mutect', 'freebayes', 'scalpel', 'vardict', 'platypus', 'pindel']
 
+    thresholds = {'min_saf': 0.00000000001,
+                  'max_maf': 0.005,
+                  'depth': 500,
+                  'regions': config['actionable_regions']}
+
     sys.stdout.write("Processing samples\n")
 
     sys.stdout.write("Running Cassandra query\n")
@@ -47,8 +52,7 @@ if __name__ == "__main__":
                                                         Variant.library_name == samples[sample]['library_name'],
                                                         ).allow_filtering()
 
-        # ordered_variants = variants.order_by('ref', 'alt').limit(variants.count() + 1000)
+        sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
         output_variants.extend(variants)
 
-    sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
-    utils.write_variant_report(args.report, variants, callers)
+    utils.write_variant_report(args.report, output_variants, callers)

@@ -237,11 +237,10 @@ def write_variant_report(report_root, variants, callers):
 
         report.write("\n")
 
-        for data in variants:
-            variant, flag, info = data
+        for variant in variants:
             report.write("{sample}\t{library}\t{run_id}\t"
                          "{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t{codon}\t{aa}\t{rsids}\t"
-                         "{info_clin}\t{info_maf}\t{in_amp}\t{info_dual}\t{amp}\t{ampm}\t{ampa}\t{ampb}\t"
+                         "{in_amp}\t{amp}\t{ampm}\t{ampa}\t{ampb}\t"
                          "{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
                          "{csig}\t{cpath}\t{hgvs}\t{cdis}\t{crev}\t{corigin}\t"
                          "{cacc}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t{in_clin}\t{is_path}\t{is_code}\t"
@@ -258,10 +257,7 @@ def write_variant_report(report_root, variants, callers):
                                      cosmic=",".join(variant.cosmic_ids) or None,
                                      cosmic_nsamples=variant.cosmic_data['num_samples'],
                                      cosmic_aa=variant.cosmic_data['aa'],
-                                     info_clin=info['clinvar'],
-                                     info_maf=info['max_maf'],
                                      in_amp=variant.amplicon_data['in_amplicon'],
-                                     info_dual=info['dual'],
                                      amp=variant.amplicon_data['amplicon'],
                                      ampm=variant.amplicon_data['amplicon_myeloid'],
                                      ampa=variant.amplicon_data['ampliconA'],
