@@ -47,8 +47,8 @@ if __name__ == "__main__":
                                                         Variant.library_name == samples[sample]['library_name'],
                                                         ).allow_filtering()
 
-        ordered_variants = variants.order_by('ref', 'alt').limit(variants.count() + 1000)
-        output_variants.extend(ordered_variants)
+        # ordered_variants = variants.order_by('ref', 'alt').limit(variants.count() + 1000)
+        output_variants.extend(variants)
 
     sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
     utils.write_variant_report(args.report, variants, callers)
