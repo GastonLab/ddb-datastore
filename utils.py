@@ -207,7 +207,8 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
 
 def write_variant_report(report_root, variants, callers):
     with open("{}.txt".format(report_root), 'w') as report:
-        report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\tClinvar_Flag\tAAF_Flag\t"
+        report.write("Sample\tLibrary\tRunID\tChrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\tClinvar_Flag\t"
+                     "AAF_Flag\t"
                      "In_Amplicon\tDual Flag\tAmplicon\tAmplicon_Myeloid\tAmpliconA\tAmpliconB\t"
                      "COSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\t"
                      "Clin_Sig\tClin_Pathogenic\tClin_HGVS\tClin_Disease\tClin_Rev\tClin_Origin\tClin_Acc\t"
@@ -238,7 +239,8 @@ def write_variant_report(report_root, variants, callers):
 
         for data in variants:
             variant, flag, info = data
-            report.write("{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t{codon}\t{aa}\t{rsids}\t"
+            report.write("{sample}\t{library}\t{run_id}\t"
+                         "{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t{codon}\t{aa}\t{rsids}\t"
                          "{info_clin}\t{info_maf}\t{in_amp}\t{info_dual}\t{amp}\t{ampm}\t{ampa}\t{ampb}\t"
                          "{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
                          "{csig}\t{cpath}\t{hgvs}\t{cdis}\t{crev}\t{corigin}\t"
@@ -248,7 +250,8 @@ def write_variant_report(report_root, variants, callers):
                          "{vdp}\t{vad}\t{vaf}\t{ffilter}\t{fmulti}\t{fdp}\t{faf}\t{fro}\t{fao}\t{sfilter}\t{smulti}\t"
                          "{sdp}\t{sad}\t{saf}\t{plfilter}\t{plmulti}\t{pldp}\t{plad}\t{plaf}\t{pfilter}\t{pmulti}\t"
                          "{pdp}\t{pad}\t{paf}"
-                         "\n".format(chr=variant.chr, start=variant.pos, end=variant.end,
+                         "\n".format(sample=variant.sample, library=variant.library_name, run_id=variant.run_id,
+                                     chr=variant.chr, start=variant.pos, end=variant.end,
                                      gene=variant.gene, ref=variant.ref, alt=variant.alt, exon=variant.exon,
                                      codon=variant.codon_change, aa=variant.aa_change,
                                      rsids=",".join(variant.rs_ids),
