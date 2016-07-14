@@ -47,7 +47,7 @@ if __name__ == "__main__":
                                                         Variant.library_name == samples[sample]['library_name'],
                                                         ).allow_filtering()
 
-        ordered_variants = variants.order_by('sample', 'library_name', 'run_id').limit(variants.count() + 1000)
+        ordered_variants = variants.order_by('ref', 'alt').limit(variants.count() + 1000)
         output_variants.extend(ordered_variants)
 
     sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
