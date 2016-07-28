@@ -90,9 +90,9 @@ class SampleVariant(Model):
     __keyspace__ = 'variantstore'
     sample = columns.Text(primary_key=True, partition_key=True)
     run_id = columns.Text(primary_key=True, partition_key=True)
+    reference_genome = columns.Text(primary_key=True, partition_key=True)
     library_name = columns.Text(primary_key=True)
 
-    reference_genome = columns.Text(primary_key=True)
     chr = columns.Text(primary_key=True)
     pos = columns.Integer(primary_key=True)
 
@@ -173,11 +173,11 @@ class SampleVariant(Model):
 class GeneVariant(Model):
     __keyspace__ = 'variantstore'
     gene = columns.Text(primary_key=True, partition_key=True)
+    reference_genome = columns.Text(primary_key=True, partition_key=True)
     sample = columns.Text(primary_key=True)
-    run_id = columns.Text(primary_key=True)
     library_name = columns.Text(primary_key=True)
+    run_id = columns.Text(primary_key=True)
 
-    reference_genome = columns.Text(primary_key=True)
     chr = columns.Text(primary_key=True)
     pos = columns.Integer(primary_key=True)
 
@@ -257,11 +257,11 @@ class GeneVariant(Model):
 class AmpliconVariant(Model):
     __keyspace__ = 'variantstore'
     amplicon = columns.Text(primary_key=True, partition_key=True)
+    reference_genome = columns.Text(primary_key=True, partition_key=True)
     sample = columns.Text(primary_key=True)
-    run_id = columns.Text(primary_key=True)
     library_name = columns.Text(primary_key=True)
+    run_id = columns.Text(primary_key=True)
 
-    reference_genome = columns.Text(primary_key=True)
     chr = columns.Text(primary_key=True)
     pos = columns.Integer(primary_key=True)
 
