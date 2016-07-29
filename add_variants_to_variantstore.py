@@ -22,7 +22,7 @@ from ddb_ngsflow import pipeline
 from toil.job import Job
 
 
-def process_sample(job, addresses, keyspace, authenticator, parse_functions, thresholds, report_root, variant_callers,
+def process_sample(job, addresses, keyspace, authenticator, parse_functions, variant_callers,
                    sample, samples, config):
     connection.setup(addresses, keyspace, auth_provider=authenticator)
 
@@ -191,15 +191,6 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, thr
                 manta=caller_variant_data_dicts['manta'] or dict()
                 )
 
-        flag, info = utils.variant_filter(cassandra_variant, callers, thresholds)
-        if cassandra_variant.max_som_aaf >= thresholds['min_saf']:
-            passed += 1
-            report_variants.append((cassandra_variant, flag, info))
-
-    if report_root:
-        sys.stdout.write("Outputting {} variants to report\n".format(passed))
-        utils.write_sample_variant_report(report_root, sample, report_variants, variant_callers, thresholds)
-
     job.fileStore.logToMaster("Data saved to Cassandra for sample {}\n".format(sample))
 
 
@@ -243,7 +234,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--samples_file', help="Input configuration file for samples")
     parser.add_argument('-c', '--configuration', help="Configuration file for various settings")
-    parser.add_argument('-r', '--report', help="Root name for reports (per sample)", default=None)
     parser.add_argument('-v', '--variant_callers', help="Comma-delimited list of variant callers used")
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
@@ -270,16 +260,11 @@ if __name__ == "__main__":
                        'platypus': vcf_parsing.parse_platypus_vcf_record,
                        'pindel': vcf_parsing.parse_pindel_vcf_record}
 
-    thresholds = {'min_saf': 0.02,
-                  'max_maf': 0.005,
-                  'min_depth': 500,
-                  'regions': config['actionable_regions']}
-
     root_job = Job.wrapJobFn(pipeline.spawn_batch_jobs, cores=1)
 
     for sample in samples:
         sample_job = Job.wrapJobFn(process_sample, [args.address], "variantstore", auth_provider, parse_functions,
-                                   thresholds, args.report, args.variant_callers, sample, samples, config,
+                                   args.variant_callers, sample, samples, config,
                                    cores=1)
         root_job.addChild(sample_job)
 
