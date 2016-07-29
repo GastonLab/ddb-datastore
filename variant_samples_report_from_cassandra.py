@@ -33,7 +33,7 @@ if __name__ == "__main__":
     else:
         connection.setup([args.address], "variantstore")
 
-    thresholds = {'min_saf': 0.00000000001,
+    thresholds = {'min_saf': 0.001,
                   'max_maf': 0.005,
                   'depth': 500,
                   'regions': config['actionable_regions']}
@@ -48,8 +48,7 @@ if __name__ == "__main__":
                                                               SampleVariant.library_name == samples[sample]['library_name'],
                                                               SampleVariant.max_som_aaf >= thresholds['min_saf'],
                                                               SampleVariant.max_maf_all <= thresholds['max_maf'],
-                                                              SampleVariant.max_depth >= thresholds['depth'],
-                                                              SampleVariant.gene == "EGFR"
+                                                              SampleVariant.max_depth >= thresholds['depth']
                                                               ).allow_filtering()
 
         ordered_variants = variants.order_by('library_name', 'reference_genome',
