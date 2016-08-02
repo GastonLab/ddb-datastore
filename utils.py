@@ -97,8 +97,7 @@ def variant_filter(variant, callers, thresholds):
 
 def write_sample_variant_report(report_root, sample, variants, callers, thresholds):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
-        report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\t"
-                     "Amplicon\t"
+        report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\tAmplicon\t"
                      "COSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\tClin_Sig\tClin_Pathogenic\tClin_HGVS\tClin_Disease\t"
                      "Biotype\tImpact\tImpact SO\tSeverity\tmax_maf_all\tmax_maf_no_fin\tmax_somatic_aaf\tmin_depth\t"
                      "max_depth\tCallers\t")
@@ -205,12 +204,10 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
 
 def write_variant_report(report_root, variants, callers):
     with open("{}.txt".format(report_root), 'w') as report:
-        report.write("Sample\tLibrary\tRunID\t"
-                     "Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\t"
-                     "Amplicon\t"
-                     "COSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\tClin_Sig\tClin_Pathogenic\tClin_HGVS\tClin_Disease\t"
-                     "Biotype\tImpact\tImpact SO\tSeverity\tmax_maf_all\tmax_maf_no_fin\tmax_somatic_aaf\tmin_depth\t"
-                     "max_depth\tCallers\t")
+        report.write("Sample\tLibrary\tRunID\tChrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\t"
+                     "Amplicon\tCOSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\tClin_Sig\tClin_Pathogenic\tClin_HGVS\t"
+                     "Clin_Disease\tBiotype\tImpact\tImpact SO\tSeverity\tmax_maf_all\tmax_maf_no_fin\t"
+                     "max_somatic_aaf\tmin_depth\tmax_depth\tCallers\t")
 
         if 'mutect' in callers:
             report.write("MuTect_FILTER\tMuTect_Multiallelic\tMuTect_DP\tMuTect_AD\tMuTect_AF\t")
@@ -234,9 +231,8 @@ def write_variant_report(report_root, variants, callers):
         report.write("\n")
 
         for variant in variants:
-            report.write("{sample}\t{library}\t{run_id}\t"
-                         "{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t{codon}\t{aa}\t{rsids}\t"
-                         "{amp}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
+            report.write("{sample}\t{library}\t{run_id}\t{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t"
+                         "{codon}\t{aa}\t{rsids}\t{amp}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
                          "{csig}\t{cpath}\t{hgvs}\t{cdis}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t"
                          "{max_maf_all}\t{max_maf_no_fin}\t{max_som_aaf}\t{min_depth}\t{max_depth}\t{callers}"
                          "".format(sample=variant.sample, library=variant.library_name, run_id=variant.run_id,
