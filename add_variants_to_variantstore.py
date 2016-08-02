@@ -218,11 +218,10 @@ def get_population_freqs(variant):
 
 
 def get_amplicon_data(variant):
-    data = {'amplicon': variant.INFO.get('amplicon') or "None",
-            'amplicon_myeloid': variant.INFO.get('amplicon_myeloid') or "None",
-            'ampliconA': variant.INFO.get('ampliconA') or "None",
-            'ampliconB': variant.INFO.get('ampliconB') or "None"}
-    if data['amplicon'] or data['amplicon_myeloid'] or data['ampliconA'] or data['ampliconB']:
+    data = {'amplicon': variant.INFO.get('amplicon_target') or "None",
+            'intersect': variant.INFO.get('amplicon_intersect') or "None"}
+
+    if data['amplicon']:
         data['in_amplicon'] = "True"
     else:
         data['in_amplicon'] = "False"

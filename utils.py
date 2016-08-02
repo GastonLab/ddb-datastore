@@ -98,7 +98,7 @@ def variant_filter(variant, callers, thresholds):
 def write_sample_variant_report(report_root, sample, variants, callers, thresholds):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
         report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\t"
-                     "In_Amplicon\tDual Flag\tAmplicon\tAmplicon_Myeloid\tAmpliconA\tAmpliconB\t"
+                     "Amplicon\t"
                      "COSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\tClin_Sig\tClin_Pathogenic\tClin_HGVS\tClin_Disease\t"
                      "Biotype\tImpact\tImpact SO\tSeverity\tmax_maf_all\tmax_maf_no_fin\tmax_somatic_aaf\tmin_depth\t"
                      "max_depth\tCallers\t")
@@ -126,7 +126,7 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
 
         for variant in variants:
             report.write("{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t{codon}\t{aa}\t{rsids}\t"
-                         "{in_amp}\t{amp}\t{ampm}\t{ampa}\t{ampb}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
+                         "{amp}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
                          "{csig}\t{cpath}\t{hgvs}\t{cdis}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t"
                          "{max_maf_all}\t{max_maf_no_fin}\t{max_som_aaf}\t{min_depth}\t{max_depth}\t{callers}"
                          "".format(sample=variant.sample, library=variant.library_name, run_id=variant.run_id,
@@ -137,11 +137,7 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
                                    cosmic=",".join(variant.cosmic_ids) or None,
                                    cosmic_nsamples=variant.cosmic_data['num_samples'],
                                    cosmic_aa=variant.cosmic_data['aa'],
-                                   in_amp=variant.amplicon_data['in_amplicon'],
                                    amp=variant.amplicon_data['amplicon'],
-                                   ampm=variant.amplicon_data['amplicon_myeloid'],
-                                   ampa=variant.amplicon_data['ampliconA'],
-                                   ampb=variant.amplicon_data['ampliconB'],
                                    csig=variant.clinvar_data['significance'],
                                    cpath=variant.clinvar_data['pathogenic'],
                                    hgvs=variant.clinvar_data['hgvs'],
@@ -211,7 +207,7 @@ def write_variant_report(report_root, variants, callers):
     with open("{}.txt".format(report_root), 'w') as report:
         report.write("Sample\tLibrary\tRunID\t"
                      "Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\t"
-                     "In_Amplicon\tDual Flag\tAmplicon\tAmplicon_Myeloid\tAmpliconA\tAmpliconB\t"
+                     "Amplicon\t"
                      "COSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\tClin_Sig\tClin_Pathogenic\tClin_HGVS\tClin_Disease\t"
                      "Biotype\tImpact\tImpact SO\tSeverity\tmax_maf_all\tmax_maf_no_fin\tmax_somatic_aaf\tmin_depth\t"
                      "max_depth\tCallers\t")
@@ -240,7 +236,7 @@ def write_variant_report(report_root, variants, callers):
         for variant in variants:
             report.write("{sample}\t{library}\t{run_id}\t"
                          "{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t{codon}\t{aa}\t{rsids}\t"
-                         "{in_amp}\t{amp}\t{ampm}\t{ampa}\t{ampb}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
+                         "{amp}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
                          "{csig}\t{cpath}\t{hgvs}\t{cdis}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t"
                          "{max_maf_all}\t{max_maf_no_fin}\t{max_som_aaf}\t{min_depth}\t{max_depth}\t{callers}"
                          "".format(sample=variant.sample, library=variant.library_name, run_id=variant.run_id,
@@ -253,9 +249,6 @@ def write_variant_report(report_root, variants, callers):
                                    cosmic_aa=variant.cosmic_data['aa'],
                                    in_amp=variant.amplicon_data['in_amplicon'],
                                    amp=variant.amplicon_data['amplicon'],
-                                   ampm=variant.amplicon_data['amplicon_myeloid'],
-                                   ampa=variant.amplicon_data['ampliconA'],
-                                   ampb=variant.amplicon_data['ampliconB'],
                                    csig=variant.clinvar_data['significance'],
                                    cpath=variant.clinvar_data['pathogenic'],
                                    hgvs=variant.clinvar_data['hgvs'],
