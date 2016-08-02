@@ -97,8 +97,8 @@ def variant_filter(variant, callers, thresholds):
 
 def write_sample_variant_report(report_root, sample, variants, callers, thresholds):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
-        report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\tClinvar_Flag\t"
-                     "AAF_Flag\tIn_Amplicon\tDual Flag\tAmplicon\tAmplicon_Myeloid\tAmpliconA\tAmpliconB\t"
+        report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\t"
+                     "In_Amplicon\tDual Flag\tAmplicon\tAmplicon_Myeloid\tAmpliconA\tAmpliconB\t"
                      "COSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\tClin_Sig\tClin_Pathogenic\tClin_HGVS\tClin_Disease\t"
                      "Biotype\tImpact\tImpact SO\tSeverity\tmax_maf_all\tmax_maf_no_fin\tmax_somatic_aaf\tmin_depth\t"
                      "max_depth\tCallers\t")
@@ -210,8 +210,8 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
 def write_variant_report(report_root, variants, callers):
     with open("{}.txt".format(report_root), 'w') as report:
         report.write("Sample\tLibrary\tRunID\t"
-                     "Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\tClinvar_Flag\t"
-                     "AAF_Flag\tIn_Amplicon\tDual Flag\tAmplicon\tAmplicon_Myeloid\tAmpliconA\tAmpliconB\t"
+                     "Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\t"
+                     "In_Amplicon\tDual Flag\tAmplicon\tAmplicon_Myeloid\tAmpliconA\tAmpliconB\t"
                      "COSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\tClin_Sig\tClin_Pathogenic\tClin_HGVS\tClin_Disease\t"
                      "Biotype\tImpact\tImpact SO\tSeverity\tmax_maf_all\tmax_maf_no_fin\tmax_somatic_aaf\tmin_depth\t"
                      "max_depth\tCallers\t")
