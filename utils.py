@@ -97,13 +97,11 @@ def variant_filter(variant, callers, thresholds):
 
 def write_sample_variant_report(report_root, sample, variants, callers, thresholds):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
-        report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\tClinvar_Flag\tAAF_Flag\t"
-                     "In_Amplicon\tDual Flag\tAmplicon\tAmplicon_Myeloid\tAmpliconA\tAmpliconB\t"
-                     "COSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\t"
-                     "Clin_Sig\tClin_Pathogenic\tClin_HGVS\tClin_Disease\tClin_Rev\tClin_Origin\tClin_Acc\t"
-                     "Biotype\tImpact\tImpact SO\tSeverity\t"
-                     "in_clinvar\tis_pathogenic\tis_coding\tis_splicing\tis_lof\tmax_maf_all\tmax_maf_no_fin\t"
-                     "max_somatic_aaf\tmin_depth\tmax_depth\tCallers\t")
+        report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\tClinvar_Flag\t"
+                     "AAF_Flag\tIn_Amplicon\tDual Flag\tAmplicon\tAmplicon_Myeloid\tAmpliconA\tAmpliconB\t"
+                     "COSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\tClin_Sig\tClin_Pathogenic\tClin_HGVS\tClin_Disease\t"
+                     "Biotype\tImpact\tImpact SO\tSeverity\tmax_maf_all\tmax_maf_no_fin\tmax_somatic_aaf\tmin_depth\t"
+                     "max_depth\tCallers\t")
 
         if 'mutect' in callers:
             report.write("MuTect_FILTER\tMuTect_Multiallelic\tMuTect_DP\tMuTect_AD\tMuTect_AF\t")
@@ -126,82 +124,87 @@ def write_sample_variant_report(report_root, sample, variants, callers, threshol
 
         report.write("\n")
 
-        for data in variants:
-            variant, flag, info = data
+        for variant in variants:
             report.write("{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t{codon}\t{aa}\t{rsids}\t"
-                         "{info_clin}\t{info_maf}\t{in_amp}\t{info_dual}\t{amp}\t{ampm}\t{ampa}\t{ampb}\t"
-                         "{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
-                         "{csig}\t{cpath}\t{hgvs}\t{cdis}\t{crev}\t{corigin}\t"
-                         "{cacc}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t{in_clin}\t{is_path}\t{is_code}\t"
-                         "{is_splice}\t{is_lof}\t{max_maf_all}\t{max_maf_no_fin}\t{max_som_aaf}\t{min_depth}\t"
-                         "{max_depth}\t{callers}\t{mfilter}\t{mmulti}\t{mdp}\t{mad}\t{maf}\t{vfilter}\t{vmulti}\t"
-                         "{vdp}\t{vad}\t{vaf}\t{ffilter}\t{fmulti}\t{fdp}\t{faf}\t{fro}\t{fao}\t{sfilter}\t{smulti}\t"
-                         "{sdp}\t{sad}\t{saf}\t{plfilter}\t{plmulti}\t{pldp}\t{plad}\t{plaf}\t{pfilter}\t{pmulti}\t"
-                         "{pdp}\t{pad}\t{paf}"
-                         "\n".format(chr=variant.chr, start=variant.pos, end=variant.end,
-                                     gene=variant.gene, ref=variant.ref, alt=variant.alt, exon=variant.exon,
-                                     codon=variant.codon_change, aa=variant.aa_change,
-                                     rsids=",".join(variant.rs_ids),
-                                     cosmic=",".join(variant.cosmic_ids) or None,
-                                     cosmic_nsamples=variant.cosmic_data['num_samples'],
-                                     cosmic_aa=variant.cosmic_data['aa'],
-                                     info_clin=info['clinvar'],
-                                     info_maf=info['max_maf'],
-                                     in_amp=variant.amplicon_data['in_amplicon'],
-                                     info_dual=info['dual'],
-                                     amp=variant.amplicon_data['amplicon'],
-                                     ampm=variant.amplicon_data['amplicon_myeloid'],
-                                     ampa=variant.amplicon_data['ampliconA'],
-                                     ampb=variant.amplicon_data['ampliconB'],
-                                     csig=variant.clinvar_data['significance'],
-                                     cpath=variant.clinvar_data['pathogenic'],
-                                     hgvs=variant.clinvar_data['hgvs'],
-                                     cdis=variant.clinvar_data['disease'],
-                                     crev=variant.clinvar_data['revstatus'],
-                                     corigin=variant.clinvar_data['origin'],
-                                     cacc=variant.clinvar_data['accession'],
-                                     biotype=variant.biotype, impact=variant.impact,
-                                     impact_so=variant.impact_so, severity=variant.severity,
-                                     in_clin=variant.in_clinvar, is_path=variant.is_pathogenic,
-                                     is_code=variant.is_coding, is_splice=variant.is_splicing,
-                                     is_lof=variant.is_lof,
-                                     max_maf_all=variant.max_maf_all,
-                                     max_maf_no_fin=variant.max_maf_no_fin,
-                                     max_som_aaf=variant.max_som_aaf,
-                                     min_depth=variant.min_depth,
-                                     max_depth=variant.max_depth,
-                                     callers=",".join(variant.callers),
-                                     mfilter=variant.mutect.get('FILTER') or None,
-                                     mmulti=variant.mutect.get('MULTIALLELIC') or None,
-                                     mdp=variant.mutect.get('GTF_DP') or None,
-                                     mad=variant.mutect.get('GTF_AD') or None,
-                                     maf=variant.mutect.get('AAF') or None,
-                                     vfilter=variant.vardict.get('FILTER') or None,
-                                     vmulti=variant.vardict.get('MULTIALLELIC') or None,
-                                     vdp=variant.vardict.get('DP') or None,
-                                     vad=variant.vardict.get('AD') or None,
-                                     vaf=variant.vardict.get('AAF') or None,
-                                     ffilter=variant.freebayes.get('FILTER') or None,
-                                     fmulti=variant.freebayes.get('MULTIALLELIC') or None,
-                                     fdp=variant.freebayes.get('DP') or None,
-                                     faf=variant.freebayes.get('AAF') or None,
-                                     fro=variant.freebayes.get('RO') or None,
-                                     fao=variant.freebayes.get('AO') or None,
-                                     sfilter=variant.scalpel.get('FILTER') or None,
-                                     smulti=variant.scalpel.get('MULTIALLELIC') or None,
-                                     sdp=variant.scalpel.get('GTF_DP') or None,
-                                     sad=variant.scalpel.get('GTF_AD') or None,
-                                     saf=variant.scalpel.get('AAF') or None,
-                                     plfilter=variant.platypus.get('FILTER') or None,
-                                     plmulti=variant.platypus.get('MULTIALLELIC') or None,
-                                     plad=variant.platypus.get('TR') or None,
-                                     pldp=variant.platypus.get('TC') or None,
-                                     plaf=variant.platypus.get('AAF') or None,
-                                     pfilter=variant.pindel.get('FILTER') or None,
-                                     pmulti=variant.pindel.get('MULTIALLELIC') or None,
-                                     pdp=variant.pindel.get('DP') or None,
-                                     pad=variant.pindel.get('GTF_AD') or None,
-                                     paf=variant.pindel.get('AAF') or None))
+                         "{in_amp}\t{amp}\t{ampm}\t{ampa}\t{ampb}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
+                         "{csig}\t{cpath}\t{hgvs}\t{cdis}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t"
+                         "{max_maf_all}\t{max_maf_no_fin}\t{max_som_aaf}\t{min_depth}\t{max_depth}\t{callers}"
+                         "".format(sample=variant.sample, library=variant.library_name, run_id=variant.run_id,
+                                   chr=variant.chr, start=variant.pos, end=variant.end,
+                                   gene=variant.gene, ref=variant.ref, alt=variant.alt, exon=variant.exon,
+                                   codon=variant.codon_change, aa=variant.aa_change,
+                                   rsids=",".join(variant.rs_ids),
+                                   cosmic=",".join(variant.cosmic_ids) or None,
+                                   cosmic_nsamples=variant.cosmic_data['num_samples'],
+                                   cosmic_aa=variant.cosmic_data['aa'],
+                                   in_amp=variant.amplicon_data['in_amplicon'],
+                                   amp=variant.amplicon_data['amplicon'],
+                                   ampm=variant.amplicon_data['amplicon_myeloid'],
+                                   ampa=variant.amplicon_data['ampliconA'],
+                                   ampb=variant.amplicon_data['ampliconB'],
+                                   csig=variant.clinvar_data['significance'],
+                                   cpath=variant.clinvar_data['pathogenic'],
+                                   hgvs=variant.clinvar_data['hgvs'],
+                                   cdis=variant.clinvar_data['disease'],
+                                   biotype=variant.biotype, impact=variant.impact,
+                                   impact_so=variant.impact_so, severity=variant.severity,
+                                   max_maf_all=variant.max_maf_all,
+                                   max_maf_no_fin=variant.max_maf_no_fin,
+                                   max_som_aaf=variant.max_som_aaf,
+                                   min_depth=variant.min_depth,
+                                   max_depth=variant.max_depth,
+                                   callers=",".join(variant.callers) or None))
+
+            if 'mutect' in callers:
+                report.write("\t{mfilter}\t{mmulti}\t{mdp}\t{mad}\t{maf}"
+                             "".format(mfilter=variant.mutect.get('FILTER') or None,
+                                       mmulti=variant.mutect.get('MULTIALLELIC') or None,
+                                       mdp=variant.mutect.get('GTF_DP') or None,
+                                       mad=variant.mutect.get('GTF_AD') or None,
+                                       maf=variant.mutect.get('AAF') or None))
+
+            if 'vardict' in callers:
+                report.write("\t{vfilter}\t{vmulti}\t{vdp}\t{vad}\t{vaf}"
+                             "".format(vfilter=variant.vardict.get('FILTER') or None,
+                                       vmulti=variant.vardict.get('MULTIALLELIC') or None,
+                                       vdp=variant.vardict.get('DP') or None,
+                                       vad=variant.vardict.get('AD') or None,
+                                       vaf=variant.vardict.get('AAF') or None))
+
+            if 'freebayes' in callers:
+                report.write("\t{ffilter}\t{fmulti}\t{fdp}\t{faf}\t{fro}\t{fao}"
+                             "".format(ffilter=variant.freebayes.get('FILTER') or None,
+                                       fmulti=variant.freebayes.get('MULTIALLELIC') or None,
+                                       fdp=variant.freebayes.get('DP') or None,
+                                       faf=variant.freebayes.get('AAF') or None,
+                                       fro=variant.freebayes.get('RO') or None,
+                                       fao=variant.freebayes.get('AO') or None))
+
+            if 'scalpel' in callers:
+                report.write("\t{sfilter}\t{smulti}\t{sdp}\t{sad}\t{saf}"
+                             "".format(sfilter=variant.scalpel.get('FILTER') or None,
+                                       smulti=variant.scalpel.get('MULTIALLELIC') or None,
+                                       sdp=variant.scalpel.get('GTF_DP') or None,
+                                       sad=variant.scalpel.get('GTF_AD') or None,
+                                       saf=variant.scalpel.get('AAF') or None))
+
+            if 'platypus' in callers:
+                report.write("\t{plfilter}\t{plmulti}\t{pldp}\t{plad}\t{plaf}"
+                             "".format(plfilter=variant.platypus.get('FILTER') or None,
+                                       plmulti=variant.platypus.get('MULTIALLELIC') or None,
+                                       plad=variant.platypus.get('TR') or None,
+                                       pldp=variant.platypus.get('TC') or None,
+                                       plaf=variant.platypus.get('AAF') or None))
+
+            if 'pindel' in callers:
+                report.write("\t{pfilter}\t{pmulti}\t{pdp}\t{pad}\t{paf}"
+                             "".format(pfilter=variant.pindel.get('FILTER') or None,
+                                       pmulti=variant.pindel.get('MULTIALLELIC') or None,
+                                       pdp=variant.pindel.get('DP') or None,
+                                       pad=variant.pindel.get('GTF_AD') or None,
+                                       paf=variant.pindel.get('AAF') or None))
+
+            report.write("\n")
 
 
 def write_variant_report(report_root, variants, callers):
