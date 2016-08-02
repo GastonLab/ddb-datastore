@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
     thresholds = {'min_saf': 0.00000000001,
                   'max_maf': 0.005,
-                  'depth': 500,
+                  'depth': 200,
                   'regions': config['actionable_regions']}
 
     sys.stdout.write("Processing samples\n")
