@@ -10,6 +10,7 @@ from cassandra.cqlengine import connection
 from cassandra.auth import PlainTextAuthProvider
 from variantstore import Variant
 from variantstore import SampleVariant
+from variantstore import TargetVariant
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -34,3 +35,4 @@ if __name__ == "__main__":
 
     sync_table(Variant)
     sync_table(SampleVariant)
+    sync_table(TargetVariant)
