@@ -23,8 +23,7 @@ from ddb_ngsflow import pipeline
 from toil.job import Job
 
 
-def process_sample(job, addresses, keyspace, authenticator, parse_functions, variant_callers,
-                   sample, samples, config):
+def process_sample(job, addresses, keyspace, authenticator, parse_functions, sample, samples, config):
     connection.setup(addresses, keyspace, auth_provider=authenticator)
 
     caller_records = defaultdict(lambda: dict())
@@ -284,7 +283,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--samples_file', help="Input configuration file for samples")
     parser.add_argument('-c', '--configuration', help="Configuration file for various settings")
-    parser.add_argument('-v', '--variant_callers', help="Comma-delimited list of variant callers used")
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
     Job.Runner.addToilOptions(parser)
@@ -314,7 +312,7 @@ if __name__ == "__main__":
 
     for sample in samples:
         sample_job = Job.wrapJobFn(process_sample, [args.address], "variantstore", auth_provider, parse_functions,
-                                   args.variant_callers, sample, samples, config,
+                                   sample, samples, config,
                                    cores=1)
         root_job.addChild(sample_job)
 
