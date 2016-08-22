@@ -124,7 +124,7 @@ def write_sample_variant_report(report_root, sample, variants, callers):
         report.write("\n")
 
         for variant in variants:
-            print variant
+            # print variant
             report.write("{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t{codon}\t{aa}\t{rsids}\t"
                          "{amp}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
                          "{csig}\t{cpath}\t{hgvs}\t{cdis}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t"
