@@ -1,26 +1,25 @@
 #!/usr/bin/env python
 
+import argparse
+import getpass
 import re
 import sys
-import getpass
-import argparse
-import utils
-import cyvcf2
-
-from cyvcf2 import VCF
-from datetime import datetime
 from collections import defaultdict
-from cassandra.cqlengine import connection
-from cassandra.auth import PlainTextAuthProvider
+from datetime import datetime
 
-from variantstore import Variant
-from variantstore import SampleVariant
-from variantstore import TargetVariant
+import cyvcf2
+from cassandra.auth import PlainTextAuthProvider
+from cassandra.cqlengine import connection
+from cyvcf2 import VCF
 from ddb import configuration
 from ddb import vcf_parsing
 from ddb_ngsflow import pipeline
-
 from toil.job import Job
+
+from scripts import utils
+from variantstore import SampleVariant
+from variantstore import TargetVariant
+from variantstore import Variant
 
 
 def process_sample(job, addresses, keyspace, authenticator, parse_functions, sample, samples, config):

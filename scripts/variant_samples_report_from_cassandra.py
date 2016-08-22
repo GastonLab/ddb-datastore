@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 
-import sys
 import argparse
-import utils
 import getpass
-from ddb import configuration
-from variantstore import SampleVariant
-from cassandra.cqlengine import connection
+import sys
+
 from cassandra.auth import PlainTextAuthProvider
+from cassandra.cqlengine import connection
+from ddb import configuration
+
+from scripts import utils
+from variantstore import SampleVariant
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

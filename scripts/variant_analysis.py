@@ -1,21 +1,16 @@
 #!/usr/bin/env python
 
-import sys
-import csv
 import argparse
-import utils
 import getpass
-import plotly
-import plotly.plotly as py
-import plotly.graph_objs as go
-
+import sys
 from collections import defaultdict
 
-from ddb import configuration
-from variantstore import SampleVariant
-from cassandra.cqlengine import connection
 from cassandra.auth import PlainTextAuthProvider
+from cassandra.cqlengine import connection
+from ddb import configuration
 
+from scripts import utils
+from variantstore import SampleVariant
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
