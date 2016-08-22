@@ -100,26 +100,25 @@ def write_sample_variant_report(report_root, sample, variants, callers):
         report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\tAmplicon\t"
                      "COSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\tClin_Sig\tClin_Pathogenic\tClin_HGVS\tClin_Disease\t"
                      "Biotype\tImpact\tImpact SO\tSeverity\tmax_maf_all\tmax_maf_no_fin\tmax_somatic_aaf\tmin_depth\t"
-                     "max_depth\tCallers\t")
+                     "max_depth\tCallers")
 
         if 'mutect' in callers:
-            report.write("MuTect_FILTER\tMuTect_Multiallelic\tMuTect_DP\tMuTect_AD\tMuTect_AF\t")
+            report.write("\tMuTect_AF")
 
         if 'vardict' in callers:
-            report.write("VarDict_FILTER\tVarDict_Multiallelic\tVarDict_DP\tVarDict_AD\tVarDict_AF\t")
+            report.write("\tVarDict_AF")
 
         if 'freebayes' in callers:
-            report.write("FreeBayes_FILTER\tFreeBayes_Multiallelic\tFreeBayes_DP\tFreeBayes_AF\tFreeBayes_RO\t"
-                         "FreeBayes_AO\t")
+            report.write("\tFreeBayes_AF")
 
         if 'scalpel' in callers:
-            report.write("Scalpel_FILTER\tScalpel_Multiallelic\tScalpel_DP\tScalpel_AD\tScalpel_AF\t")
+            report.write("\tScalpel_AF")
 
         if 'platypus' in callers:
-            report.write("Platypus_FILTER\tPlatypus_Multiallelic\tPlatypus_DP\tPlatypus_AD\tPlatypus_AF\t")
+            report.write("\tPlatypus_AF")
 
         if 'pindel' in callers:
-            report.write("Pindel_FILTER\tPindel_Multiallelic\tPindel_DP\tPindel_AD\tPindel_AF")
+            report.write("\tPindel_AF")
 
         report.write("\n")
 
@@ -151,53 +150,28 @@ def write_sample_variant_report(report_root, sample, variants, callers):
                                    callers=",".join(variant.callers) or None))
 
             if 'mutect' in callers:
-                report.write("\t{mfilter}\t{mmulti}\t{mdp}\t{mad}\t{maf}"
-                             "".format(mfilter=variant.mutect.get('FILTER') or None,
-                                       mmulti=variant.mutect.get('MULTIALLELIC') or None,
-                                       mdp=variant.mutect.get('GTF_DP') or None,
-                                       mad=variant.mutect.get('GTF_AD') or None,
-                                       maf=variant.mutect.get('AAF') or None))
+                report.write("\t{maf}"
+                             "".format(maf=variant.mutect.get('AAF') or None))
 
             if 'vardict' in callers:
-                report.write("\t{vfilter}\t{vmulti}\t{vdp}\t{vad}\t{vaf}"
-                             "".format(vfilter=variant.vardict.get('FILTER') or None,
-                                       vmulti=variant.vardict.get('MULTIALLELIC') or None,
-                                       vdp=variant.vardict.get('DP') or None,
-                                       vad=variant.vardict.get('AD') or None,
-                                       vaf=variant.vardict.get('AAF') or None))
+                report.write("\t{vaf}"
+                             "".format(vaf=variant.vardict.get('AAF') or None))
 
             if 'freebayes' in callers:
-                report.write("\t{ffilter}\t{fmulti}\t{fdp}\t{faf}\t{fro}\t{fao}"
-                             "".format(ffilter=variant.freebayes.get('FILTER') or None,
-                                       fmulti=variant.freebayes.get('MULTIALLELIC') or None,
-                                       fdp=variant.freebayes.get('DP') or None,
-                                       faf=variant.freebayes.get('AAF') or None,
-                                       fro=variant.freebayes.get('RO') or None,
-                                       fao=variant.freebayes.get('AO') or None))
+                report.write("\t{faf}"
+                             "".format(faf=variant.freebayes.get('AAF') or None))
 
             if 'scalpel' in callers:
-                report.write("\t{sfilter}\t{smulti}\t{sdp}\t{sad}\t{saf}"
-                             "".format(sfilter=variant.scalpel.get('FILTER') or None,
-                                       smulti=variant.scalpel.get('MULTIALLELIC') or None,
-                                       sdp=variant.scalpel.get('GTF_DP') or None,
-                                       sad=variant.scalpel.get('GTF_AD') or None,
-                                       saf=variant.scalpel.get('AAF') or None))
+                report.write("\t{saf}"
+                             "".format(saf=variant.scalpel.get('AAF') or None))
 
             if 'platypus' in callers:
-                report.write("\t{plfilter}\t{plmulti}\t{pldp}\t{plad}\t{plaf}"
-                             "".format(plfilter=variant.platypus.get('FILTER') or None,
-                                       plmulti=variant.platypus.get('MULTIALLELIC') or None,
-                                       plad=variant.platypus.get('TR') or None,
-                                       pldp=variant.platypus.get('TC') or None,
-                                       plaf=variant.platypus.get('AAF') or None))
+                report.write("\t{plaf}"
+                             "".format(plaf=variant.platypus.get('AAF') or None))
 
             if 'pindel' in callers:
-                report.write("\t{pfilter}\t{pmulti}\t{pdp}\t{pad}\t{paf}"
-                             "".format(pfilter=variant.pindel.get('FILTER') or None,
-                                       pmulti=variant.pindel.get('MULTIALLELIC') or None,
-                                       pdp=variant.pindel.get('DP') or None,
-                                       pad=variant.pindel.get('GTF_AD') or None,
-                                       paf=variant.pindel.get('AAF') or None))
+                report.write("\t{paf}"
+                             "".format(paf=variant.pindel.get('AAF') or None))
 
             report.write("\n")
 
@@ -210,23 +184,22 @@ def write_variant_report(report_root, variants, callers):
                      "max_somatic_aaf\tmin_depth\tmax_depth\tCallers\t")
 
         if 'mutect' in callers:
-            report.write("MuTect_FILTER\tMuTect_Multiallelic\tMuTect_DP\tMuTect_AD\tMuTect_AF\t")
+            report.write("\tMuTect_AF")
 
         if 'vardict' in callers:
-            report.write("VarDict_FILTER\tVarDict_Multiallelic\tVarDict_DP\tVarDict_AD\tVarDict_AF\t")
+            report.write("\tVarDict_AF")
 
         if 'freebayes' in callers:
-            report.write("FreeBayes_FILTER\tFreeBayes_Multiallelic\tFreeBayes_DP\tFreeBayes_AF\tFreeBayes_RO\t"
-                         "FreeBayes_AO\t")
+            report.write("\tFreeBayes_AF")
 
         if 'scalpel' in callers:
-            report.write("Scalpel_FILTER\tScalpel_Multiallelic\tScalpel_DP\tScalpel_AD\tScalpel_AF\t")
+            report.write("\tScalpel_AF")
 
         if 'platypus' in callers:
-            report.write("Platypus_FILTER\tPlatypus_Multiallelic\tPlatypus_DP\tPlatypus_AD\tPlatypus_AF\t")
+            report.write("\tPlatypus_AF")
 
         if 'pindel' in callers:
-            report.write("Pindel_FILTER\tPindel_Multiallelic\tPindel_DP\tPindel_AD\tPindel_AF")
+            report.write("\tPindel_AF")
 
         report.write("\n")
 
@@ -258,52 +231,27 @@ def write_variant_report(report_root, variants, callers):
                                    callers=",".join(variant.callers) or None))
 
             if 'mutect' in callers:
-                report.write("\t{mfilter}\t{mmulti}\t{mdp}\t{mad}\t{maf}"
-                             "".format(mfilter=variant.mutect.get('FILTER') or None,
-                                       mmulti=variant.mutect.get('MULTIALLELIC') or None,
-                                       mdp=variant.mutect.get('GTF_DP') or None,
-                                       mad=variant.mutect.get('GTF_AD') or None,
-                                       maf=variant.mutect.get('AAF') or None))
+                report.write("\t{maf}"
+                             "".format(maf=variant.mutect.get('AAF') or None))
 
             if 'vardict' in callers:
-                report.write("\t{vfilter}\t{vmulti}\t{vdp}\t{vad}\t{vaf}"
-                             "".format(vfilter=variant.vardict.get('FILTER') or None,
-                                       vmulti=variant.vardict.get('MULTIALLELIC') or None,
-                                       vdp=variant.vardict.get('DP') or None,
-                                       vad=variant.vardict.get('AD') or None,
-                                       vaf=variant.vardict.get('AAF') or None))
+                report.write("\t{vaf}"
+                             "".format(vaf=variant.vardict.get('AAF') or None))
 
             if 'freebayes' in callers:
-                report.write("\t{ffilter}\t{fmulti}\t{fdp}\t{faf}\t{fro}\t{fao}"
-                             "".format(ffilter=variant.freebayes.get('FILTER') or None,
-                                       fmulti=variant.freebayes.get('MULTIALLELIC') or None,
-                                       fdp=variant.freebayes.get('DP') or None,
-                                       faf=variant.freebayes.get('AAF') or None,
-                                       fro=variant.freebayes.get('RO') or None,
-                                       fao=variant.freebayes.get('AO') or None))
+                report.write("\t{faf}"
+                             "".format(faf=variant.freebayes.get('AAF') or None))
 
             if 'scalpel' in callers:
-                report.write("\t{sfilter}\t{smulti}\t{sdp}\t{sad}\t{saf}"
-                             "".format(sfilter=variant.scalpel.get('FILTER') or None,
-                                       smulti=variant.scalpel.get('MULTIALLELIC') or None,
-                                       sdp=variant.scalpel.get('GTF_DP') or None,
-                                       sad=variant.scalpel.get('GTF_AD') or None,
-                                       saf=variant.scalpel.get('AAF') or None))
+                report.write("\t{saf}"
+                             "".format(saf=variant.scalpel.get('AAF') or None))
 
             if 'platypus' in callers:
-                report.write("\t{plfilter}\t{plmulti}\t{pldp}\t{plad}\t{plaf}"
-                             "".format(plfilter=variant.platypus.get('FILTER') or None,
-                                       plmulti=variant.platypus.get('MULTIALLELIC') or None,
-                                       plad=variant.platypus.get('TR') or None,
-                                       pldp=variant.platypus.get('TC') or None,
-                                       plaf=variant.platypus.get('AAF') or None))
+                report.write("\t{plaf}"
+                             "".format(plaf=variant.platypus.get('AAF') or None))
 
             if 'pindel' in callers:
-                report.write("\t{pfilter}\t{pmulti}\t{pdp}\t{pad}\t{paf}"
-                             "".format(pfilter=variant.pindel.get('FILTER') or None,
-                                       pmulti=variant.pindel.get('MULTIALLELIC') or None,
-                                       pdp=variant.pindel.get('DP') or None,
-                                       pad=variant.pindel.get('GTF_AD') or None,
-                                       paf=variant.pindel.get('AAF') or None))
+                report.write("\t{paf}"
+                             "".format(paf=variant.pindel.get('AAF') or None))
 
             report.write("\n")
