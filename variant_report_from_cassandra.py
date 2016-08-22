@@ -47,7 +47,8 @@ if __name__ == "__main__":
     sys.stdout.write("Running Cassandra query\n")
     output_variants = list()
     for sample in samples:
-        variants = Variant.objects.timeout(None).filter(Variant.sample == samples[sample]['sample_name'],
+        variants = Variant.objects.timeout(None).filter(Variant.sample == config['genome_version'],
+                                                        Variant.sample == samples[sample]['sample_name'],
                                                         Variant.run_id == samples[sample]['run_id'],
                                                         Variant.library_name == samples[sample]['library_name'],
                                                         ).allow_filtering()
