@@ -243,7 +243,6 @@ def write_variant_report(report_root, variants, callers):
                                    cosmic=",".join(variant.cosmic_ids) or None,
                                    cosmic_nsamples=variant.cosmic_data['num_samples'],
                                    cosmic_aa=variant.cosmic_data['aa'],
-                                   in_amp=variant.amplicon_data['in_amplicon'],
                                    amp=variant.amplicon_data['amplicon'],
                                    csig=variant.clinvar_data['significance'],
                                    cpath=variant.clinvar_data['pathogenic'],
