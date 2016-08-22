@@ -124,13 +124,12 @@ def write_sample_variant_report(report_root, sample, variants, callers):
         report.write("\n")
 
         for variant in variants:
-            print variant
+            # print variant
             report.write("{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t{codon}\t{aa}\t{rsids}\t"
                          "{amp}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
                          "{csig}\t{cpath}\t{hgvs}\t{cdis}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t"
                          "{max_maf_all}\t{max_maf_no_fin}\t{max_som_aaf}\t{min_depth}\t{max_depth}\t{callers}"
-                         "".format(sample=variant.sample, library=variant.library_name, run_id=variant.run_id,
-                                   chr=variant.chr, start=variant.pos, end=variant.end,
+                         "".format(chr=variant.chr, start=variant.pos, end=variant.end,
                                    gene=variant.gene, ref=variant.ref, alt=variant.alt, exon=variant.exon,
                                    codon=variant.codon_change, aa=variant.aa_change,
                                    rsids=",".join(variant.rs_ids),
