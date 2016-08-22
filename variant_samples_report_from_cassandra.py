@@ -54,8 +54,8 @@ if __name__ == "__main__":
                                                               SampleVariant.max_depth >= thresholds['depth']
                                                               ).allow_filtering()
 
-        ordered_variants = variants.order_by('library_name', 'reference_genome',
-                                             'chr', 'pos').limit(variants.count() + 1000)
+        ordered_variants = variants.order_by('library_name', 'chr', 'pos',
+                                             'ref', 'alt').limit(variants.count() + 1000)
 
         sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
         sys.stdout.write("Running filters on sample variants\n")
