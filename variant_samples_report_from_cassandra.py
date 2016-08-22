@@ -58,7 +58,5 @@ if __name__ == "__main__":
                                              'ref', 'alt').limit(variants.count() + 1000)
 
         sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
-        sys.stdout.write("Running filters on sample variants\n")
-
         sys.stdout.write("Writing {} variants to sample report\n".format(len(ordered_variants)))
         utils.write_sample_variant_report(args.report, sample, ordered_variants, args.variant_callers)
