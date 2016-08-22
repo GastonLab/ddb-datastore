@@ -16,7 +16,7 @@ from ddb import vcf_parsing
 from ddb_ngsflow import pipeline
 from toil.job import Job
 
-from scripts import utils
+import utils
 from variantstore import SampleVariant
 from variantstore import TargetVariant
 from variantstore import Variant
