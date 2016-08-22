@@ -98,7 +98,7 @@ def variant_filter(variant, callers, thresholds):
 def write_sample_variant_report(report_root, sample, variants, callers):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
         report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\tAmplicon\t"
-                     "COSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\tClin_Sig\tClin_Pathogenic\tClin_HGVS\tClin_Disease\t"
+                     "COSMIC_IDs\tCOSMIC_NumSamples\tClin_Sig\tClin_HGVS\tClin_Disease\t"
                      "Biotype\tImpact\tImpact SO\tSeverity\tmax_maf_all\tmax_maf_no_fin\tmax_somatic_aaf\tmin_depth\t"
                      "max_depth\tCallers")
 
@@ -124,20 +124,18 @@ def write_sample_variant_report(report_root, sample, variants, callers):
 
         for variant in variants:
             # print variant
-            report.write("{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t{codon}\t{aa}\t{rsids}\t"
-                         "{amp}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
-                         "{csig}\t{cpath}\t{hgvs}\t{cdis}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t"
-                         "{max_maf_all}\t{max_maf_no_fin}\t{max_som_aaf}\t{min_depth}\t{max_depth}\t{callers}"
+            report.write("{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{codon}\t{aa}\t{rsids}\t"
+                         "{amp}\t{cosmic}\t{cosmic_nsamples}\t{csig}\t{hgvs}\t{cdis}\t{biotype}\t"
+                         "{impact}\t{impact_so}\t{severity}\t{max_maf_all}\t{max_maf_no_fin}\t{max_som_aaf}\t"
+                         "{min_depth}\t{max_depth}\t{callers}"
                          "".format(chr=variant.chr, start=variant.pos, end=variant.end,
-                                   gene=variant.gene, ref=variant.ref, alt=variant.alt, exon=variant.exon,
+                                   gene=variant.gene, ref=variant.ref, alt=variant.alt,
                                    codon=variant.codon_change, aa=variant.aa_change,
                                    rsids=",".join(variant.rs_ids),
                                    cosmic=",".join(variant.cosmic_ids) or None,
                                    cosmic_nsamples=variant.cosmic_data['num_samples'],
-                                   cosmic_aa=variant.cosmic_data['aa'],
                                    amp=variant.amplicon_data['amplicon'],
                                    csig=variant.clinvar_data['significance'],
-                                   cpath=variant.clinvar_data['pathogenic'],
                                    hgvs=variant.clinvar_data['hgvs'],
                                    cdis=variant.clinvar_data['disease'],
                                    biotype=variant.biotype, impact=variant.impact,
@@ -179,7 +177,7 @@ def write_sample_variant_report(report_root, sample, variants, callers):
 def write_variant_report(report_root, variants, callers):
     with open("{}.txt".format(report_root), 'w') as report:
         report.write("Sample\tLibrary\tRunID\tChrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\t"
-                     "Amplicon\tCOSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\tClin_Sig\tClin_Pathogenic\tClin_HGVS\t"
+                     "Amplicon\tCOSMIC_IDs\tCOSMIC_NumSamples\tClin_Sig\tClin_HGVS\t"
                      "Clin_Disease\tBiotype\tImpact\tImpact SO\tSeverity\tmax_maf_all\tmax_maf_no_fin\t"
                      "max_somatic_aaf\tmin_depth\tmax_depth\tCallers\t")
 
@@ -204,21 +202,19 @@ def write_variant_report(report_root, variants, callers):
         report.write("\n")
 
         for variant in variants:
-            report.write("{sample}\t{library}\t{run_id}\t{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{exon}\t"
-                         "{codon}\t{aa}\t{rsids}\t{amp}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
-                         "{csig}\t{cpath}\t{hgvs}\t{cdis}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t"
+            report.write("{sample}\t{library}\t{run_id}\t{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t"
+                         "{codon}\t{aa}\t{rsids}\t{amp}\t{cosmic}\t{cosmic_nsamples}\t"
+                         "{csig}\t{hgvs}\t{cdis}\t{biotype}\t{impact}\t{impact_so}\t{severity}\t"
                          "{max_maf_all}\t{max_maf_no_fin}\t{max_som_aaf}\t{min_depth}\t{max_depth}\t{callers}"
                          "".format(sample=variant.sample, library=variant.library_name, run_id=variant.run_id,
                                    chr=variant.chr, start=variant.pos, end=variant.end,
-                                   gene=variant.gene, ref=variant.ref, alt=variant.alt, exon=variant.exon,
+                                   gene=variant.gene, ref=variant.ref, alt=variant.alt,
                                    codon=variant.codon_change, aa=variant.aa_change,
                                    rsids=",".join(variant.rs_ids),
                                    cosmic=",".join(variant.cosmic_ids) or None,
                                    cosmic_nsamples=variant.cosmic_data['num_samples'],
-                                   cosmic_aa=variant.cosmic_data['aa'],
                                    amp=variant.amplicon_data['amplicon'],
                                    csig=variant.clinvar_data['significance'],
-                                   cpath=variant.clinvar_data['pathogenic'],
                                    hgvs=variant.clinvar_data['hgvs'],
                                    cdis=variant.clinvar_data['disease'],
                                    biotype=variant.biotype, impact=variant.impact,
