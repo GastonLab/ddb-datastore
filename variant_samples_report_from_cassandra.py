@@ -8,7 +8,7 @@ from cassandra.auth import PlainTextAuthProvider
 from cassandra.cqlengine import connection
 from ddb import configuration
 
-from scripts import utils
+import utils
 from variantstore import SampleVariant
 
 if __name__ == "__main__":
