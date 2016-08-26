@@ -55,29 +55,35 @@ if __name__ == "__main__":
         ordered_variants = variants.order_by('library_name', 'chr', 'pos',
                                              'ref', 'alt').limit(variants.count() + 1000)
 
-        cosmic_ids = samples[sample]['cosmic_ids'].split(',')
-        rs_ids = samples[sample]['rs_ids'].split(',')
-        variant_coords = samples[sample]['variant_coords'].split(',')
+        # variant_coords = samples[sample]['variant_coords'].split(',')
 
         validation_variants = list()
         for variant in ordered_variants:
-            pass_flag = 0
-
+            cosmic_ids = samples[sample]['cosmic_ids'].split(',')
             if samples[sample]['cosmic_ids']:
                 if variant.cosmic_ids:
                     for cosmic_id in variant.cosmic_ids:
                         if cosmic_id in cosmic_ids:
-                            pass_flag = 1
+                            validation_variants.append(variant)
+                            break
 
             if samples[sample]['rs_ids']:
+                rs_ids = samples[sample]['rs_ids'].split(',')
                 if variant.rs_ids:
                     for rs_id in variant.rs_ids:
                         if rs_id in rs_ids:
-                            pass_flag = 1
+                            validation_variants.append(variant)
+                            break
 
-            if pass_flag == 1:
-                validation_variants.append(variant)
+            if samples[sample]['amplicons']:
+                overlapping_amplicons = variant.amplicon_data['amplicon'].split(',')
+                amplicons = samples[sample]['amplicons'].split(',')
+                if variant.amplicon_data['amplicon']:
+                    for amplicon in overlapping_amplicons:
+                        if amplicons in amplicons:
+                            validation_variants.append(variant)
+                            break
 
         sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
-        sys.stdout.write("Writing {} variants to sample report\n".format(len(ordered_variants)))
+        sys.stdout.write("Writing {} variants to sample report\n".format(len(validation_variants)))
         utils.write_sample_variant_report(args.report, sample, validation_variants, args.variant_callers)
