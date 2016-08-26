@@ -40,6 +40,8 @@ if __name__ == "__main__":
                   'depth': 200,
                   'regions': config['actionable_regions']}
 
+    callers = args.variant_callers.split(',')
+
     sys.stdout.write("Processing samples\n")
     for sample in samples:
         sys.stdout.write("Running Cassandra query for sample {}\n".format(sample))
@@ -54,7 +56,14 @@ if __name__ == "__main__":
 
         ordered_variants = variants.order_by('library_name', 'chr', 'pos',
                                              'ref', 'alt').limit(variants.count() + 1000)
+        filtered_variants = list()
+        for variant in ordered_variants:
+            if variant.amplicon_data['amplicon']:
+                for caller in callers:
+                    if caller in variant.callers:
+                        filtered_variants.append(variant)
+                        break
 
         sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
         sys.stdout.write("Writing {} variants to sample report\n".format(len(ordered_variants)))
-        utils.write_sample_variant_report(args.report, sample, ordered_variants, args.variant_callers)
+        utils.write_sample_variant_report(args.report, sample, filtered_variants, callers)
