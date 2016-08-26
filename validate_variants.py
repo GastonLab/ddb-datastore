@@ -9,7 +9,7 @@ from cassandra.cqlengine import connection
 from ddb import configuration
 
 import utils
-from variantstore import Variant
+from variantstore import SampleVariant
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -35,4 +35,49 @@ if __name__ == "__main__":
     else:
         connection.setup([args.address], "variantstore")
 
-    callers = ['mutect', 'freebayes', 'scalpel', 'vardict', 'platypus', 'pindel']
+    thresholds = {'min_saf': 0.000001,
+                  'max_maf': 0.005,
+                  'depth': 200,
+                  'regions': config['actionable_regions']}
+
+    sys.stdout.write("Processing samples\n")
+    for sample in samples:
+        sys.stdout.write("Running Cassandra query for sample {}\n".format(sample))
+        variants = SampleVariant.objects.timeout(None).filter(SampleVariant.reference_genome == config['genome_version'],
+                                                              SampleVariant.sample == samples[sample]['sample_name'],
+                                                              SampleVariant.run_id == samples[sample]['run_id'],
+                                                              SampleVariant.library_name == samples[sample]['library_name'],
+                                                              SampleVariant.max_som_aaf >= thresholds['min_saf'],
+                                                              SampleVariant.max_maf_all <= thresholds['max_maf'],
+                                                              SampleVariant.max_depth >= thresholds['depth']
+                                                              ).allow_filtering()
+
+        ordered_variants = variants.order_by('library_name', 'chr', 'pos',
+                                             'ref', 'alt').limit(variants.count() + 1000)
+
+        cosmic_ids = samples[sample]['cosmic_ids'].split(',')
+        rs_ids = samples[sample]['rs_ids'].split(',')
+        variant_coords = samples[sample]['variant_coords'].split(',')
+
+        validation_variants = list()
+        for variant in ordered_variants:
+            pass_flag = 0
+
+            if samples[sample]['cosmic_ids']:
+                if variant.cosmic_ids:
+                    for cosmic_id in variant.cosmic_ids:
+                        if cosmic_id in cosmic_ids:
+                            pass_flag = 1
+
+            if samples[sample]['rs_ids']:
+                if variant.rs_ids:
+                    for rs_id in variant.rs_ids:
+                        if rs_id in rs_ids:
+                            pass_flag = 1
+
+            if pass_flag == 1:
+                validation_variants.append(variant)
+
+        sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
+        sys.stdout.write("Writing {} variants to sample report\n".format(len(ordered_variants)))
+        utils.write_sample_variant_report(args.report, sample, validation_variants, args.variant_callers)

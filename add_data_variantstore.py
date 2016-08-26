@@ -273,6 +273,7 @@ def get_population_freqs(variant):
 
 def get_amplicon_data(variant):
     data = {'amplicon': variant.INFO.get('amplicon_target') or "None",
+            'panel_amplicon': variant.INFO.get('panel_target') or "None",
             'intersect': variant.INFO.get('amplicon_intersect') or "None"}
 
     return data

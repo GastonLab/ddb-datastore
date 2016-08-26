@@ -40,8 +40,6 @@ if __name__ == "__main__":
                   'depth': 200,
                   'regions': config['actionable_regions']}
 
-    callers = ['mutect', 'freebayes', 'scalpel', 'vardict', 'platypus', 'pindel']
-
     sys.stdout.write("Processing samples\n")
     for sample in samples:
         sys.stdout.write("Running Cassandra query for sample {}\n".format(sample))

@@ -35,8 +35,6 @@ if __name__ == "__main__":
     else:
         connection.setup([args.address], "variantstore")
 
-    callers = ['mutect', 'freebayes', 'scalpel', 'vardict', 'platypus', 'pindel']
-
     thresholds = {'min_saf': 0.00000000001,
                   'max_maf': 0.005,
                   'depth': 200,
@@ -56,4 +54,4 @@ if __name__ == "__main__":
         sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
         output_variants.extend(variants)
 
-    utils.write_variant_report(args.report, output_variants, callers)
+    utils.write_variant_report(args.report, output_variants, args.variant_callers)
