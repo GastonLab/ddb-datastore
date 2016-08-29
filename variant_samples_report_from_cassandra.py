@@ -35,7 +35,7 @@ if __name__ == "__main__":
     else:
         connection.setup([args.address], "variantstore")
 
-    thresholds = {'min_saf': 0.0001,
+    thresholds = {'min_saf': 0.01,
                   'max_maf': 0.005,
                   'depth': 200,
                   'regions': config['actionable_regions']}
