@@ -97,7 +97,7 @@ def variant_filter(variant, callers, thresholds):
 
 def write_sample_variant_report(report_root, sample, variants, callers):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
-        report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\tAmplicon\t"
+        report.write("Chrom\tStart\tEnd\tGene\tRef\tAlt\tCodon\tAA\trsIDs\tAmplicon\t"
                      "COSMIC_IDs\tCOSMIC_NumSamples\tClin_Sig\tClin_HGVS\tClin_Disease\t"
                      "Biotype\tImpact\tImpact SO\tSeverity\tmax_maf_all\tmax_maf_no_fin\tmax_somatic_aaf\tmin_depth\t"
                      "max_depth\tCallers")
@@ -176,7 +176,7 @@ def write_sample_variant_report(report_root, sample, variants, callers):
 
 def write_variant_report(report_root, variants, callers):
     with open("{}.txt".format(report_root), 'w') as report:
-        report.write("Sample\tLibrary\tRunID\tChrom\tStart\tEnd\tGene\tRef\tAlt\tExon\tCodon\tAA\trsIDs\t"
+        report.write("Sample\tLibrary\tRunID\tChrom\tStart\tEnd\tGene\tRef\tAlt\tCodon\tAA\trsIDs\t"
                      "Amplicon\tCOSMIC_IDs\tCOSMIC_NumSamples\tClin_Sig\tClin_HGVS\t"
                      "Clin_Disease\tBiotype\tImpact\tImpact SO\tSeverity\tmax_maf_all\tmax_maf_no_fin\t"
                      "max_somatic_aaf\tmin_depth\tmax_depth\tCallers\t")
