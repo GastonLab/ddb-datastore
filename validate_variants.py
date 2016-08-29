@@ -59,8 +59,8 @@ if __name__ == "__main__":
 
         validation_variants = list()
         for variant in ordered_variants:
-            cosmic_ids = samples[sample]['cosmic_ids'].split(',')
             if samples[sample]['cosmic_ids']:
+                cosmic_ids = samples[sample]['cosmic_ids'].split(',')
                 if variant.cosmic_ids:
                     for cosmic_id in variant.cosmic_ids:
                         if cosmic_id in cosmic_ids:
