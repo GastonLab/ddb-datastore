@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
         validation_variants = list()
         for variant in ordered_variants:
-            if samples[sample]['cosmic_ids']:
+            if 'cosmic_ids' in samples[sample].keys():
                 cosmic_ids = samples[sample]['cosmic_ids'].split(',')
                 if variant.cosmic_ids:
                     for cosmic_id in variant.cosmic_ids:
@@ -67,7 +67,7 @@ if __name__ == "__main__":
                             validation_variants.append(variant)
                             break
 
-            if samples[sample]['rs_ids']:
+            if 'rs_ids' in samples[sample].keys():
                 rs_ids = samples[sample]['rs_ids'].split(',')
                 if variant.rs_ids:
                     for rs_id in variant.rs_ids:
@@ -75,7 +75,7 @@ if __name__ == "__main__":
                             validation_variants.append(variant)
                             break
 
-            if samples[sample]['amplicons']:
+            if 'amplicons' in samples[sample].keys():
                 overlapping_amplicons = variant.amplicon_data['amplicon'].split(',')
                 amplicons = samples[sample]['amplicons'].split(',')
                 if variant.amplicon_data['amplicon']:
