@@ -17,7 +17,7 @@ from ddb_ngsflow import pipeline
 from toil.job import Job
 
 
-def process_sample_coverage(job, addresses, keyspace, auth, report_root, sample, program, samples, config):
+def process_sample_coverage(job, addresses, keyspace, auth, sample, program, samples):
     connection.setup(addresses, keyspace, auth_provider=auth)
 
     with open("{}.sambamba_coverage.bed".format(sample), 'rb') as coverage:
@@ -99,7 +99,7 @@ if __name__ == "__main__":
 
     for sample in samples:
         sample_job = Job.wrapJobFn(process_sample_coverage, [args.address], "coveragestore", auth_provider,
-                                   args.report, sample, args.program, samples, config,
+                                   sample, args.program, samples,
                                    cores=1)
         root_job.addChild(sample_job)
 
