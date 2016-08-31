@@ -37,8 +37,7 @@ if __name__ == "__main__":
 
     thresholds = {'min_saf': 0.01,
                   'max_maf': 0.005,
-                  'depth': 200,
-                  'regions': config['actionable_regions']}
+                  'depth': 200}
 
     callers = args.variant_callers.split(',')
 
