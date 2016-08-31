@@ -19,6 +19,10 @@ if __name__ == "__main__":
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
     parser.add_argument('-v', '--variant_callers', help="Comma-delimited list of variant callers used")
+    parser.add_argument('-d', '--depth', help='Depth threshold', default=200)
+    parser.add_argument('-m', '--max_pop_freq', help='Maximum population frequency threshold', default=0.005)
+    parser.add_argument('-f', '--min_somatic_allele_freq', help='Minimum somatic frequency threshold', default=0.01)
+
 
     args = parser.parse_args()
 
@@ -35,9 +39,9 @@ if __name__ == "__main__":
     else:
         connection.setup([args.address], "variantstore")
 
-    thresholds = {'min_saf': 0.00000000001,
-                  'max_maf': 0.005,
-                  'depth': 200}
+    thresholds = {'min_saf': args.min_somatic_allele_freq,
+                  'max_maf': args.max_pop_freq,
+                  'depth': args.depth}
 
     sys.stdout.write("Processing samples\n")
 
