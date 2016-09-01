@@ -28,6 +28,7 @@ def get_amplicons_list(infile):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--configuration', help="Configuration file for various settings")
+    parser.add_argument('-l', '--list', help="Amplicon list file")
     parser.add_argument('-r', '--report', help="Root name for reports (per sample)")
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     sys.stdout.write("Parsing configuration data\n")
     config = configuration.configure_runtime(args.configuration)
 
-    amplicons = get_amplicons_list()
+    amplicons = get_amplicons_list(args.list)
 
     if args.username:
         password = getpass.getpass()
