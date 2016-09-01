@@ -24,7 +24,6 @@ def get_variants_list(infile):
 
     return variants_list
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--samples_file', help="Input configuration file for samples")

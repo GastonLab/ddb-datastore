@@ -10,19 +10,18 @@ from cassandra.cqlengine import connection
 from ddb import configuration
 
 import utils
-from variantstore import Variant
+from variantstore import TargetVariant
 
 
-def get_variants_list(infile):
-    variants_list = list()
+def get_amplicons_list(infile):
+    amplicons_list = list()
 
-    with open(infile, 'r') as var_file:
-        reader = csv.reader(var_file)
+    with open(infile, 'r') as amp_file:
+        reader = csv.reader(amp_file)
         for row in reader:
-            var = dict()
-            variants_list.append(var)
+            amplicons_list.append(row[0])
 
-    return variants_list
+    return amplicons_list
 
 
 if __name__ == "__main__":
@@ -45,7 +44,7 @@ if __name__ == "__main__":
     sys.stdout.write("Parsing sample data\n")
     samples = configuration.configure_samples(args.samples_file, config)
 
-    variants = get_variants_list()
+    amplicons = get_amplicons_list()
 
     if args.username:
         password = getpass.getpass()
@@ -62,11 +61,9 @@ if __name__ == "__main__":
 
     sys.stdout.write("Running Cassandra queries\n")
     output_variants = list()
-    for variant in variants:
-        sample_variants = Variant.objects.timeout(None).filter(Variant.reference_genome == config['genome_version'],
-                                                               Variant.chr == variant['chr'],
-                                                               Variant.pos == variant['pos'],
-                                                               Variant.ref == variant['ref']
-                                                               ).allow_filtering()
+    for amplicon in amplicons:
+        target_variants = TargetVariant.objects.timeout(None).filter(TargetVariant.target == amplicon,
+                                                                     TargetVariant.reference_genome == config['genome_version']
+                                                                     ).allow_filtering()
 
     utils.write_variant_report(args.report, output_variants, args.variant_callers)
