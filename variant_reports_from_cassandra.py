@@ -3,6 +3,7 @@
 import argparse
 import getpass
 import sys
+import csv
 
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cqlengine import connection
@@ -10,6 +11,19 @@ from ddb import configuration
 
 import utils
 from variantstore import Variant
+
+
+def get_variants_list(infile):
+    variants_list = list()
+
+    with open(infile, 'r') as var_file:
+        reader = csv.reader(var_file)
+        for row in reader:
+            var = dict()
+            variants_list.append(var)
+
+    return variants_list
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -23,7 +37,6 @@ if __name__ == "__main__":
     parser.add_argument('-m', '--max_pop_freq', help='Maximum population frequency threshold', default=0.005)
     parser.add_argument('-f', '--min_somatic_allele_freq', help='Minimum somatic frequency threshold', default=0.01)
 
-
     args = parser.parse_args()
 
     sys.stdout.write("Parsing configuration data\n")
@@ -31,6 +44,8 @@ if __name__ == "__main__":
 
     sys.stdout.write("Parsing sample data\n")
     samples = configuration.configure_samples(args.samples_file, config)
+
+    variants = get_variants_list()
 
     if args.username:
         password = getpass.getpass()
@@ -45,16 +60,13 @@ if __name__ == "__main__":
 
     sys.stdout.write("Processing samples\n")
 
-    sys.stdout.write("Running Cassandra query\n")
+    sys.stdout.write("Running Cassandra queries\n")
     output_variants = list()
-    for sample in samples:
-        variants = Variant.objects.timeout(None).filter(Variant.reference_genome == config['genome_version'],
-                                                        Variant.sample == samples[sample]['sample_name'],
-                                                        Variant.run_id == samples[sample]['run_id'],
-                                                        Variant.library_name == samples[sample]['library_name'],
-                                                        ).allow_filtering()
-
-        sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
-        output_variants.extend(variants)
+    for variant in variants:
+        sample_variants = Variant.objects.timeout(None).filter(Variant.reference_genome == config['genome_version'],
+                                                               Variant.chr == variant['chr'],
+                                                               Variant.pos == variant['pos'],
+                                                               Variant.ref == variant['ref']
+                                                               ).allow_filtering()
 
     utils.write_variant_report(args.report, output_variants, args.variant_callers)
