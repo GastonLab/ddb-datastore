@@ -10,18 +10,7 @@ from cassandra.cqlengine import connection
 from ddb import configuration
 
 import utils
-from variantstore import TargetVariant
-
-
-def get_amplicons_list(infile):
-    amplicons_list = list()
-
-    with open(infile, 'r') as amp_file:
-        reader = csv.reader(amp_file)
-        for row in reader:
-            amplicons_list.append(row[0])
-
-    return amplicons_list
+from variantstore import Variant
 
 
 if __name__ == "__main__":
@@ -44,7 +33,8 @@ if __name__ == "__main__":
     sys.stdout.write("Parsing sample data\n")
     samples = configuration.configure_samples(args.samples_file, config)
 
-    amplicons = get_amplicons_list()
+    chromosomes = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18',
+                   '19', '20', '21', '22', 'X', 'Y', 'M')
 
     if args.username:
         password = getpass.getpass()
@@ -60,17 +50,14 @@ if __name__ == "__main__":
     sys.stdout.write("Processing samples\n")
 
     sys.stdout.write("Running Cassandra queries\n")
-    output_variants = list()
-    for amplicon in amplicons:
-        target_variants = TargetVariant.objects.timeout(None).filter(TargetVariant.target == amplicon,
-                                                                     TargetVariant.reference_genome == config['genome_version'],
-                                                                     TargetVariant.max_som_aaf >= thresholds['min_saf'],
-                                                                     TargetVariant.max_maf_all <= thresholds['max_maf'],
-                                                                     TargetVariant.max_depth >= thresholds['depth']
-                                                                     ).allow_filtering()
+    for chromosome in chromosomes:
+        variants = Variant.objects.timeout(None).filter(Variant.reference_genome == config['genome_version'],
+                                                        Variant.chr == chromosome,
+                                                        Variant.max_som_aaf >= thresholds['min_saf'],
+                                                        Variant.max_maf_all <= thresholds['max_maf'],
+                                                        Variant.max_depth >= thresholds['depth']
+                                                        ).allow_filtering()
+        ordered_variants = variants.order_by('pos', 'ref', 'alt',
+                                             'sample', 'library_name', 'run_id').limit(variants.count() + 1000)
 
-        ordered_variants = target_variants.order_by('sample', 'library_name', 'run_id', 'chr', 'pos',
-                                                    'ref', 'alt').limit(target_variants.count() + 1000)
-        output_variants.extend(ordered_variants)
-
-    utils.write_amplicon_variant_report(args.report, output_variants, args.variant_callers)
+    utils.write_variant_report(args.report, ordered_variants, args.variant_callers)
