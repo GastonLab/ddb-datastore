@@ -27,7 +27,6 @@ def get_amplicons_list(infile):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-s', '--samples_file', help="Input configuration file for samples")
     parser.add_argument('-c', '--configuration', help="Configuration file for various settings")
     parser.add_argument('-r', '--report', help="Root name for reports (per sample)")
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
@@ -41,9 +40,6 @@ if __name__ == "__main__":
 
     sys.stdout.write("Parsing configuration data\n")
     config = configuration.configure_runtime(args.configuration)
-
-    sys.stdout.write("Parsing sample data\n")
-    samples = configuration.configure_samples(args.samples_file, config)
 
     amplicons = get_amplicons_list()
 
@@ -59,7 +55,7 @@ if __name__ == "__main__":
                   'depth': args.depth}
     callers = args.variant_callers.split(',')
 
-    sys.stdout.write("Processing samples\n")
+    sys.stdout.write("Processing amplicons\n")
 
     sys.stdout.write("Running Cassandra queries\n")
     sample_variants = defaultdict(list)
@@ -81,4 +77,4 @@ if __name__ == "__main__":
 
     for sample in sample_variants:
         report_name = "{}.{}.txt".format(sample, args.report)
-        utils.write_amplicon_variant_report(report_name, samples[sample], args.variant_callers)
+        utils.write_amplicon_variant_report(report_name, sample_variants[sample], args.variant_callers)
