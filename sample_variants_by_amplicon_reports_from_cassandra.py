@@ -70,10 +70,11 @@ if __name__ == "__main__":
 
         ordered_variants = target_variants.order_by('sample', 'library_name', 'run_id', 'chr', 'pos',
                                                     'ref', 'alt').limit(target_variants.count() + 1000)
+
         for variant in ordered_variants:
             for caller in callers:
                 if caller in variant.callers:
-                    sample_variants[variant.sample].extend(ordered_variants)
+                    sample_variants[variant.sample].extend(variant)
                     break
 
     for sample in sample_variants:
