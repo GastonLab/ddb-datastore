@@ -74,7 +74,7 @@ if __name__ == "__main__":
         for variant in ordered_variants:
             for caller in callers:
                 if caller in variant.callers:
-                    sample_variants[variant.sample].extend(variant)
+                    sample_variants[variant.sample].append(variant)
                     break
 
     for sample in sample_variants:
