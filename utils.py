@@ -179,7 +179,7 @@ def write_variant_report(report_root, variants, callers):
         report.write("Sample\tLibrary\tRunID\tChrom\tStart\tEnd\tGene\tRef\tAlt\tCodon\tAA\trsIDs\t"
                      "Amplicon\tCOSMIC_IDs\tCOSMIC_NumSamples\tClin_Sig\tClin_HGVS\t"
                      "Clin_Disease\tBiotype\tImpact\tImpact SO\tSeverity\tmax_maf_all\tmax_maf_no_fin\t"
-                     "max_somatic_aaf\tmin_depth\tmax_depth\tCallers\t")
+                     "max_somatic_aaf\tmin_depth\tmax_depth\tCallers")
 
         if 'mutect' in callers:
             report.write("\tMuTect_AF")
@@ -258,7 +258,7 @@ def write_amplicon_variant_report(report_name, variants, callers):
         report.write("Sample\tLibrary\tRunID\tChrom\tStart\tEnd\tGene\tRef\tAlt\tCodon\tAA\trsIDs\t"
                      "Amplicon\tCOSMIC_IDs\tCOSMIC_NumSamples\tClin_Sig\tClin_HGVS\t"
                      "Clin_Disease\tBiotype\tImpact\tImpact SO\tSeverity\tmax_maf_all\tmax_maf_no_fin\t"
-                     "max_somatic_aaf\tmin_depth\tmax_depth\tCallers\t")
+                     "max_somatic_aaf\tmin_depth\tmax_depth\tCallers")
 
         if 'mutect' in callers:
             report.write("\tMuTect_AF")
