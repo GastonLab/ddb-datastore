@@ -25,10 +25,22 @@ def get_amplicons_list(infile):
     return amplicons_list
 
 
+def get_samples_list(infile):
+    samples_list = list()
+
+    with open(infile, 'r') as samp_file:
+        reader = csv.reader(samp_file)
+        for row in reader:
+            samples_list.append(row[0])
+
+    return samples_list
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--configuration', help="Configuration file for various settings")
     parser.add_argument('-l', '--list', help="Amplicon list file")
+    parser.add_argument('-s', '--samples', help="List of sample IDs")
     parser.add_argument('-r', '--report', help="Root name for reports (per sample)")
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
@@ -43,6 +55,7 @@ if __name__ == "__main__":
     config = configuration.configure_runtime(args.configuration)
 
     amplicons = get_amplicons_list(args.list)
+    samples = get_samples_list(args.samples)
 
     if args.username:
         password = getpass.getpass()
@@ -74,8 +87,13 @@ if __name__ == "__main__":
         for variant in ordered_variants:
             for caller in callers:
                 if caller in variant.callers:
-                    sample_variants[variant.sample].append(variant)
-                    break
+                    if args.samples:
+                        if variant.sample in samples:
+                            sample_variants[variant.sample].append(variant)
+                            break
+                    else:
+                        sample_variants[variant.sample].append(variant)
+                        break
 
     for sample in sample_variants:
         report_name = "{}.{}.txt".format(sample, args.report)
