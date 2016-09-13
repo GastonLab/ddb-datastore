@@ -55,7 +55,8 @@ if __name__ == "__main__":
     config = configuration.configure_runtime(args.configuration)
 
     amplicons = get_amplicons_list(args.list)
-    samples = get_samples_list(args.samples)
+    if args.samples:
+        samples = get_samples_list(args.samples)
 
     if args.username:
         password = getpass.getpass()
