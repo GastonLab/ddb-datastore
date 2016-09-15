@@ -20,7 +20,7 @@ from toil.job import Job
 def process_sample_coverage(job, addresses, keyspace, auth, sample, program, samples):
     connection.setup(addresses, keyspace, auth_provider=auth)
 
-    with open("{}.sambamba_coverage.bed".format(sample), 'rb') as coverage:
+    with open("{}.sambamba_coverage.bed".format(samples[sample]['library_name']), 'rb') as coverage:
         reader = csv.reader(coverage, delimiter='\t')
         header = reader.next()
         threshold_indices = list()
