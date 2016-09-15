@@ -66,19 +66,20 @@ if __name__ == "__main__":
 
     sys.stdout.write("Running Cassandra queries\n")
     sample_amplicons = defaultdict(list)
-    for amplicon in amplicons:
-        target_coverage = AmpliconCoverage.objects.timeout(None).filter(amplicon=amplicon).allow_filtering()
+    for amplicon_name in amplicons:
+        target_coverage = AmpliconCoverage.objects.timeout(None).filter(amplicon=amplicon_name).allow_filtering()
 
         ordered_coverage = target_coverage.order_by('sample', 'run_id',
                                                     'library_name').limit(target_coverage.count() + 1000)
 
-        for variant in ordered_coverage:
+        for amplicon in ordered_coverage:
+            sys.stdout.write("Amplicon: {}, Sample: {}\n").format(amplicon.amplicon, amplicon.sample)
             if args.samples:
-                if variant.sample in samples:
-                    sample_amplicons[variant.sample].append(variant)
+                if amplicon.sample in samples:
+                    sample_amplicons[amplicon.sample].append(amplicon)
                     break
             else:
-                sample_amplicons[variant.sample].append(variant)
+                sample_amplicons[amplicon.sample].append(amplicon)
                 break
 
     for sample in sample_amplicons:
