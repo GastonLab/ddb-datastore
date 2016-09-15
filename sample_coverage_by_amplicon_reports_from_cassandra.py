@@ -73,7 +73,7 @@ if __name__ == "__main__":
                                                     'library_name').limit(target_coverage.count() + 1000)
 
         for amplicon in ordered_coverage:
-            sys.stdout.write("Amplicon: {}, Sample: {}\n").format(amplicon.amplicon, amplicon.sample)
+            sys.stdout.write("Amplicon: {}\tSample:{}\n".format(amplicon.amplicon, amplicon.sample))
             if args.samples:
                 if amplicon.sample in samples:
                     sample_amplicons[amplicon.sample].append(amplicon)
