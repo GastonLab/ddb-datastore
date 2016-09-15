@@ -67,7 +67,9 @@ if __name__ == "__main__":
     sys.stdout.write("Running Cassandra queries\n")
     sample_amplicons = defaultdict(list)
     for amplicon_name in amplicons:
+        sys.stdout.write("Running queries for amplicon : {}\n".format(amplicon_name))
         target_coverage = AmpliconCoverage.objects.timeout(None).filter(amplicon=amplicon_name).allow_filtering()
+        sys.stdout.write("Returned {} results\n".format(target_coverage.count()))
 
         ordered_coverage = target_coverage.order_by('sample', 'run_id',
                                                     'library_name').limit(target_coverage.count() + 10000)
