@@ -72,6 +72,7 @@ if __name__ == "__main__":
         sys.stdout.write("Returned {} results\n".format(target_coverage.count()))
 
         ordered_coverage = target_coverage.order_by('sample').limit(target_coverage.count() + 10000)
+        sys.stdout.write("Ordered results:{}\n".format(ordered_coverage.count()))
 
         for amplicon in target_coverage:
             sys.stdout.write("Amplicon: {}\tSample:{}\n".format(amplicon.amplicon, amplicon.sample))
