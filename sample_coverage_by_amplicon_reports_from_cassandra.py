@@ -71,8 +71,7 @@ if __name__ == "__main__":
         target_coverage = AmpliconCoverage.objects.timeout(None).filter(amplicon=amplicon_name).allow_filtering()
         sys.stdout.write("Returned {} results\n".format(target_coverage.count()))
 
-        ordered_coverage = target_coverage.order_by('sample', 'run_id',
-                                                    'library_name').limit(target_coverage.count() + 10000)
+        ordered_coverage = target_coverage.order_by('sample', 'library_name').limit(target_coverage.count() + 10000)
 
         for amplicon in ordered_coverage:
             sys.stdout.write("Amplicon: {}\tSample:{}\n".format(amplicon.amplicon, amplicon.sample))
