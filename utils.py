@@ -334,9 +334,9 @@ def write_amplicon_variant_report(report_name, variants, callers):
 
 def write_amplicon_coverage_report(report_name, amplicons):
     with open(report_name, 'w') as report:
-        report.write("Sample\tLibrary\tRunID\tAmplicon\n")
+        report.write("Sample\tLibrary\tRunID\tAmplicon\tNum Reads\tMean Coverage\n")
 
         for amplicon in amplicons:
-            report.write("{sample}\t{library}\t{run_id}\t{amp}\n"
+            report.write("{sample}\t{library}\t{run_id}\t{amp}\t{num_reads}\t{mean}\n"
                          "".format(sample=amplicon.sample, library=amplicon.library_name, run_id=amplicon.run_id,
-                                   amp=amplicon.amplicon_data['amplicon']))
+                                   amp=amplicon.amplicon, num_reads=amplicon.num_reads, mean=amplicon.mean_coverage))
