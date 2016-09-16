@@ -72,17 +72,13 @@ if __name__ == "__main__":
         sys.stdout.write("Returned {} results\n".format(target_coverage.count()))
 
         ordered_coverage = target_coverage.order_by('sample').limit(target_coverage.count() + 10000)
-        sys.stdout.write("Ordered results:{}\n".format(ordered_coverage.count()))
 
         for amplicon in ordered_coverage:
-            sys.stdout.write("Amplicon: {}\tSample:{}\n".format(amplicon.amplicon, amplicon.sample))
             if args.samples:
                 if amplicon.sample in samples:
                     sample_amplicons[amplicon.sample].append(amplicon)
-                    break
             else:
                 sample_amplicons[amplicon.sample].append(amplicon)
-                break
 
     for sample in sample_amplicons:
         report_name = "{}.{}.txt".format(sample, args.report)
