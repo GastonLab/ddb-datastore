@@ -11,6 +11,7 @@ from ddb import configuration
 
 import utils
 from variantstore import TargetVariant
+from collections import defaultdict
 
 
 def get_amplicons_list(infile):
@@ -24,10 +25,22 @@ def get_amplicons_list(infile):
     return amplicons_list
 
 
+def get_samples_list(infile):
+    samples_list = list()
+
+    with open(infile, 'r') as samp_file:
+        reader = csv.reader(samp_file)
+        for row in reader:
+            samples_list.append(row[0])
+
+    return samples_list
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-s', '--samples_file', help="Input configuration file for samples")
     parser.add_argument('-c', '--configuration', help="Configuration file for various settings")
+    parser.add_argument('-l', '--list', help="Amplicon list file")
+    parser.add_argument('-s', '--samples', help="List of sample IDs")
     parser.add_argument('-r', '--report', help="Root name for reports (per sample)")
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
@@ -41,10 +54,10 @@ if __name__ == "__main__":
     sys.stdout.write("Parsing configuration data\n")
     config = configuration.configure_runtime(args.configuration)
 
-    sys.stdout.write("Parsing sample data\n")
-    samples = configuration.configure_samples(args.samples_file, config)
-
-    amplicons = get_amplicons_list()
+    amplicons = get_amplicons_list(args.list)
+    samples = list()
+    if args.samples:
+        samples = get_samples_list(args.samples)
 
     if args.username:
         password = getpass.getpass()
@@ -53,24 +66,31 @@ if __name__ == "__main__":
     else:
         connection.setup([args.address], "variantstore")
 
-    thresholds = {'min_saf': args.min_somatic_allele_freq,
-                  'max_maf': args.max_pop_freq,
-                  'depth': args.depth}
+    callers = args.variant_callers.split(',')
 
-    sys.stdout.write("Processing samples\n")
+    sys.stdout.write("Processing amplicons\n")
 
     sys.stdout.write("Running Cassandra queries\n")
-    output_variants = list()
     for amplicon in amplicons:
+        sys.stdout.write("Running query for amplicon: %s\n".format(amplicon))
         target_variants = TargetVariant.objects.timeout(None).filter(TargetVariant.target == amplicon,
-                                                                     TargetVariant.reference_genome == config['genome_version'],
-                                                                     TargetVariant.max_som_aaf >= thresholds['min_saf'],
-                                                                     TargetVariant.max_maf_all <= thresholds['max_maf'],
-                                                                     TargetVariant.max_depth >= thresholds['depth']
+                                                                     TargetVariant.reference_genome == config['genome_version']
                                                                      ).allow_filtering()
 
         ordered_variants = target_variants.order_by('sample', 'library_name', 'run_id', 'chr', 'pos',
                                                     'ref', 'alt').limit(target_variants.count() + 1000)
-        output_variants.extend(ordered_variants)
+        filtered_variants = list()
 
-    utils.write_amplicon_variant_report(args.report, output_variants, args.variant_callers)
+        for variant in ordered_variants:
+            for caller in callers:
+                if caller in variant.callers:
+                    if args.samples:
+                        if variant.sample in samples:
+                            filtered_variants.append(variant)
+                            break
+                    else:
+                        filtered_variants.append(variant)
+                        break
+
+        report_name = "{}.{}.txt".format(amplicon, args.report)
+        utils.write_amplicon_variant_report(report_name, filtered_variants, args.variant_callers)
