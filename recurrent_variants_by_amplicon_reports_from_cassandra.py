@@ -72,7 +72,7 @@ if __name__ == "__main__":
 
     sys.stdout.write("Running Cassandra queries\n")
     for amplicon in amplicons:
-        sys.stdout.write("Running query for amplicon: %s\n".format(amplicon))
+        sys.stdout.write("Running query for amplicon: {}\n".format(amplicon))
         target_variants = TargetVariant.objects.timeout(None).filter(TargetVariant.target == amplicon,
                                                                      TargetVariant.reference_genome == config['genome_version']
                                                                      ).allow_filtering()
