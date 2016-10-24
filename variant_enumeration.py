@@ -52,6 +52,8 @@ if __name__ == "__main__":
         if 'platypus' in variant.callers:
             variant_details[key]['platypus'] += 1
 
+    sys.stdout.write("Enumerated through {} variants\n".format(count))
+
     with open(args.output, 'w') as outfile:
         outfile.write("Variant Key\tGene\tAA\tPanel\tNum Instances\tNum MuTect\tNum FreeBayes\tNum VarDict\t"
                       "Num Platypus\tNum Scalpel\tNum Pindel\n")
