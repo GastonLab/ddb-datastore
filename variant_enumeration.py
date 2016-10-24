@@ -36,6 +36,8 @@ if __name__ == "__main__":
 
         variant_details[key]['instances'] += 1
         variant_details[key]['panel'] = variant.panel_name
+        variant_details[key]['gene'] = variant.gene
+        variant_details[key]['amino_acid'] = variant.aa_change or None
 
         if 'freebayes' in variant.callers:
             variant_details[key]['freebayes'] += 1
@@ -51,14 +53,17 @@ if __name__ == "__main__":
             variant_details[key]['platypus'] += 1
 
     with open(args.output, 'w') as outfile:
-        outfile.write("Variant Key\tPanel\tNum Instances\tNum MuTect\tNum FreeBayes\tNum VarDict\tNum Platypus\t"
-                      "Num Scalpel\tNum Pindel\n")
+        outfile.write("Variant Key\tGene\tAA\tPanel\tNum Instances\tNum MuTect\tNum FreeBayes\tNum VarDict\t"
+                      "Num Platypus\tNum Scalpel\tNum Pindel\n")
         for variant in variant_details.keys():
-            outfile.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(variant, variant_details['panel'],
-                                                                        variant_details['instances'],
-                                                                        variant_details['mutect'],
-                                                                        variant_details['freebayes'],
-                                                                        variant_details['vardict'],
-                                                                        variant_details['platypus'],
-                                                                        variant_details['scalpel'],
-                                                                        variant_details['pindel']))
+            outfile.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(variant,
+                                                                                variant_details[variant]['gene'],
+                                                                                variant_details[variant]['amino_acid'],
+                                                                                variant_details[variant]['panel'],
+                                                                                variant_details[variant]['instances'],
+                                                                                variant_details[variant]['mutect'],
+                                                                                variant_details[variant]['freebayes'],
+                                                                                variant_details[variant]['vardict'],
+                                                                                variant_details[variant]['platypus'],
+                                                                                variant_details[variant]['scalpel'],
+                                                                                variant_details[variant]['pindel']))
