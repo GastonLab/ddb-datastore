@@ -47,12 +47,12 @@ if __name__ == "__main__":
         connection.setup([args.address], "variantstore")
 
     # for amplicon in amplicons:
-    
+
     variant_details = defaultdict(lambda: defaultdict(int))
-    all_variants = Variant.objects.timeout(None).all()
-    sys.stdout.write("Retrieved {} variants from the database\n".format(all_variants.count()))
+    # all_variants = Variant.objects.timeout(None).all()
+    # sys.stdout.write("Retrieved {} variants from the database\n".format(all_variants.count()))
     count = 0
-    for variant in all_variants:
+    for variant in Variant.objects.timeout(None).all():
         count += 1
         key = "{}-{}-{}-{}-{}".format(variant.reference_genome, variant.chr, variant.pos, variant.ref, variant.alt)
 
