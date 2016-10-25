@@ -38,7 +38,6 @@ def get_samples_list(infile):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--configuration', help="Configuration file for various settings")
     parser.add_argument('-l', '--list', help="Amplicon list file")
     parser.add_argument('-s', '--samples', help="List of sample IDs")
     parser.add_argument('-r', '--report', help="Root name for reports (per sample)")
@@ -50,9 +49,6 @@ if __name__ == "__main__":
     parser.add_argument('-f', '--min_somatic_allele_freq', help='Minimum somatic frequency threshold', default=0.01)
 
     args = parser.parse_args()
-
-    sys.stdout.write("Parsing configuration data\n")
-    config = configuration.configure_runtime(args.configuration)
 
     amplicons = get_amplicons_list(args.list)
     samples = list()
@@ -74,12 +70,12 @@ if __name__ == "__main__":
     for amplicon in amplicons:
         sys.stdout.write("Running query for amplicon: {}\n".format(amplicon))
         target_variants = TargetVariant.objects.timeout(None).filter(TargetVariant.target == amplicon,
-                                                                     TargetVariant.reference_genome == config['genome_version']
+                                                                     TargetVariant.reference_genome == 'GRCh37.75'
                                                                      ).allow_filtering()
 
         ordered_variants = target_variants.order_by('sample', 'library_name', 'run_id', 'chr', 'pos',
                                                     'ref', 'alt').limit(target_variants.count() + 1000)
-        filtered_variants = list()
+        filtered_variants = defaultdict(lambda: defaultdict(int))
 
         for variant in ordered_variants:
             for caller in callers:
