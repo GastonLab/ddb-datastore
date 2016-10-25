@@ -52,7 +52,7 @@ if __name__ == "__main__":
     # all_variants = Variant.objects.timeout(None).all()
     # sys.stdout.write("Retrieved {} variants from the database\n".format(all_variants.count()))
     count = 0
-    for variant in Variant.objects.timeout(None).limit(None).all():
+    for variant in Variant.objects.timeout(None).limit(None):
         count += 1
         key = "{}-{}-{}-{}-{}".format(variant.reference_genome, variant.chr, variant.pos, variant.ref, variant.alt)
 
