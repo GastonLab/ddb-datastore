@@ -3,6 +3,7 @@
 import argparse
 import getpass
 import sys
+import csv
 
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cqlengine import connection
@@ -11,13 +12,32 @@ from variantstore import Variant
 from collections import defaultdict
 
 
+def get_amplicons_list(infile):
+    amplicons_list = list()
+
+    with open(infile, 'r') as amp_file:
+        reader = csv.reader(amp_file)
+        for row in reader:
+            amplicons_list.append(row[0])
+
+    return amplicons_list
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
     parser.add_argument('-o', '--output', help='Output file name')
+    # parser.add_argument('-l', '--list', help="Amplicon list file")
+    # parser.add_argument('-v', '--variant_callers', help="Comma-delimited list of variant callers used")
+    # parser.add_argument('-d', '--depth', help='Depth threshold', default=200)
+    # parser.add_argument('-m', '--max_pop_freq', help='Maximum population frequency threshold', default=0.005)
+    # parser.add_argument('-f', '--min_somatic_allele_freq', help='Minimum somatic frequency threshold', default=0.01)
 
     args = parser.parse_args()
+
+    # sys.stdout.write("Reading amplicon list from file {}\n".format(args.list))
+    # amplicons = get_amplicons_list(args.list)
 
     if args.username:
         password = getpass.getpass()
@@ -26,8 +46,10 @@ if __name__ == "__main__":
     else:
         connection.setup([args.address], "variantstore")
 
+    # for amplicon in amplicons:
+    
     variant_details = defaultdict(lambda: defaultdict(int))
-    all_variants = Variant.objects.all()
+    all_variants = Variant.objects.timeout(None).all()
     sys.stdout.write("Retrieved {} variants from the database\n".format(all_variants.count()))
     count = 0
     for variant in all_variants:
