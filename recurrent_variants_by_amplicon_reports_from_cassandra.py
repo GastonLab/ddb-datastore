@@ -43,6 +43,7 @@ if __name__ == "__main__":
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
     parser.add_argument('-m', '--max_pop_freq', help='Maximum population frequency threshold', default=0.005)
+    parser.add_argument('-o', '--output', help="Output file name for variants")
 
     args = parser.parse_args()
 
@@ -95,7 +96,7 @@ if __name__ == "__main__":
                 if 'platypus' in variant.callers:
                     filtered_variants[key]['platypus'] += 1
 
-        with open("{}_{}.txt".format(amplicon, args.output), 'w') as outfile:
+        with open(args.output, 'a') as outfile:
             outfile.write("Key\tGene\tAmplicon\tAmino Acid\tNum Instances\tNum Cosmic\tCosmic IDs\tSomatic AF\t"
                           "FreeBayes\tScalpel\tMuTect\tPindel\tVarDict\tPlatypus\n")
             for variant in filtered_variants.keys():
