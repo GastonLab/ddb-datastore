@@ -101,9 +101,11 @@ if __name__ == "__main__":
                           "FreeBayes\tScalpel\tMuTect\tPindel\tVarDict\tPlatypus\n")
             for variant in filtered_variants.keys():
                 outfile.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}"
-                              "\n".format(variant, filtered_variants[variant]['gene'],
+                              "\n".format(variant,
+                                          filtered_variants[variant]['gene'],
                                           filtered_variants[variant]['amplicon'],
                                           filtered_variants[variant]['amino_acid'],
+                                          filtered_variants[variant]['instances'],
                                           filtered_variants[variant]['num_cosmic'],
                                           filtered_variants[variant]['cosmic_ids'],
                                           filtered_variants[variant]['somatic_freq'],
