@@ -56,6 +56,10 @@ if __name__ == "__main__":
     else:
         connection.setup([args.address], "variantstore")
 
+    with open(args.output, 'w') as outfile:
+        outfile.write("Key\tGene\tAmplicon\tAmino Acid\tNum Instances\tNum Cosmic\tCosmic IDs\tSomatic AF\t"
+                      "FreeBayes\tScalpel\tMuTect\tPindel\tVarDict\tPlatypus\n")
+
     sys.stdout.write("Running Cassandra queries\n")
     for amplicon in amplicons:
         sys.stdout.write("Running query for amplicon: {}\n".format(amplicon))
@@ -97,8 +101,6 @@ if __name__ == "__main__":
                     filtered_variants[key]['platypus'] += 1
 
         with open(args.output, 'a') as outfile:
-            outfile.write("Key\tGene\tAmplicon\tAmino Acid\tNum Instances\tNum Cosmic\tCosmic IDs\tSomatic AF\t"
-                          "FreeBayes\tScalpel\tMuTect\tPindel\tVarDict\tPlatypus\n")
             for variant in filtered_variants.keys():
                 outfile.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}"
                               "\n".format(variant,
