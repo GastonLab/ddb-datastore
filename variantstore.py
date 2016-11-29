@@ -6,17 +6,15 @@ class Variant(Model):
     __keyspace__ = 'variantstore'
     reference_genome = columns.Text(primary_key=True, partition_key=True)
     chr = columns.Text(primary_key=True, partition_key=True)
-    pos = columns.Integer(primary_key=True, partition_key=True)
 
     # Cluster Keys
+    pos = columns.Integer(primary_key=True)
     ref = columns.Text(primary_key=True)
     alt = columns.Text(primary_key=True)
-
-    # Sample and Panel/Run Level data annotations
     sample = columns.Text(index=True, primary_key=True)
     library_name = columns.Text(index=True, primary_key=True)
     run_id = columns.Text(index=True, primary_key=True)
-    date_annotated = columns.DateTime(index=True)
+
     sequencer = columns.Text(index=True)
     target_pool = columns.Text(index=True)
     panel_name = columns.Text(index=True)
@@ -101,7 +99,7 @@ class SampleVariant(Model):
     alt = columns.Text(primary_key=True)
 
     # Sample and Panel/Run Level data annotations
-    date_annotated = columns.DateTime(primary_key=True, index=True)
+    date_added = columns.DateTime(primary_key=True)
     target_pool = columns.Text(index=True)
     panel_name = columns.Text(index=True)
     extraction = columns.Text(index=True)
@@ -186,7 +184,7 @@ class TargetVariant(Model):
     alt = columns.Text(primary_key=True)
 
     # Sample and Panel/Run Level data annotations
-    date_annotated = columns.DateTime(primary_key=True, index=True)
+    date_added = columns.DateTime(primary_key=True)
     target_pool = columns.Text(index=True)
     panel_name = columns.Text(index=True)
     extraction = columns.Text(index=True)
