@@ -25,17 +25,6 @@ def get_amplicons_list(infile):
     return amplicons_list
 
 
-def get_samples_list(infile):
-    samples_list = list()
-
-    with open(infile, 'r') as samp_file:
-        reader = csv.reader(samp_file)
-        for row in reader:
-            samples_list.append(row[0])
-
-    return samples_list
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', '--list', help="Amplicon list file")

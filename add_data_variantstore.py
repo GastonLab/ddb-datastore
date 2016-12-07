@@ -18,8 +18,6 @@ from toil.job import Job
 
 import utils
 from variantstore import SampleVariant
-from variantstore import TargetVariant
-from variantstore import Variant
 
 
 def process_sample(job, addresses, keyspace, authenticator, parse_functions, sample, samples, config):
