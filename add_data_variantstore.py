@@ -246,37 +246,6 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, sam
     job.fileStore.logToMaster("Data saved to Cassandra for sample {}\n".format(sample))
 
 
-def get_population_freqs(variant):
-    freqs = {'esp_ea': variant.INFO.get('aaf_esp_ea') or -1,
-             'esp_aa': variant.INFO.get('aaf_esp_aa') or -1,
-             'esp_all': variant.INFO.get('aaf_esp_all') or -1,
-             '1kg_amr': variant.INFO.get('aaf_1kg_amr') or -1,
-             '1kg_eas': variant.INFO.get('aaf_1kg_eas') or -1,
-             '1kg_sas': variant.INFO.get('aaf_1kg_sas') or -1,
-             '1kg_afr': variant.INFO.get('aaf_1kg_afr') or -1,
-             '1kg_eur': variant.INFO.get('aaf_1kg_eur') or -1,
-             '1kg_all': variant.INFO.get('aaf_1kg_all') or -1,
-             'exac_all': variant.INFO.get('aaf_exac_all') or -1,
-             'adj_exac_all': variant.INFO.get('aaf_adj_exac_all') or -1,
-             'adj_exac_afr': variant.INFO.get('aaf_adj_exac_afr') or -1,
-             'adj_exac_amr': variant.INFO.get('aaf_adj_exac_amr') or -1,
-             'adj_exac_eas': variant.INFO.get('aaf_adj_exac_eas') or -1,
-             'adj_exac_fin': variant.INFO.get('aaf_adj_exac_fin') or -1,
-             'adj_exac_nfe': variant.INFO.get('aaf_adj_exac_nfe') or -1,
-             'adj_exac_oth': variant.INFO.get('aaf_adj_exac_oth') or -1,
-             'adj_exac_sas': variant.INFO.get('aaf_adj_exac_sas') or -1}
-
-    return freqs
-
-
-def get_amplicon_data(variant):
-    data = {'amplicon': variant.INFO.get('amplicon_target') or "None",
-            'panel_amplicon': variant.INFO.get('panel_target') or "None",
-            'intersect': variant.INFO.get('amplicon_intersect') or "None"}
-
-    return data
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--samples_file', help="Input configuration file for samples")
