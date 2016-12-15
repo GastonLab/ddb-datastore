@@ -98,7 +98,7 @@ def get_amplicon_data(variant):
     return data
 
 
-def variant_filter(variant, callers, thresholds):
+def variant_filter(variant, thresholds):
     flag = False
     info = dict()
 

@@ -59,10 +59,13 @@ if __name__ == "__main__":
         filtered_variants = list()
         for variant in ordered_variants:
             if variant.amplicon_data['amplicon']:
-                for caller in callers:
-                    if caller in variant.callers:
-                        filtered_variants.append(variant)
-                        break
+                amplicons = variant.amplicon_data['amplicon'].split(',')
+                for amplicon in amplicons:
+
+                    for caller in callers:
+                        if caller in variant.callers:
+                            filtered_variants.append(variant)
+                            break
 
         sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
         sys.stdout.write("Writing {} variants to sample report\n".format(len(filtered_variants)))
