@@ -19,6 +19,7 @@ class Variant(Model):
     target_pool = columns.Text(index=True)
     panel_name = columns.Text(index=True)
     extraction = columns.Text(index=True)
+    date_added = columns.DateTime()
 
     # Simple Annotation Data
     end = columns.Integer()
