@@ -19,7 +19,7 @@ class Variant(Model):
     target_pool = columns.Text(index=True)
     panel_name = columns.Text(index=True)
     extraction = columns.Text(index=True)
-    date_added = columns.DateTime()
+    date_annotated = columns.DateTime()
 
     # Simple Annotation Data
     end = columns.Integer()
@@ -100,7 +100,7 @@ class SampleVariant(Model):
     alt = columns.Text(primary_key=True)
 
     # Sample and Panel/Run Level data annotations
-    date_added = columns.DateTime(primary_key=True)
+    date_annotated = columns.DateTime(primary_key=True)
     target_pool = columns.Text(index=True)
     panel_name = columns.Text(index=True)
     extraction = columns.Text(index=True)
@@ -185,7 +185,7 @@ class TargetVariant(Model):
     alt = columns.Text(primary_key=True)
 
     # Sample and Panel/Run Level data annotations
-    date_added = columns.DateTime(primary_key=True)
+    date_annotated = columns.DateTime(primary_key=True)
     target_pool = columns.Text(index=True)
     panel_name = columns.Text(index=True)
     extraction = columns.Text(index=True)
