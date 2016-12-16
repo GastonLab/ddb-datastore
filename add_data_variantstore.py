@@ -18,6 +18,8 @@ from toil.job import Job
 
 import utils
 from variantstore import SampleVariant
+from variantstore import Variant
+
 
 
 def process_sample(job, addresses, keyspace, authenticator, parse_functions, sample, samples, config):
@@ -51,8 +53,8 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, sam
         callers = variant.INFO.get('CALLERS').split(',')
         effects = utils.get_effects(variant, annotation_keys)
         top_impact = utils.get_top_impact(effects)
-        population_freqs = get_population_freqs(variant)
-        amplicon_data = get_amplicon_data(variant)
+        population_freqs = utils.get_population_freqs(variant)
+        amplicon_data = utils.get_amplicon_data(variant)
 
         key = (unicode("chr{}".format(variant.CHROM)), int(variant.start), int(variant.end), unicode(variant.REF),
                unicode(variant.ALT[0]))
@@ -186,62 +188,6 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, sam
                 vardict=caller_variant_data_dicts['vardict'] or dict(),
                 manta=caller_variant_data_dicts['manta'] or dict()
                 )
-
-        target_variant = TargetVariant.create(
-            target=amplicon_data['amplicon'],
-            sample=samples[sample]['sample_name'],
-            run_id=samples[sample]['run_id'],
-            library_name=samples[sample]['library_name'],
-            reference_genome=config['genome_version'],
-            chr=variant.CHROM,
-            pos=variant.start,
-            end=variant.end,
-            ref=variant.REF,
-            alt=variant.ALT[0],
-            extraction=samples[sample]['extraction'],
-            panel_name=samples[sample]['panel'],
-            target_pool=samples[sample]['target_pool'],
-            sequencer=samples[sample]['sequencer'],
-            rs_id=variant.ID,
-            date_annotated=datetime.now(),
-            subtype=variant.INFO.get('sub_type'),
-            type=variant.INFO.get('type'),
-            gene=top_impact.gene,
-            transcript=top_impact.transcript,
-            exon=top_impact.exon,
-            codon_change=top_impact.codon_change,
-            biotype=top_impact.biotype,
-            aa_change=top_impact.aa_change,
-            severity=top_impact.effect_severity,
-            impact=top_impact.top_consequence,
-            impact_so=top_impact.so,
-            max_maf_all=variant.INFO.get('max_aaf_all') or -1,
-            max_maf_no_fin=variant.INFO.get('max_aaf_no_fin') or -1,
-            transcripts_data=utils.get_transcript_effects(effects),
-            clinvar_data=utils.get_clinvar_info(variant),
-            cosmic_data=utils.get_cosmic_info(variant),
-            in_clinvar=vcf_parsing.var_is_in_clinvar(variant),
-            in_cosmic=vcf_parsing.var_is_in_cosmic(variant),
-            is_pathogenic=vcf_parsing.var_is_pathogenic(variant),
-            is_lof=vcf_parsing.var_is_lof(variant),
-            is_coding=vcf_parsing.var_is_coding(variant),
-            is_splicing=vcf_parsing.var_is_splicing(variant),
-            rs_ids=vcf_parsing.parse_rs_ids(variant),
-            cosmic_ids=vcf_parsing.parse_cosmic_ids(variant),
-            callers=callers,
-            population_freqs=population_freqs,
-            amplicon_data=amplicon_data,
-            max_som_aaf=max_som_aaf,
-            min_depth=min_depth,
-            max_depth=max_depth,
-            mutect=caller_variant_data_dicts['mutect'] or dict(),
-            freebayes=caller_variant_data_dicts['freebayes'] or dict(),
-            scalpel=caller_variant_data_dicts['scalpel'] or dict(),
-            platypus=caller_variant_data_dicts['platypus'] or dict(),
-            pindel=caller_variant_data_dicts['pindel'] or dict(),
-            vardict=caller_variant_data_dicts['vardict'] or dict(),
-            manta=caller_variant_data_dicts['manta'] or dict()
-        )
 
     job.fileStore.logToMaster("Data saved to Cassandra for sample {}\n".format(sample))
 
