@@ -12,6 +12,13 @@ import utils
 from variantstore import SampleVariant
 from variantstore import Variant
 
+
+def get_target_amplicons():
+    target_amplicons = list()
+
+    return target_amplicons
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--samples_file', help="Input configuration file for samples")
@@ -43,6 +50,7 @@ if __name__ == "__main__":
 
     sys.stdout.write("Processing samples\n")
     for sample in samples:
+        target_amplicons = get_target_amplicons()
         sys.stdout.write("Running Cassandra query for sample {}\n".format(sample))
         variants = SampleVariant.objects.timeout(None).filter(
             SampleVariant.reference_genome == config['genome_version'],
@@ -61,11 +69,11 @@ if __name__ == "__main__":
             if variant.amplicon_data['amplicon']:
                 amplicons = variant.amplicon_data['amplicon'].split(',')
                 for amplicon in amplicons:
-
-                    for caller in callers:
-                        if caller in variant.callers:
-                            filtered_variants.append(variant)
-                            break
+                    if amplicon in target_amplicons:
+                        for caller in callers:
+                            if caller in variant.callers:
+                                filtered_variants.append(variant)
+                                break
 
         sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
         sys.stdout.write("Writing {} variants to sample report\n".format(len(filtered_variants)))
