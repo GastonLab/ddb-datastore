@@ -59,7 +59,7 @@ if __name__ == "__main__":
     for sample in samples:
         target_amplicons = get_target_amplicons("/mnt/shared-data/ddb-configs/disease_panels/{}/{}"
                                                 "".format(samples[sample]['panel'], samples[sample]['report']))
-        target_amplicon_coverage = defaultdict(dict)
+        target_amplicon_coverage = defaultdict(lambda: defaultdict(float))
 
         sys.stdout.write("Running Cassandra query for sample {}\n".format(sample))
 
