@@ -19,7 +19,7 @@ from collections import defaultdict
 def get_target_amplicons(filename):
     amplicons_list = list()
     with open(filename, "r") as bedfile:
-        reader = csv.reader(bedfile, dialect='tab-excel')
+        reader = csv.reader(bedfile, dialect='excel-tab')
         for row in reader:
             amplicons_list.append(row[3])
 
