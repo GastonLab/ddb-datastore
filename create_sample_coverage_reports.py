@@ -61,7 +61,7 @@ if __name__ == "__main__":
                 SampleCoverage.library_name == samples[sample]['library_name'],
                 SampleCoverage.program_name == "sambamba"
             )
-            ordered_variants = coverage_data.order_by('amplicon', 'run_id', '').limit(coverage_data.count() + 1000)
+            ordered_variants = coverage_data.order_by('amplicon', 'run_id').limit(coverage_data.count() + 1000)
             for variant in ordered_variants:
                 reportable_amplicons.append(variant)
 
