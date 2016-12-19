@@ -70,7 +70,6 @@ if __name__ == "__main__":
             SampleVariant.library_name == samples[sample]['library_name'],
             SampleVariant.max_som_aaf >= thresholds['min_saf'],
             SampleVariant.max_maf_all <= thresholds['max_maf'],
-            SampleVariant.max_depth >= thresholds['depth']
             ).allow_filtering()
 
         for amplicon in target_amplicons:
