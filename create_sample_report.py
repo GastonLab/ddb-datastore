@@ -3,6 +3,7 @@
 import argparse
 import getpass
 import sys
+import csv
 
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cqlengine import connection
@@ -10,13 +11,19 @@ from ddb import configuration
 
 import utils
 from variantstore import SampleVariant
-from variantstore import Variant
+from coveragestore import SampleCoverage
+
+from collections import defaultdict
 
 
-def get_target_amplicons():
-    target_amplicons = list()
+def get_target_amplicons(filename):
+    amplicons_list = list()
+    with open(filename, "r") as bedfile:
+        reader = csv.reader(bedfile, dialect='tab-excel')
+        for row in reader:
+            amplicons_list.append(row[3])
 
-    return target_amplicons
+    return amplicons_list
 
 
 if __name__ == "__main__":
@@ -46,12 +53,16 @@ if __name__ == "__main__":
                   'max_maf': 0.005,
                   'depth': 200}
 
-    callers = ("mutect", "platypus", "vardict", "freebayes", "scalpel", "pindel")
+    callers = ("mutect", "platypus", "vardict", "scalpel", "freebayes", "pindel")
 
     sys.stdout.write("Processing samples\n")
     for sample in samples:
-        target_amplicons = get_target_amplicons()
+        target_amplicons = get_target_amplicons("/mnt/shared-data/ddb-configs/disease_panels/{}/{}"
+                                                "".format(samples[sample]['panel'], samples[sample]['report']))
+        target_amplicon_coverage = defaultdict(dict)
+
         sys.stdout.write("Running Cassandra query for sample {}\n".format(sample))
+
         variants = SampleVariant.objects.timeout(None).filter(
             SampleVariant.reference_genome == config['genome_version'],
             SampleVariant.sample == samples[sample]['sample_name'],
@@ -61,6 +72,19 @@ if __name__ == "__main__":
             SampleVariant.max_maf_all <= thresholds['max_maf'],
             SampleVariant.max_depth >= thresholds['depth']
             ).allow_filtering()
+
+        for amplicon in target_amplicons:
+            coverage_data = SampleCoverage.objects.timeout(None).filter(
+                SampleCoverage.sample == samples[sample]['sample_name'],
+                SampleCoverage.amplicon == amplicon,
+                SampleCoverage.run_id == samples[sample]['run_id'],
+                SampleCoverage.library_name == samples[sample]['library_name'],
+                SampleCoverage.program_name == "sambamba"
+            )
+
+            for result in coverage_data:
+                target_amplicon_coverage[amplicon]['num_reads'] = result.num_reads
+                target_amplicon_coverage[amplicon]['mean_coverage'] = result.mean_coverage
 
         ordered_variants = variants.order_by('library_name', 'chr', 'pos',
                                              'ref', 'alt').limit(variants.count() + 1000)
@@ -77,4 +101,4 @@ if __name__ == "__main__":
 
         sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
         sys.stdout.write("Writing {} variants to sample report\n".format(len(filtered_variants)))
-        utils.write_sample_variant_report(args.report, sample, filtered_variants, callers)
+        utils.write_sample_variant_report(args.report, sample, filtered_variants, target_amplicon_coverage, callers)
