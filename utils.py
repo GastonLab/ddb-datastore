@@ -181,9 +181,9 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                                    max_maf_no_fin=variant.max_maf_no_fin,
                                    max_som_aaf=variant.max_som_aaf,
                                    num_reads=target_amplicon_coverage[variant.amplicon_data['amplicon']][
-                                       'mean_coverage'],
+                                       'num_reads'] or None,
                                    coverage=target_amplicon_coverage[variant.amplicon_data['amplicon']][
-                                       'mean_coverage'],
+                                       'mean_coverage'] or None,
                                    min_depth=variant.min_depth,
                                    max_depth=variant.max_depth,
                                    callers=",".join(variant.callers) or None))
