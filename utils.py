@@ -159,9 +159,13 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
             # print variant
             if any(caller in ("freebayes", "pindel") for caller in variant.callers):
                 sys.stderr.write("Freebayes or Pindel detected in callers: {}\n".format(variant.callers))
-                if not any(caller in ("mutect", "scalpel", "vardict", "platypus") for caller in variant.callers):
-                    if not variant.cosmic_ids and not variant.clinvar_data:
-                        continue
+                if any(caller in ("mutect", "scalpel", "vardict", "platypus") for caller in variant.callers):
+                    sys.stderr.write("Other caller also called this variant\n")
+                elif not variant.cosmic_ids and not variant.clinvar_data:
+                    sys.stderr.write("Freebayes or Pindel only, no cosmic or clinvar data. Skipping...\n")
+                    continue
+                else:
+                    sys.stderr.write("Probably should never get to this else\n")
             report.write("{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{codon}\t{aa}\t{rsids}\t"
                          "{amp}\t{cosmic}\t{cosmic_nsamples}\t{csig}\t{hgvs}\t{cdis}\t{biotype}\t"
                          "{impact}\t{impact_so}\t{severity}\t{max_maf_all}\t{max_maf_no_fin}\t{max_som_aaf}\t"
