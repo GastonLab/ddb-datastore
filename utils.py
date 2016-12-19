@@ -166,7 +166,7 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                     # sys.stderr.write("Freebayes or Pindel called only\n")
                     if variant.cosmic_ids:
                         sys.stderr.write("Pindel/FreeBayes only but COSMIC IDs ({}) data\n".format(variant.cosmic_ids))
-                    elif variant.clinvar_data:
+                    elif variant.clinvar_data['significance'] is not "None":
                         sys.stderr.write("Pindel/FreeBayes only but Clinvar data ({})\n".format(variant.clinvar_data))
                     else:
                         sys.stderr.write("Freebayes or Pindel only, no cosmic or clinvar data. Skipping...\n")
