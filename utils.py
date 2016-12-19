@@ -165,11 +165,14 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                 else:
                     # sys.stderr.write("Freebayes or Pindel called only\n")
                     if variant.cosmic_ids:
-                        sys.stderr.write("Pindel/FreeBayes only but COSMIC IDs ({}) data\n".format(variant.cosmic_ids))
+                        # sys.stderr.write("Pindel/FreeBayes only but COSMIC IDs ({}) data
+                        # \n".format(variant.cosmic_ids))
+                        pass
                     elif variant.clinvar_data['pathogenic'] != 'None':
-                        sys.stderr.write("Pindel/FreeBayes only but Clinvar data ({})\n".format(variant.clinvar_data))
+                        # sys.stderr.write("Pindel/FreeBayes only but Clinvar data ({})\n".format(variant.clinvar_data))
+                        pass
                     else:
-                        sys.stderr.write("Freebayes or Pindel only, no cosmic or clinvar data. Skipping...\n")
+                        # sys.stderr.write("Freebayes or Pindel only, no cosmic or clinvar data. Skipping...\n")
                         continue
             report.write("{chr}\t{start}\t{end}\t{gene}\t{ref}\t{alt}\t{codon}\t{aa}\t{rsids}\t"
                          "{amp}\t{cosmic}\t{cosmic_nsamples}\t{csig}\t{hgvs}\t{cdis}\t{biotype}\t"
