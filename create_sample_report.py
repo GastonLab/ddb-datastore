@@ -100,5 +100,5 @@ if __name__ == "__main__":
                                 break
 
         sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
-        sys.stdout.write("Writing {} variants to sample report\n".format(len(filtered_variants)))
+        sys.stdout.write("Sending {} variants to reporting\n".format(len(filtered_variants)))
         utils.write_sample_variant_report(args.report, sample, filtered_variants, target_amplicon_coverage, callers)

@@ -153,6 +153,8 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
 
         report.write("\n")
 
+        num_reported = 0
+
         for variant in variants:
             # print variant
             if any(caller in ("freebayes", "pindel") for caller in variant.callers):
@@ -185,6 +187,7 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                                    min_depth=variant.min_depth,
                                    max_depth=variant.max_depth,
                                    callers=",".join(variant.callers) or None))
+            num_reported += 1
 
             if 'mutect' in callers:
                 report.write("\t{maf}"
@@ -211,3 +214,5 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                              "".format(paf=variant.pindel.get('AAF') or None))
 
             report.write("\n")
+
+        sys.stdout.write("Wrote {} variants in report\n".format(num_reported))
