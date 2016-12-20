@@ -18,6 +18,7 @@ class Variant(Model):
     sequencer = columns.Text(index=True)
     target_pool = columns.Text(index=True)
     panel_name = columns.Text(index=True)
+    initial_report_panel = columns.Text(index=True)
     extraction = columns.Text(index=True)
     date_annotated = columns.DateTime()
 
@@ -103,6 +104,7 @@ class SampleVariant(Model):
     date_annotated = columns.DateTime(primary_key=True)
     target_pool = columns.Text(index=True)
     panel_name = columns.Text(index=True)
+    initial_report_panel = columns.Text(index=True)
     extraction = columns.Text(index=True)
     sequencer = columns.Text(index=True)
 
