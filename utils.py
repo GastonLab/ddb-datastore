@@ -128,11 +128,10 @@ def variant_filter(variant, thresholds):
 
 def write_sample_variant_report(report_root, sample, variants, target_amplicon_coverage, callers):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
-        report.write("Gene\tAmplicon\tNumReads\tCoverage\tRef\tAlt\tCodon\tAA\tmax_somatic_aaf\t"
-                     "Callers\tChrom\tStart\tEnd\trsIDs\t"
-                     "COSMIC_IDs\tCOSMIC_NumSamples\tClin_Sig\tClin_HGVS\tClin_Disease\t"
+        report.write("Gene\tAmplicon\tRef\tAlt\tCodon\tAA\tmax_somatic_aaf\t"
+                     "Callers\tCOSMIC_IDs\tCOSMIC_NumSamples\tClin_Sig\tClin_HGVS\tClin_Disease\t"
                      "Impact\tSeverity\tmax_maf_all\tmax_maf_no_fin\t"
-                     "min_caller_depth\tmax_caller_depth")
+                     "min_caller_depth\tmax_caller_depth\tChrom\tStart\tEnd\trsIDs")
 
         if 'mutect' in callers:
             report.write("\tMuTect_AF")
@@ -175,11 +174,11 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                     else:
                         # sys.stderr.write("Freebayes or Pindel only, no cosmic or clinvar data. Skipping...\n")
                         continue
-            report.write("{gene}\t{amp}\t{num_reads}\t{coverage}\t{ref}\t{alt}\t{codon}\t{aa}\t{max_som_aaf}\t"
-                         "{callers}\t{chr}\t{start}\t{end}\t{rsids}\t"
+            report.write("{gene}\t{amp}\t{ref}\t{alt}\t{codon}\t{aa}\t{max_som_aaf}\t"
+                         "{callers}\t"
                          "{cosmic}\t{cosmic_nsamples}\t{csig}\t{hgvs}\t{cdis}\t"
                          "{impact}\t{severity}\t{max_maf_all}\t{max_maf_no_fin}\t"
-                         "{min_depth}\t{max_depth}"
+                         "{min_depth}\t{max_depth}\t{chr}\t{start}\t{end}\t{rsids}"
                          "".format(chr=variant.chr, start=variant.pos, end=variant.end,
                                    gene=variant.gene, ref=variant.ref, alt=variant.alt,
                                    codon=variant.codon_change, aa=variant.aa_change,
@@ -195,10 +194,6 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                                    max_maf_all=variant.max_maf_all,
                                    max_maf_no_fin=variant.max_maf_no_fin,
                                    max_som_aaf=variant.max_som_aaf,
-                                   num_reads=target_amplicon_coverage[variant.amplicon_data['amplicon']][
-                                       'num_reads'] or None,
-                                   coverage=target_amplicon_coverage[variant.amplicon_data['amplicon']][
-                                       'mean_coverage'] or None,
                                    min_depth=variant.min_depth,
                                    max_depth=variant.max_depth,
                                    callers=",".join(variant.callers) or None))
