@@ -17,6 +17,7 @@ from collections import defaultdict
 
 def get_target_amplicons(filename):
     amplicons_list = list()
+    sys.stdout.write("Opening file {} to retrieve reporting amplicons\n".format(filename))
     with open(filename, "r") as bedfile:
         reader = csv.reader(bedfile, dialect='excel-tab')
         for row in reader:
@@ -50,8 +51,10 @@ if __name__ == "__main__":
 
     sys.stdout.write("Processing samples\n")
     for sample in samples:
-        target_amplicons = get_target_amplicons("/mnt/shared-data/ddb-configs/disease_panels/{}/{}"
-                                                "".format(samples[sample]['panel'], samples[sample]['report']))
+        sys.stdout.write("Processing coverage for sample {}\n".format(sample))
+        report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}".format(samples[sample]['panel'],
+                                                                                       samples[sample]['report'])
+        target_amplicons = get_target_amplicons(report_panel_path)
         reportable_amplicons = list()
         for amplicon in target_amplicons:
             coverage_data = SampleCoverage.objects.timeout(None).filter(
