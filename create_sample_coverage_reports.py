@@ -69,8 +69,10 @@ if __name__ == "__main__":
                 reportable_amplicons.append(variant)
 
         with open("{}_{}.txt".format(sample, args.report), "w") as coverage_report:
-            coverage_report.write("Amplicon\tNum Reads\tCoverage\n")
+            coverage_report.write("Sample\tLibrary\tAmplicon\tNum Reads\tCoverage\n")
             for amplicon in reportable_amplicons:
-                coverage_report.write("{}\t{}\t{}\n".format(amplicon.amplicon,
+                coverage_report.write("{}\t{}\t{}\n".format(amplicon.sample,
+                                                            amplicon.library_name,
+                                                            amplicon.amplicon,
                                                             amplicon.num_reads,
                                                             amplicon.mean_coverage))

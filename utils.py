@@ -128,7 +128,7 @@ def variant_filter(variant, thresholds):
 
 def write_sample_variant_report(report_root, sample, variants, target_amplicon_coverage, callers):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
-        report.write("Gene\tAmplicon\tRef\tAlt\tCodon\tAA\tmax_somatic_aaf\t"
+        report.write("Sample\tLibrary\tGene\tAmplicon\tRef\tAlt\tCodon\tAA\tmax_somatic_aaf\t"
                      "Callers\tCOSMIC_IDs\tCOSMIC_NumSamples\tClin_Sig\tClin_HGVS\tClin_Disease\t"
                      "Impact\tSeverity\tmax_maf_all\tmax_maf_no_fin\t"
                      "min_caller_depth\tmax_caller_depth\tChrom\tStart\tEnd\trsIDs")
@@ -174,12 +174,13 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                     else:
                         # sys.stderr.write("Freebayes or Pindel only, no cosmic or clinvar data. Skipping...\n")
                         continue
-            report.write("{gene}\t{amp}\t{ref}\t{alt}\t{codon}\t{aa}\t{max_som_aaf}\t"
+            report.write("{sample}\t{library}\t{gene}\t{amp}\t{ref}\t{alt}\t{codon}\t{aa}\t{max_som_aaf}\t"
                          "{callers}\t"
                          "{cosmic}\t{cosmic_nsamples}\t{csig}\t{hgvs}\t{cdis}\t"
                          "{impact}\t{severity}\t{max_maf_all}\t{max_maf_no_fin}\t"
                          "{min_depth}\t{max_depth}\t{chr}\t{start}\t{end}\t{rsids}"
-                         "".format(chr=variant.chr, start=variant.pos, end=variant.end,
+                         "".format(sample=variant.sample, library=variant.library_name,
+                                   chr=variant.chr, start=variant.pos, end=variant.end,
                                    gene=variant.gene, ref=variant.ref, alt=variant.alt,
                                    codon=variant.codon_change, aa=variant.aa_change,
                                    rsids=",".join(variant.rs_ids),
