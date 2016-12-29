@@ -55,11 +55,11 @@ if __name__ == "__main__":
     sys.stdout.write("Processing samples\n")
     for sample in samples:
         sys.stdout.write("Processing coverage for sample {}\n".format(sample))
-        report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}".format(samples[sample]['panel'],
-                                                                                       samples[sample]['report'])
         reportable_amplicons = list()
 
         for library in samples[sample]:
+            report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}" \
+                                "".format(samples[sample][library]['panel'], samples[sample][library]['report'])
             target_amplicons = get_target_amplicons(report_panel_path)
             for amplicon in target_amplicons:
                 coverage_data = SampleCoverage.objects.timeout(None).filter(
