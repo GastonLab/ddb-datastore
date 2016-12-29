@@ -63,14 +63,16 @@ if __name__ == "__main__":
         sys.stdout.write("Processing variants for sample {}\n".format(sample))
 
         filtered_variants = list()
+        reportable_amplicons = list()
         target_amplicon_coverage = defaultdict(lambda: defaultdict(float))
 
         for library in samples[sample]:
-            sys.stdout.write("Processing variants for library {}\n".format(library))
+            report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}" \
+                                "".format(samples[sample][library]['panel'], samples[sample][library]['report'])
+            target_amplicons = get_target_amplicons(report_panel_path)
 
-            target_amplicons = get_target_amplicons("/mnt/shared-data/ddb-configs/disease_panels/{}/{}"
-                                                    "".format(samples[sample][library]['panel'],
-                                                              samples[sample][library]['report']))
+            sys.stdout.write("Processing variants for library {}\n".format(library))
+            sys.stdout.write("Processing amplicons for library from file {}\n".format(report_panel_path))
 
             variants = SampleVariant.objects.timeout(None).filter(
                 SampleVariant.reference_genome == config['genome_version'],
@@ -89,8 +91,9 @@ if __name__ == "__main__":
                     SampleCoverage.library_name == samples[sample][library]['library_name'],
                     SampleCoverage.program_name == "sambamba"
                 )
-
-                for result in coverage_data:
+                ordered_amplicons = coverage_data.order_by('amplicon', 'run_id').limit(coverage_data.count() + 1000)
+                for result in ordered_amplicons:
+                    reportable_amplicons.append(result)
                     target_amplicon_coverage[amplicon]['num_reads'] = result.num_reads
                     target_amplicon_coverage[amplicon]['mean_coverage'] = result.mean_coverage
 
@@ -111,3 +114,13 @@ if __name__ == "__main__":
 
         sys.stdout.write("Sending {} variants to reporting\n".format(len(filtered_variants)))
         utils.write_sample_variant_report(args.report, sample, filtered_variants, target_amplicon_coverage, callers)
+
+        sys.stdout.write("Writing coverage report\n")
+        with open("{}_{}.txt".format(sample, args.report), "w") as coverage_report:
+            coverage_report.write("Sample\tLibrary\tAmplicon\tNum Reads\tCoverage\n")
+            for amplicon in reportable_amplicons:
+                coverage_report.write("{}\t{}\t{}\t{}\t{}\n".format(amplicon.sample,
+                                                                    amplicon.library_name,
+                                                                    amplicon.amplicon,
+                                                                    amplicon.num_reads,
+                                                                    amplicon.mean_coverage))
