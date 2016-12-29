@@ -2,6 +2,7 @@
 
 import argparse
 import getpass
+import xlsxwriter
 import sys
 import csv
 
@@ -40,7 +41,9 @@ if __name__ == "__main__":
     config = configuration.configure_runtime(args.configuration)
 
     sys.stdout.write("Parsing sample data\n")
-    samples = configuration.configure_samples(args.samples_file, config)
+    libraries = configuration.configure_samples(args.samples_file, config)
+
+    samples = configuration.merge_library_configs_samples(libraries)
 
     if args.username:
         password = getpass.getpass()
@@ -54,19 +57,21 @@ if __name__ == "__main__":
         sys.stdout.write("Processing coverage for sample {}\n".format(sample))
         report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}".format(samples[sample]['panel'],
                                                                                        samples[sample]['report'])
-        target_amplicons = get_target_amplicons(report_panel_path)
         reportable_amplicons = list()
-        for amplicon in target_amplicons:
-            coverage_data = SampleCoverage.objects.timeout(None).filter(
-                SampleCoverage.sample == samples[sample]['sample_name'],
-                SampleCoverage.amplicon == amplicon,
-                SampleCoverage.run_id == samples[sample]['run_id'],
-                SampleCoverage.library_name == samples[sample]['library_name'],
-                SampleCoverage.program_name == "sambamba"
-            )
-            ordered_variants = coverage_data.order_by('amplicon', 'run_id').limit(coverage_data.count() + 1000)
-            for variant in ordered_variants:
-                reportable_amplicons.append(variant)
+
+        for library in samples[sample]:
+            target_amplicons = get_target_amplicons(report_panel_path)
+            for amplicon in target_amplicons:
+                coverage_data = SampleCoverage.objects.timeout(None).filter(
+                    SampleCoverage.sample == samples[sample][library]['sample_name'],
+                    SampleCoverage.amplicon == amplicon,
+                    SampleCoverage.run_id == samples[sample][library]['run_id'],
+                    SampleCoverage.library_name == samples[sample][library]['library_name'],
+                    SampleCoverage.program_name == "sambamba"
+                )
+                ordered_amplicons = coverage_data.order_by('amplicon', 'run_id').limit(coverage_data.count() + 1000)
+                for coverage in ordered_amplicons:
+                    reportable_amplicons.append(coverage)
 
         with open("{}_{}.txt".format(sample, args.report), "w") as coverage_report:
             coverage_report.write("Sample\tLibrary\tAmplicon\tNum Reads\tCoverage\n")
