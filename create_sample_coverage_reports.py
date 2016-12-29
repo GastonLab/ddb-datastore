@@ -57,10 +57,6 @@ if __name__ == "__main__":
         target_amplicons = get_target_amplicons(report_panel_path)
         reportable_amplicons = list()
         for amplicon in target_amplicons:
-            sys.stdout.write("Getting coverage data for amplicon {} with sample {} and library {} with RunID {}"
-                             "\n".format(amplicon, samples[sample]['sample_name'],
-                                         samples[sample]['library_name'],
-                                         samples[sample]['run_id']))
             coverage_data = SampleCoverage.objects.timeout(None).filter(
                 SampleCoverage.sample == samples[sample]['sample_name'],
                 SampleCoverage.amplicon == amplicon,
@@ -75,8 +71,8 @@ if __name__ == "__main__":
         with open("{}_{}.txt".format(sample, args.report), "w") as coverage_report:
             coverage_report.write("Sample\tLibrary\tAmplicon\tNum Reads\tCoverage\n")
             for amplicon in reportable_amplicons:
-                coverage_report.write("{}\t{}\t{}\n".format(amplicon.sample,
-                                                            amplicon.library_name,
-                                                            amplicon.amplicon,
-                                                            amplicon.num_reads,
-                                                            amplicon.mean_coverage))
+                coverage_report.write("{}\t{}\t{}\t{}\t{}\n".format(amplicon.sample,
+                                                                    amplicon.library_name,
+                                                                    amplicon.amplicon,
+                                                                    amplicon.num_reads,
+                                                                    amplicon.mean_coverage))
