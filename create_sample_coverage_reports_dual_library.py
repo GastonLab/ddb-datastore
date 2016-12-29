@@ -61,8 +61,13 @@ if __name__ == "__main__":
             sys.stdout.write("Processing coverage for library {}\n".format(library))
             report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}" \
                                 "".format(samples[sample][library]['panel'], samples[sample][library]['report'])
+            sys.stdout.write("Processing amplicons for library from file {}\n".format(report_panel_path))
             target_amplicons = get_target_amplicons(report_panel_path)
             for amplicon in target_amplicons:
+                sys.stdout.write("Getting coverage data for amplicon {} with sample {} and library {} with RunID {}"
+                                 "\n".format(amplicon, samples[sample][library]['sample_name'],
+                                             samples[sample][library]['library_name'],
+                                             samples[sample][library]['run_id']))
                 coverage_data = SampleCoverage.objects.timeout(None).filter(
                     SampleCoverage.sample == samples[sample][library]['sample_name'],
                     SampleCoverage.amplicon == amplicon,
