@@ -67,9 +67,10 @@ if __name__ == "__main__":
 
         for library in samples[sample]:
             sys.stdout.write("Processing variants for library {}\n".format(library))
-            
+
             target_amplicons = get_target_amplicons("/mnt/shared-data/ddb-configs/disease_panels/{}/{}"
-                                                    "".format(samples[sample]['panel'], samples[sample]['report']))
+                                                    "".format(samples[sample][library]['panel'],
+                                                              samples[sample][library]['report']))
 
             variants = SampleVariant.objects.timeout(None).filter(
                 SampleVariant.reference_genome == config['genome_version'],
