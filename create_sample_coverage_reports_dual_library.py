@@ -59,6 +59,7 @@ if __name__ == "__main__":
 
         for library in samples[sample]:
             sys.stdout.write("Processing coverage for library {}\n".format(library))
+            print samples[sample][library]
             report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}" \
                                 "".format(samples[sample][library]['panel'], samples[sample][library]['report'])
             target_amplicons = get_target_amplicons(report_panel_path)
