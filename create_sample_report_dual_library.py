@@ -60,47 +60,53 @@ if __name__ == "__main__":
 
     sys.stdout.write("Processing samples\n")
     for sample in samples:
-        target_amplicons = get_target_amplicons("/mnt/shared-data/ddb-configs/disease_panels/{}/{}"
-                                                "".format(samples[sample]['panel'], samples[sample]['report']))
+        sys.stdout.write("Processing variants for sample {}\n".format(sample))
+
+        filtered_variants = list()
         target_amplicon_coverage = defaultdict(lambda: defaultdict(float))
 
-        sys.stdout.write("Running Cassandra query for sample {}\n".format(sample))
+        for library in samples[sample]:
+            sys.stdout.write("Processing variants for library {}\n".format(library))
+            
+            target_amplicons = get_target_amplicons("/mnt/shared-data/ddb-configs/disease_panels/{}/{}"
+                                                    "".format(samples[sample]['panel'], samples[sample]['report']))
 
-        variants = SampleVariant.objects.timeout(None).filter(
-            SampleVariant.reference_genome == config['genome_version'],
-            SampleVariant.sample == samples[sample]['sample_name'],
-            SampleVariant.run_id == samples[sample]['run_id'],
-            SampleVariant.library_name == samples[sample]['library_name'],
-            SampleVariant.max_som_aaf >= thresholds['min_saf'],
-            SampleVariant.max_maf_all <= thresholds['max_maf'],
-            ).allow_filtering()
+            variants = SampleVariant.objects.timeout(None).filter(
+                SampleVariant.reference_genome == config['genome_version'],
+                SampleVariant.sample == samples[sample][library]['sample_name'],
+                SampleVariant.run_id == samples[sample][library]['run_id'],
+                SampleVariant.library_name == samples[sample][library]['library_name'],
+                SampleVariant.max_som_aaf >= thresholds['min_saf'],
+                SampleVariant.max_maf_all <= thresholds['max_maf'],
+                ).allow_filtering()
 
-        for amplicon in target_amplicons:
-            coverage_data = SampleCoverage.objects.timeout(None).filter(
-                SampleCoverage.sample == samples[sample]['sample_name'],
-                SampleCoverage.amplicon == amplicon,
-                SampleCoverage.run_id == samples[sample]['run_id'],
-                SampleCoverage.library_name == samples[sample]['library_name'],
-                SampleCoverage.program_name == "sambamba"
-            )
+            for amplicon in target_amplicons:
+                coverage_data = SampleCoverage.objects.timeout(None).filter(
+                    SampleCoverage.sample == samples[sample][library]['sample_name'],
+                    SampleCoverage.amplicon == amplicon,
+                    SampleCoverage.run_id == samples[sample][library]['run_id'],
+                    SampleCoverage.library_name == samples[sample][library]['library_name'],
+                    SampleCoverage.program_name == "sambamba"
+                )
 
-            for result in coverage_data:
-                target_amplicon_coverage[amplicon]['num_reads'] = result.num_reads
-                target_amplicon_coverage[amplicon]['mean_coverage'] = result.mean_coverage
+                for result in coverage_data:
+                    target_amplicon_coverage[amplicon]['num_reads'] = result.num_reads
+                    target_amplicon_coverage[amplicon]['mean_coverage'] = result.mean_coverage
 
-        ordered_variants = variants.order_by('library_name', 'chr', 'pos',
-                                             'ref', 'alt').limit(variants.count() + 1000)
-        filtered_variants = list()
-        for variant in ordered_variants:
-            if variant.amplicon_data['amplicon']:
-                amplicons = variant.amplicon_data['amplicon'].split(',')
-                for amplicon in amplicons:
-                    if amplicon in target_amplicons:
-                        for caller in callers:
-                            if caller in variant.callers:
-                                filtered_variants.append(variant)
-                                break
+            ordered_variants = variants.order_by('library_name', 'chr', 'pos',
+                                                 'ref', 'alt').limit(variants.count() + 1000)
 
-        sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
+            for variant in ordered_variants:
+                if variant.amplicon_data['amplicon']:
+                    amplicons = variant.amplicon_data['amplicon'].split(',')
+                    for amplicon in amplicons:
+                        if amplicon in target_amplicons:
+                            for caller in callers:
+                                if caller in variant.callers:
+                                    filtered_variants.append(variant)
+                                    break
+
+            sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
+
         sys.stdout.write("Sending {} variants to reporting\n".format(len(filtered_variants)))
         utils.write_sample_variant_report(args.report, sample, filtered_variants, target_amplicon_coverage, callers)
