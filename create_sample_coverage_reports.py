@@ -57,6 +57,10 @@ if __name__ == "__main__":
         target_amplicons = get_target_amplicons(report_panel_path)
         reportable_amplicons = list()
         for amplicon in target_amplicons:
+            sys.stdout.write("Getting coverage data for amplicon {} with sample {} and library {} with RunID {}"
+                             "\n".format(amplicon, samples[sample]['sample_name'],
+                                         samples[sample]['library_name'],
+                                         samples[sample]['run_id']))
             coverage_data = SampleCoverage.objects.timeout(None).filter(
                 SampleCoverage.sample == samples[sample]['sample_name'],
                 SampleCoverage.amplicon == amplicon,
