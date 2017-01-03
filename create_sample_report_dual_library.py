@@ -116,7 +116,7 @@ if __name__ == "__main__":
         utils.write_sample_variant_report(args.report, sample, filtered_variants, target_amplicon_coverage, callers)
 
         sys.stdout.write("Writing coverage report\n")
-        with open("{}_{}.txt".format(sample, args.report), "w") as coverage_report:
+        with open("{}_coverage_{}.txt".format(sample, args.report), "w") as coverage_report:
             coverage_report.write("Sample\tLibrary\tAmplicon\tNum Reads\tCoverage\n")
             for amplicon in reportable_amplicons:
                 coverage_report.write("{}\t{}\t{}\t{}\t{}\n".format(amplicon.sample,
