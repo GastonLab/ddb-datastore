@@ -44,6 +44,7 @@ if __name__ == "__main__":
     libraries = configuration.configure_samples(args.samples_file, config)
 
     samples = configuration.merge_library_configs_samples(libraries)
+    preferred_transcripts = utils.get_preferred_transcripts(config['transcripts'])
 
     if args.username:
         password = getpass.getpass()
@@ -62,8 +63,13 @@ if __name__ == "__main__":
     for sample in samples:
         sys.stdout.write("Processing variants for sample {}\n".format(sample))
 
-        filtered_variants = list()
+        passing_variants = list()
         reportable_amplicons = list()
+
+        filtered_no_amplicon = list()
+        filtered_non_target_amplicon = list()
+        filtered_no_requested_caller = list()
+
         target_amplicon_coverage = defaultdict(lambda: defaultdict(float))
 
         for library in samples[sample]:
@@ -107,13 +113,20 @@ if __name__ == "__main__":
                         if amplicon in target_amplicons:
                             for caller in callers:
                                 if caller in variant.callers:
-                                    filtered_variants.append(variant)
+                                    passing_variants.append(variant)
                                     break
+                        else:
+                            filtered_non_target_amplicon.append(variant)
+                else:
+                    filtered_no_amplicon.append(variant)
 
             sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
 
-        sys.stdout.write("Sending {} variants to reporting\n".format(len(filtered_variants)))
-        utils.write_sample_variant_report(args.report, sample, filtered_variants, target_amplicon_coverage, callers)
+        sys.stdout.write("Sending {} variants to reporting (filtered {} variants for no amplicon data and {} for being"
+                         "in a non-targeted amplicon)\n".format(len(passing_variants), len(filtered_no_amplicon),
+                                                                len(filtered_non_target_amplicon)))
+        utils.write_sample_variant_report(args.report, sample, passing_variants, target_amplicon_coverage, callers,
+                                          preferred_transcripts)
 
         sys.stdout.write("Writing coverage report\n")
         with open("{}_coverage_{}.txt".format(sample, args.report), "w") as coverage_report:

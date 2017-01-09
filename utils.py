@@ -1,7 +1,17 @@
 import sys
+import csv
 import geneimpacts
-from pybedtools import BedTool
-from collections import defaultdict
+
+
+def get_preferred_transcripts(transcripts_file):
+    transcripts_list = list()
+    with open(transcripts_file, 'r') as infile:
+        reader = csv.reader(infile, dialect='excel-tab')
+        for row in reader:
+            if row[2] not in transcripts_list:
+                transcripts_list.append(row[2])
+
+    return transcripts_list
 
 
 def get_effects(variant, annotation_keys):
@@ -134,7 +144,8 @@ def variant_filter(variant, thresholds):
     return flag, info
 
 
-def write_sample_variant_report(report_root, sample, variants, target_amplicon_coverage, callers):
+def write_sample_variant_report(report_root, sample, variants, target_amplicon_coverage, callers,
+                                preferred_transcripts):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
         report.write("Sample\tLibrary\tGene\tAmplicon\tRef\tAlt\tCodon\tAA\tmax_somatic_aaf\t"
                      "Callers\tCOSMIC_IDs\tCOSMIC_NumSamples\tClin_Sig\tClin_HGVS\tClin_Disease\t"
@@ -182,9 +193,15 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                     else:
                         # sys.stderr.write("Freebayes or Pindel only, no cosmic or clinvar data. Skipping...\n")
                         continue
+
+            for transcript in variant.transcript_effects:
+                if transcript in preferred_transcripts:
+                    if transcript != variant.transcript:
+                        sys.stderr.write("Mismatch between highest reported impact transcript {} and preferred"
+                                         "transcript {}\n".format(variant.transcript, transcript))
+
             report.write("{sample}\t{library}\t{gene}\t{amp}\t{ref}\t{alt}\t{codon}\t{aa}\t{max_som_aaf}\t"
-                         "{callers}\t"
-                         "{cosmic}\t{cosmic_nsamples}\t{csig}\t{hgvs}\t{cdis}\t"
+                         "{callers}\t{cosmic}\t{cosmic_nsamples}\t{csig}\t{hgvs}\t{cdis}\t"
                          "{impact}\t{severity}\t{max_maf_all}\t{max_maf_no_fin}\t"
                          "{min_depth}\t{max_depth}\t{chr}\t{start}\t{end}\t{rsids}"
                          "".format(sample=variant.sample, library=variant.library_name,
