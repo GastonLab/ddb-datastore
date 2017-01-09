@@ -1,6 +1,7 @@
 import sys
 import geneimpacts
 from pybedtools import BedTool
+from collections import defaultdict
 
 
 def get_effects(variant, annotation_keys):
@@ -34,8 +35,15 @@ def get_transcript_effects(effects):
 
     for effect in effects:
         if effect.transcript is not None:
-            transcript_effects[effect.transcript] = "{biotype}|{effect}".format(biotype=effect.biotype,
-                                                                                effect=effect.impact_severity)
+            transcript_effects[effect.transcript] = "{gene}|{biotype}|{impact}|{exon}|{codon}|{aa}|{cons}|{so}" \
+                                                    "".format(gene=effect.gene,
+                                                              biotype=effect.biotype,
+                                                              impact=effect.impact_severity,
+                                                              exon=effect.exon,
+                                                              codon=effect.codon_change,
+                                                              aa=effect.aa_change,
+                                                              cons=effect.top_consequence,
+                                                              so=effect.so)
 
     return transcript_effects
 

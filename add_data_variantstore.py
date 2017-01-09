@@ -97,6 +97,7 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, sam
                 date_annotated=datetime.now(),
                 subtype=variant.INFO.get('sub_type'),
                 type=variant.INFO.get('type'),
+
                 gene=top_impact.gene,
                 transcript=top_impact.transcript,
                 exon=top_impact.exon,
@@ -106,6 +107,7 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, sam
                 severity=top_impact.effect_severity,
                 impact=top_impact.top_consequence,
                 impact_so=top_impact.so,
+
                 max_maf_all=variant.INFO.get('max_aaf_all') or -1,
                 max_maf_no_fin=variant.INFO.get('max_aaf_no_fin') or -1,
                 transcripts_data=utils.get_transcript_effects(effects),
