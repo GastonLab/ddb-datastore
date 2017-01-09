@@ -147,9 +147,10 @@ def variant_filter(variant, thresholds):
 def write_sample_variant_report(report_root, sample, variants, target_amplicon_coverage, callers,
                                 preferred_transcripts):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
-        report.write("Sample\tLibrary\tGene\tAmplicon\tRef\tAlt\tCodon\tAA\tmax_somatic_aaf\t"
-                     "Callers\tCOSMIC_IDs\tCOSMIC_NumSamples\tClin_Sig\tClin_HGVS\tClin_Disease\t"
-                     "Impact\tSeverity\tmax_maf_all\tmax_maf_no_fin\t"
+        report.write("Sample\tLibrary\tPred Impact Gene\tPref Gene\tAmplicon\tRef\tAlt\tCodon\tPref Codon\t"
+                     "AA\tPref AA\t"
+                     "max_somatic_aaf\tCallers\tCOSMIC_IDs\tCOSMIC_NumSamples\tClin_Sig\tClin_HGVS\tClin_Disease\t"
+                     "Coverage\tNum Reads\tImpact\tSeverity\tmax_maf_all\tmax_maf_no_fin\t"
                      "min_caller_depth\tmax_caller_depth\tChrom\tStart\tEnd\trsIDs")
 
         if 'mutect' in callers:
@@ -194,20 +195,35 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                         # sys.stderr.write("Freebayes or Pindel only, no cosmic or clinvar data. Skipping...\n")
                         continue
 
+            pref_transcript_data = list()
             for transcript in variant.transcript_effects:
                 if transcript in preferred_transcripts:
+                    pref_transcript_data = preferred_transcripts[transcript].split('|')
                     if transcript != variant.transcript:
                         sys.stderr.write("Mismatch between highest reported impact transcript {} and preferred"
                                          "transcript {}\n".format(variant.transcript, transcript))
+                    break
 
-            report.write("{sample}\t{library}\t{gene}\t{amp}\t{ref}\t{alt}\t{codon}\t{aa}\t{max_som_aaf}\t"
-                         "{callers}\t{cosmic}\t{cosmic_nsamples}\t{csig}\t{hgvs}\t{cdis}\t"
-                         "{impact}\t{severity}\t{max_maf_all}\t{max_maf_no_fin}\t"
+            "{gene}|{biotype}|{impact}|{exon}|{codon}|{aa}|{cons}|{so}"
+
+            report.write("{sample}\t{library}\t{gene}\t{pref_gene}\t{amp}\t{ref}\t{alt}\t"
+                         "{codon}\t{pref_codon}\t{aa}\t{pref_aa}\t"
+                         "{max_som_aaf}\t{callers}\t{cosmic}\t{cosmic_nsamples}\t{csig}\t{hgvs}\t{cdis}\t"
+                         "{cov}\t{reads}\t{impact}\t{severity}\t{max_maf_all}\t{max_maf_no_fin}\t"
                          "{min_depth}\t{max_depth}\t{chr}\t{start}\t{end}\t{rsids}"
-                         "".format(sample=variant.sample, library=variant.library_name,
-                                   chr=variant.chr, start=variant.pos, end=variant.end,
-                                   gene=variant.gene, ref=variant.ref, alt=variant.alt,
-                                   codon=variant.codon_change, aa=variant.aa_change,
+                         "".format(sample=variant.sample,
+                                   library=variant.library_name,
+                                   chr=variant.chr,
+                                   start=variant.pos,
+                                   end=variant.end,
+                                   gene=variant.gene,
+                                   pref_gene=pref_transcript_data[0],
+                                   ref=variant.ref,
+                                   alt=variant.alt,
+                                   codon=variant.codon_change,
+                                   pref_codon=pref_transcript_data[4],
+                                   aa=variant.aa_change,
+                                   pref_aa=pref_transcript_data[5],
                                    rsids=",".join(variant.rs_ids),
                                    cosmic=",".join(variant.cosmic_ids) or None,
                                    cosmic_nsamples=variant.cosmic_data['num_samples'],
@@ -215,6 +231,8 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                                    csig=variant.clinvar_data['significance'],
                                    hgvs=variant.clinvar_data['hgvs'],
                                    cdis=variant.clinvar_data['disease'],
+                                   cov=target_amplicon_coverage['mean_coverage'],
+                                   reads=target_amplicon_coverage['num_reads'],
                                    impact=variant.impact,
                                    severity=variant.severity,
                                    max_maf_all=variant.max_maf_all,
