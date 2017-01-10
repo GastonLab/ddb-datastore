@@ -53,9 +53,7 @@ if __name__ == "__main__":
     else:
         connection.setup([args.address], "variantstore")
 
-    thresholds = {'min_saf': 0.01,
-                  'max_maf': 0.005,
-                  'depth': 200}
+    thresholds = {'max_maf': 0.005}
 
     callers = ("mutect", "platypus", "vardict", "scalpel", "freebayes", "pindel")
 
@@ -85,7 +83,6 @@ if __name__ == "__main__":
                 SampleVariant.sample == samples[sample][library]['sample_name'],
                 SampleVariant.run_id == samples[sample][library]['run_id'],
                 SampleVariant.library_name == samples[sample][library]['library_name'],
-                SampleVariant.max_som_aaf >= thresholds['min_saf'],
                 SampleVariant.max_maf_all <= thresholds['max_maf'],
                 ).allow_filtering()
 
