@@ -196,7 +196,7 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                         continue
 
             pref_transcript_data = list()
-            for transcript in variant.transcript_effects:
+            for transcript in variant.transcripts_data:
                 if transcript in preferred_transcripts:
                     pref_transcript_data = preferred_transcripts[transcript].split('|')
                     if transcript != variant.transcript:
@@ -305,7 +305,7 @@ def write_sample_variant_report_no_caller_filter(report_root, sample, variants, 
 
         for variant in variants:
             pref_transcript_data = list()
-            for transcript in variant.transcript_effects:
+            for transcript in variant.transcripts_data:
                 if transcript in preferred_transcripts:
                     pref_transcript_data = preferred_transcripts[transcript].split('|')
                     if transcript != variant.transcript:
