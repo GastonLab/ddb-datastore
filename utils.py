@@ -180,25 +180,34 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
             if any(caller in ("freebayes", "pindel") for caller in variant.callers):
                 # sys.stderr.write("Freebayes or Pindel detected in callers: {}\n".format(variant.callers))
                 if any(caller in ("mutect", "scalpel", "vardict", "platypus") for caller in variant.callers):
-                    # sys.stderr.write("Other caller also called this variant\n")
+                    # Other caller also called this variant
                     pass
                 else:
-                    # sys.stderr.write("Freebayes or Pindel called only\n")
+                    # Freebayes or Pindel called only
                     if variant.cosmic_ids:
-                        # sys.stderr.write("Pindel/FreeBayes only but COSMIC IDs ({}) data
-                        # \n".format(variant.cosmic_ids))
+                        # Pindel/FreeBayes only but COSMIC IDs
                         pass
                     elif variant.clinvar_data['pathogenic'] != 'None':
-                        # sys.stderr.write("Pindel/FreeBayes only but Clinvar data ({})\n".format(variant.clinvar_data))
+                        # Pindel/FreeBayes only but Clinvar data
                         pass
                     else:
-                        # sys.stderr.write("Freebayes or Pindel only, no cosmic or clinvar data. Skipping...\n")
+                        # Freebayes or Pindel only, no cosmic or clinvar data
                         continue
 
-            pref_transcript_data = list()
+            pref_transcript_data = dict()
             for transcript in variant.transcripts_data:
                 if transcript in preferred_transcripts:
-                    pref_transcript_data = variant.transcripts_data[transcript].split('|')
+                    temp_transcript_data = variant.transcripts_data[transcript].split('|')
+
+                    if len(temp_transcript_data) > 2:
+                        pref_transcript_data['gene'] = temp_transcript_data[0]
+                        pref_transcript_data['codon'] = temp_transcript_data[4]
+                        pref_transcript_data['aa'] = temp_transcript_data[5]
+                    else:
+                        pref_transcript_data['gene'] = "N/A"
+                        pref_transcript_data['codon'] = "N/A"
+                        pref_transcript_data['aa'] = "N/A"
+
                     if transcript != variant.transcript:
                         sys.stderr.write("Mismatch between highest reported impact transcript {} and preferred"
                                          "transcript {}\n".format(variant.transcript, transcript))
@@ -217,13 +226,13 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                                    start=variant.pos,
                                    end=variant.end,
                                    gene=variant.gene,
-                                   pref_gene=pref_transcript_data[0],
+                                   pref_gene=pref_transcript_data['gene'],
                                    ref=variant.ref,
                                    alt=variant.alt,
                                    codon=variant.codon_change,
-                                   pref_codon=pref_transcript_data[4],
+                                   pref_codon=pref_transcript_data['codon'],
                                    aa=variant.aa_change,
-                                   pref_aa=pref_transcript_data[5],
+                                   pref_aa=pref_transcript_data['aa'],
                                    rsids=",".join(variant.rs_ids),
                                    cosmic=",".join(variant.cosmic_ids) or None,
                                    cosmic_nsamples=variant.cosmic_data['num_samples'],
