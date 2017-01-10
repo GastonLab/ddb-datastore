@@ -124,13 +124,3 @@ if __name__ == "__main__":
                                                                 len(filtered_non_target_amplicon)))
         utils.write_sample_variant_report_no_caller_filter(args.report, sample, passing_variants,
                                                            target_amplicon_coverage, callers, preferred_transcripts)
-
-        sys.stdout.write("Writing coverage report\n")
-        with open("{}_coverage_{}.txt".format(sample, args.report), "w") as coverage_report:
-            coverage_report.write("Sample\tLibrary\tAmplicon\tNum Reads\tCoverage\n")
-            for amplicon in reportable_amplicons:
-                coverage_report.write("{}\t{}\t{}\t{}\t{}\n".format(amplicon.sample,
-                                                                    amplicon.library_name,
-                                                                    amplicon.amplicon,
-                                                                    amplicon.num_reads,
-                                                                    amplicon.mean_coverage))
