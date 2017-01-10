@@ -146,7 +146,7 @@ def variant_filter(variant, thresholds):
 
 def write_sample_variant_report(report_root, sample, variants, target_amplicon_coverage, callers,
                                 preferred_transcripts):
-    with open("{}.{}.txt".format(sample, report_root), 'w') as report:
+    with open("{}_variant_{}.txt".format(sample, report_root), 'w') as report:
         report.write("Sample\tLibrary\tPred Impact Gene\tPref Gene\tAmplicon\tRef\tAlt\tCodon\tPref Codon\t"
                      "AA\tPref AA\t"
                      "max_somatic_aaf\tCallers\tCOSMIC_IDs\tCOSMIC_NumSamples\tClin_Sig\tClin_HGVS\tClin_Disease\t"
