@@ -123,8 +123,8 @@ if __name__ == "__main__":
             sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
 
         sys.stdout.write("Sending {} variants to reporting (filtered {} variants for no amplicon data and {} for being"
-                         "in a non-targeted amplicon)\n".format(len(passing_variants), len(filtered_no_amplicon),
-                                                                len(filtered_non_target_amplicon)))
+                         " in a non-targeted amplicon)\n".format(len(passing_variants), len(filtered_no_amplicon),
+                                                                 len(filtered_non_target_amplicon)))
         utils.write_sample_variant_report(args.report, sample, passing_variants, target_amplicon_coverage, callers,
                                           preferred_transcripts)
 

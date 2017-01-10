@@ -195,6 +195,9 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                         continue
 
             pref_transcript_data = dict()
+            pref_transcript_data['gene'] = "N/A"
+            pref_transcript_data['codon'] = "N/A"
+            pref_transcript_data['aa'] = "N/A"
             for transcript in variant.transcripts_data:
                 if transcript in preferred_transcripts:
                     temp_transcript_data = variant.transcripts_data[transcript].split('|')
@@ -203,11 +206,6 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                         pref_transcript_data['gene'] = temp_transcript_data[0]
                         pref_transcript_data['codon'] = temp_transcript_data[4]
                         pref_transcript_data['aa'] = temp_transcript_data[5]
-                    else:
-                        pref_transcript_data['gene'] = "N/A"
-                        pref_transcript_data['codon'] = "N/A"
-                        pref_transcript_data['aa'] = "N/A"
-
                     if transcript != variant.transcript:
                         sys.stderr.write("Mismatch between highest reported impact transcript {} and preferred"
                                          "transcript {}\n".format(variant.transcript, transcript))
