@@ -308,6 +308,7 @@ def write_sample_variant_report_no_caller_filter(report_root, sample, variants, 
             for transcript in variant.transcripts_data:
                 if transcript in preferred_transcripts:
                     pref_transcript_data = variant.transcripts_data[transcript].split('|')
+                    print variant.transcripts_data[transcript]
                     if transcript != variant.transcript:
                         sys.stderr.write("Mismatch between highest reported impact transcript {} and preferred"
                                          "transcript {}\n".format(variant.transcript, transcript))
