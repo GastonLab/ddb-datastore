@@ -270,3 +270,112 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
             report.write("\n")
 
         sys.stdout.write("Wrote {} variants in report\n".format(num_reported))
+
+
+def write_sample_variant_report_no_caller_filter(report_root, sample, variants, target_amplicon_coverage, callers,
+                                                 preferred_transcripts):
+    with open("{}.{}.txt".format(sample, report_root), 'w') as report:
+        report.write("Sample\tLibrary\tPred Impact Gene\tPref Gene\tAmplicon\tRef\tAlt\tCodon\tPref Codon\t"
+                     "AA\tPref AA\t"
+                     "max_somatic_aaf\tCallers\tCOSMIC_IDs\tCOSMIC_NumSamples\tClin_Sig\tClin_HGVS\tClin_Disease\t"
+                     "Coverage\tNum Reads\tImpact\tSeverity\tmax_maf_all\tmax_maf_no_fin\t"
+                     "min_caller_depth\tmax_caller_depth\tChrom\tStart\tEnd\trsIDs")
+
+        if 'mutect' in callers:
+            report.write("\tMuTect_AF")
+
+        if 'vardict' in callers:
+            report.write("\tVarDict_AF")
+
+        if 'freebayes' in callers:
+            report.write("\tFreeBayes_AF")
+
+        if 'scalpel' in callers:
+            report.write("\tScalpel_AF")
+
+        if 'platypus' in callers:
+            report.write("\tPlatypus_AF")
+
+        if 'pindel' in callers:
+            report.write("\tPindel_AF")
+
+        report.write("\n")
+
+        num_reported = 0
+
+        for variant in variants:
+            pref_transcript_data = list()
+            for transcript in variant.transcript_effects:
+                if transcript in preferred_transcripts:
+                    pref_transcript_data = preferred_transcripts[transcript].split('|')
+                    if transcript != variant.transcript:
+                        sys.stderr.write("Mismatch between highest reported impact transcript {} and preferred"
+                                         "transcript {}\n".format(variant.transcript, transcript))
+                    break
+
+            "{gene}|{biotype}|{impact}|{exon}|{codon}|{aa}|{cons}|{so}"
+
+            report.write("{sample}\t{library}\t{gene}\t{pref_gene}\t{amp}\t{ref}\t{alt}\t"
+                         "{codon}\t{pref_codon}\t{aa}\t{pref_aa}\t"
+                         "{max_som_aaf}\t{callers}\t{cosmic}\t{cosmic_nsamples}\t{csig}\t{hgvs}\t{cdis}\t"
+                         "{cov}\t{reads}\t{impact}\t{severity}\t{max_maf_all}\t{max_maf_no_fin}\t"
+                         "{min_depth}\t{max_depth}\t{chr}\t{start}\t{end}\t{rsids}"
+                         "".format(sample=variant.sample,
+                                   library=variant.library_name,
+                                   chr=variant.chr,
+                                   start=variant.pos,
+                                   end=variant.end,
+                                   gene=variant.gene,
+                                   pref_gene=pref_transcript_data[0],
+                                   ref=variant.ref,
+                                   alt=variant.alt,
+                                   codon=variant.codon_change,
+                                   pref_codon=pref_transcript_data[4],
+                                   aa=variant.aa_change,
+                                   pref_aa=pref_transcript_data[5],
+                                   rsids=",".join(variant.rs_ids),
+                                   cosmic=",".join(variant.cosmic_ids) or None,
+                                   cosmic_nsamples=variant.cosmic_data['num_samples'],
+                                   amp=variant.amplicon_data['amplicon'],
+                                   csig=variant.clinvar_data['significance'],
+                                   hgvs=variant.clinvar_data['hgvs'],
+                                   cdis=variant.clinvar_data['disease'],
+                                   cov=target_amplicon_coverage['mean_coverage'],
+                                   reads=target_amplicon_coverage['num_reads'],
+                                   impact=variant.impact,
+                                   severity=variant.severity,
+                                   max_maf_all=variant.max_maf_all,
+                                   max_maf_no_fin=variant.max_maf_no_fin,
+                                   max_som_aaf=variant.max_som_aaf,
+                                   min_depth=variant.min_depth,
+                                   max_depth=variant.max_depth,
+                                   callers=",".join(variant.callers) or None))
+            num_reported += 1
+
+            if 'mutect' in callers:
+                report.write("\t{maf}"
+                             "".format(maf=variant.mutect.get('AAF') or None))
+
+            if 'vardict' in callers:
+                report.write("\t{vaf}"
+                             "".format(vaf=variant.vardict.get('AAF') or None))
+
+            if 'freebayes' in callers:
+                report.write("\t{faf}"
+                             "".format(faf=variant.freebayes.get('AAF') or None))
+
+            if 'scalpel' in callers:
+                report.write("\t{saf}"
+                             "".format(saf=variant.scalpel.get('AAF') or None))
+
+            if 'platypus' in callers:
+                report.write("\t{plaf}"
+                             "".format(plaf=variant.platypus.get('AAF') or None))
+
+            if 'pindel' in callers:
+                report.write("\t{paf}"
+                             "".format(paf=variant.pindel.get('AAF') or None))
+
+            report.write("\n")
+
+        sys.stdout.write("Wrote {} variants in report\n".format(num_reported))
