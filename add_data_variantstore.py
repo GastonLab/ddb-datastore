@@ -21,7 +21,6 @@ from variantstore import SampleVariant
 from variantstore import Variant
 
 
-
 def process_sample(job, addresses, keyspace, authenticator, parse_functions, sample, samples, config):
     connection.setup(addresses, keyspace, auth_provider=authenticator)
 
