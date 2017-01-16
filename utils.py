@@ -256,8 +256,7 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
 
 def write_sample_variant_report_no_caller_filter(report_root, sample, variants, target_amplicon_coverage, callers):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
-        report.write("Sample\tLibrary\tPred Impact Gene\tPref Gene\tAmplicon\tRef\tAlt\tCodon\tPref Codon\t"
-                     "AA\tPref AA\t"
+        report.write("Sample\tLibraryGene\tAmplicon\tRef\tAlt\tCodon\tAA\t"
                      "max_somatic_aaf\tCallers\tCOSMIC_IDs\tCOSMIC_NumSamples\tClin_Sig\tClin_HGVS\tClin_Disease\t"
                      "Coverage\tNum Reads\tImpact\tSeverity\tmax_maf_all\tmax_maf_no_fin\t"
                      "min_caller_depth\tmax_caller_depth\tChrom\tStart\tEnd\trsIDs")
@@ -285,26 +284,7 @@ def write_sample_variant_report_no_caller_filter(report_root, sample, variants, 
         num_reported = 0
 
         for variant in variants:
-            pref_transcript_data = dict()
-            pref_transcript_data['gene'] = "N/A"
-            pref_transcript_data['codon'] = "N/A"
-            pref_transcript_data['aa'] = "N/A"
-            for transcript in variant.transcripts_data:
-                if transcript in preferred_transcripts:
-                    temp_transcript_data = variant.transcripts_data[transcript].split('|')
-
-                    if len(temp_transcript_data) > 2:
-                        pref_transcript_data['gene'] = temp_transcript_data[0]
-                        pref_transcript_data['codon'] = temp_transcript_data[4]
-                        pref_transcript_data['aa'] = temp_transcript_data[5]
-
-                    if transcript != variant.transcript:
-                        sys.stderr.write("Mismatch between highest reported impact transcript {} and preferred"
-                                         "transcript {}\n".format(variant.transcript, transcript))
-                    break
-
-            report.write("{sample}\t{library}\t{gene}\t{pref_gene}\t{amp}\t{ref}\t{alt}\t"
-                         "{codon}\t{pref_codon}\t{aa}\t{pref_aa}\t"
+            report.write("{sample}\t{library}\t{gene}\t{amp}\t{ref}\t{alt}\t{codon}\t{aa}\t"
                          "{max_som_aaf}\t{callers}\t{cosmic}\t{cosmic_nsamples}\t{csig}\t{hgvs}\t{cdis}\t"
                          "{cov}\t{reads}\t{impact}\t{severity}\t{max_maf_all}\t{max_maf_no_fin}\t"
                          "{min_depth}\t{max_depth}\t{chr}\t{start}\t{end}\t{rsids}"
@@ -314,13 +294,10 @@ def write_sample_variant_report_no_caller_filter(report_root, sample, variants, 
                                    start=variant.pos,
                                    end=variant.end,
                                    gene=variant.gene,
-                                   pref_gene=pref_transcript_data['gene'],
                                    ref=variant.ref,
                                    alt=variant.alt,
                                    codon=variant.codon_change,
-                                   pref_codon=pref_transcript_data['codon'],
                                    aa=variant.aa_change,
-                                   pref_aa=pref_transcript_data['aa'],
                                    rsids=",".join(variant.rs_ids),
                                    cosmic=",".join(variant.cosmic_ids) or None,
                                    cosmic_nsamples=variant.cosmic_data['num_samples'],

@@ -123,4 +123,4 @@ if __name__ == "__main__":
                          " in a non-targeted amplicon)\n".format(len(passing_variants), len(filtered_no_amplicon),
                                                                  len(filtered_non_target_amplicon)))
         utils.write_sample_variant_report_no_caller_filter(args.report, sample, passing_variants,
-                                                           target_amplicon_coverage, callers, preferred_transcripts)
+                                                           target_amplicon_coverage, callers)
