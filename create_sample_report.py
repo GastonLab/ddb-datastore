@@ -57,9 +57,18 @@ if __name__ == "__main__":
 
     sys.stdout.write("Processing samples\n")
     for sample in samples:
-        target_amplicons = get_target_amplicons("/mnt/shared-data/ddb-configs/disease_panels/{}/{}"
-                                                "".format(samples[sample]['panel'], samples[sample]['report']))
+        passing_variants = list()
+        reportable_amplicons = list()
+
+        filtered_no_amplicon = list()
+        filtered_non_target_amplicon = list()
+        filtered_no_requested_caller = list()
+
         target_amplicon_coverage = defaultdict(lambda: defaultdict(float))
+
+        report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}" \
+                            "".format(samples[sample]['panel'], samples[sample]['report'])
+        target_amplicons = get_target_amplicons(report_panel_path)
 
         sys.stdout.write("Running Cassandra query for sample {}\n".format(sample))
 
@@ -87,7 +96,6 @@ if __name__ == "__main__":
 
         ordered_variants = variants.order_by('library_name', 'chr', 'pos',
                                              'ref', 'alt').limit(variants.count() + 1000)
-        filtered_variants = list()
         for variant in ordered_variants:
             if variant.amplicon_data['amplicon']:
                 amplicons = variant.amplicon_data['amplicon'].split(',')
@@ -95,9 +103,13 @@ if __name__ == "__main__":
                     if amplicon in target_amplicons:
                         for caller in callers:
                             if caller in variant.callers:
-                                filtered_variants.append(variant)
+                                passing_variants.append(variant)
                                 break
+                    else:
+                        filtered_non_target_amplicon.append(variant)
+            else:
+                filtered_no_amplicon.append(variant)
 
         sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
-        sys.stdout.write("Sending {} variants to reporting\n".format(len(filtered_variants)))
-        utils.write_sample_variant_report(args.report, sample, filtered_variants, target_amplicon_coverage, callers)
+        sys.stdout.write("Sending {} variants to reporting\n".format(len(passing_variants)))
+        utils.write_sample_variant_report(args.report, sample, passing_variants, target_amplicon_coverage, callers)

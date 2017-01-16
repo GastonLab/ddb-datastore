@@ -44,7 +44,6 @@ if __name__ == "__main__":
     libraries = configuration.configure_samples(args.samples_file, config)
 
     samples = configuration.merge_library_configs_samples(libraries)
-    preferred_transcripts = utils.get_preferred_transcripts(config['transcripts'])
 
     if args.username:
         password = getpass.getpass()
@@ -125,8 +124,7 @@ if __name__ == "__main__":
         sys.stdout.write("Sending {} variants to reporting (filtered {} variants for no amplicon data and {} for being"
                          " in a non-targeted amplicon)\n".format(len(passing_variants), len(filtered_no_amplicon),
                                                                  len(filtered_non_target_amplicon)))
-        utils.write_sample_variant_report(args.report, sample, passing_variants, target_amplicon_coverage, callers,
-                                          preferred_transcripts)
+        utils.write_sample_variant_report(args.report, sample, passing_variants, target_amplicon_coverage, callers)
 
         sys.stdout.write("Writing coverage report\n")
         with open("{}_coverage_{}.txt".format(sample, args.report), "w") as coverage_report:
