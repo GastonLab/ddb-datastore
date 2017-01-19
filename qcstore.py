@@ -7,6 +7,7 @@ class QC(Model):
     sample = columns.Text(index=True, primary_key=True)
     library_name = columns.Text(index=True, primary_key=True)
     run_id = columns.Text(index=True, primary_key=True)
+    analysis_id = columns.Text(index=True, primary_key=True)
 
     sequencer = columns.Text(index=True)
     target_pool = columns.Text(index=True)
@@ -15,4 +16,4 @@ class QC(Model):
     extraction = columns.Text(index=True)
     date_annotated = columns.DateTime()
 
-    qcdata = columns.Map()
+    qcdata = columns.Map(columns.Text, columns.Blob)
