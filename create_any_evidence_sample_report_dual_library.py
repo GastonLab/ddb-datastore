@@ -44,7 +44,6 @@ if __name__ == "__main__":
     libraries = configuration.configure_samples(args.samples_file, config)
 
     samples = configuration.merge_library_configs_samples(libraries)
-    preferred_transcripts = utils.get_preferred_transcripts(config['transcripts'])
 
     if args.username:
         password = getpass.getpass()
