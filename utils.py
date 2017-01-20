@@ -147,7 +147,8 @@ def variant_filter(variant, thresholds):
 def write_sample_variant_report(report_root, sample, variants, target_amplicon_coverage, callers):
     with open("{}_variant_{}.txt".format(sample, report_root), 'w') as report:
         report.write("Sample\tLibrary\tGene\tAmplicon\tRef\tAlt\tCodon\tAA\t"
-                     "max_somatic_aaf\tCallers\tCOSMIC_IDs\tCOSMIC_NumSamples\tClin_Sig\tClin_HGVS\tClin_Disease\t"
+                     "max_somatic_aaf\tCallers\tCOSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\t"
+                     "Clin_Sig\tClin_HGVS\tClin_Disease\t"
                      "Coverage\tNum Reads\tImpact\tSeverity\tmax_maf_all\tmax_maf_no_fin\t"
                      "min_caller_depth\tmax_caller_depth\tChrom\tStart\tEnd\trsIDs")
 
@@ -193,7 +194,7 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                         continue
 
             report.write("{sample}\t{library}\t{gene}\t{amp}\t{ref}\t{alt}\t{codon}\t{aa}\t"
-                         "{max_som_aaf}\t{callers}\t{cosmic}\t{cosmic_nsamples}\t{csig}\t{hgvs}\t{cdis}\t"
+                         "{max_som_aaf}\t{callers}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t{csig}\t{hgvs}\t{cdis}\t"
                          "{cov}\t{reads}\t{impact}\t{severity}\t{max_maf_all}\t{max_maf_no_fin}\t"
                          "{min_depth}\t{max_depth}\t{chr}\t{start}\t{end}\t{rsids}"
                          "".format(sample=variant.sample,
@@ -209,6 +210,7 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                                    rsids=",".join(variant.rs_ids),
                                    cosmic=",".join(variant.cosmic_ids) or None,
                                    cosmic_nsamples=variant.cosmic_data['num_samples'],
+                                   cosmic_aa=variant.cosmic_data['aa'],
                                    amp=variant.amplicon_data['amplicon'],
                                    csig=variant.clinvar_data['significance'],
                                    hgvs=variant.clinvar_data['hgvs'],
@@ -257,7 +259,8 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
 def write_sample_variant_report_no_caller_filter(report_root, sample, variants, target_amplicon_coverage, callers):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
         report.write("Sample\tLibraryGene\tAmplicon\tRef\tAlt\tCodon\tAA\t"
-                     "max_somatic_aaf\tCallers\tCOSMIC_IDs\tCOSMIC_NumSamples\tClin_Sig\tClin_HGVS\tClin_Disease\t"
+                     "max_somatic_aaf\tCallers\tCOSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\t"
+                     "Clin_Sig\tClin_HGVS\tClin_Disease\t"
                      "Coverage\tNum Reads\tImpact\tSeverity\tmax_maf_all\tmax_maf_no_fin\t"
                      "min_caller_depth\tmax_caller_depth\tChrom\tStart\tEnd\trsIDs")
 
@@ -285,7 +288,7 @@ def write_sample_variant_report_no_caller_filter(report_root, sample, variants, 
 
         for variant in variants:
             report.write("{sample}\t{library}\t{gene}\t{amp}\t{ref}\t{alt}\t{codon}\t{aa}\t"
-                         "{max_som_aaf}\t{callers}\t{cosmic}\t{cosmic_nsamples}\t{csig}\t{hgvs}\t{cdis}\t"
+                         "{max_som_aaf}\t{callers}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t{csig}\t{hgvs}\t{cdis}\t"
                          "{cov}\t{reads}\t{impact}\t{severity}\t{max_maf_all}\t{max_maf_no_fin}\t"
                          "{min_depth}\t{max_depth}\t{chr}\t{start}\t{end}\t{rsids}"
                          "".format(sample=variant.sample,
@@ -301,6 +304,7 @@ def write_sample_variant_report_no_caller_filter(report_root, sample, variants, 
                                    rsids=",".join(variant.rs_ids),
                                    cosmic=",".join(variant.cosmic_ids) or None,
                                    cosmic_nsamples=variant.cosmic_data['num_samples'],
+                                   cosmic_aa=variant.cosmic_data['aa'],
                                    amp=variant.amplicon_data['amplicon'],
                                    csig=variant.clinvar_data['significance'],
                                    hgvs=variant.clinvar_data['hgvs'],
