@@ -258,7 +258,7 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
 
 def write_sample_variant_report_no_caller_filter(report_root, sample, variants, target_amplicon_coverage, callers):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
-        report.write("Sample\tLibraryGene\tAmplicon\tRef\tAlt\tCodon\tAA\t"
+        report.write("Sample\tLibrary\tGene\tAmplicon\tRef\tAlt\tCodon\tAA\t"
                      "max_somatic_aaf\tCallers\tCOSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\t"
                      "Clin_Sig\tClin_HGVS\tClin_Disease\t"
                      "Coverage\tNum Reads\tImpact\tSeverity\tmax_maf_all\tmax_maf_no_fin\t"
