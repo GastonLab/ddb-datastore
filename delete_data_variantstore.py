@@ -15,7 +15,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--samples_file', help="Input configuration file for samples")
     parser.add_argument('-c', '--configuration', help="Configuration file for various settings")
-    parser.add_argument('-r', '--report', help="Root name for reports (per sample)")
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
 
@@ -25,9 +24,7 @@ if __name__ == "__main__":
     config = configuration.configure_runtime(args.configuration)
 
     sys.stdout.write("Parsing sample data\n")
-    libraries = configuration.configure_samples(args.samples_file, config)
-
-    samples = configuration.merge_library_configs_samples(libraries)
+    samples = configuration.configure_samples(args.samples_file, config)
 
     if args.username:
         password = getpass.getpass()
