@@ -125,8 +125,12 @@ if __name__ == "__main__":
                         else:
                             filtered_non_target_amplicon.append(variant)
                             off_target_amplicons[amplicon] += 1
+                elif variant.amplicon_data['amplicon'] is 'None':
+                    filtered_no_amplicon.append(variant)
+                    off_target_amplicons[amplicon] += 1
                 else:
                     filtered_no_amplicon.append(variant)
+                    off_target_amplicons[amplicon] += 1
 
             sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
             with open("{}.{}.log".format(sample, args.report), 'a') as logfile:
