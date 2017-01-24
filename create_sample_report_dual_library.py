@@ -157,7 +157,7 @@ if __name__ == "__main__":
                 for off_target in off_target_amplicons:
                     logfile.write("{}\t{}\n".format(off_target, off_target_amplicons[off_target]))
 
-            with open("{}_coverage_{}.txt".format(sample, args.report), "w") as coverage_report:
+            with open("{}_coverage_{}.txt".format(sample, args.report), "a") as coverage_report:
                 coverage_report.write("Sample\tLibrary\tAmplicon\tNum Reads\tCoverage\n")
                 for amplicon in reportable_amplicons:
                     coverage_report.write("{}\t{}\t{}\t{}\t{}\n".format(amplicon.sample,
