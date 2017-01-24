@@ -136,20 +136,23 @@ if __name__ == "__main__":
             with open("{}.{}.log".format(sample, args.report), 'a') as logfile:
                 logfile.write("Retrieved {} total variants\n".format(variants.count()))
 
-        with open("{}.{}.log".format(sample, args.report), 'a') as logfile:
-            logfile.write("---------------------------------------------\n")
-            logfile.write(
-                "Sent {} variants to reporting (filtered {} variants for no amplicon data and {} for being"
-                " in a non-targeted amplicon)\n".format(len(passing_variants), len(filtered_no_amplicon),
-                                                        len(filtered_non_target_amplicon)))
-            logfile.write("---------------------------------------------\n")
-            logfile.write("Off Target Amplicon\tCounts\n")
-            for off_target in off_target_amplicons:
-                logfile.write("{}\t{}\n".format(off_target, off_target_amplicons[off_target]))
+            with open("{}.{}.log".format(sample, args.report), 'a') as logfile:
+                logfile.write("---------------------------------------------\n")
+                logfile.write("{}\n".format(library))
+                logfile.write(
+                    "Sent {} variants to reporting (filtered {} variants for no amplicon data and {} for being"
+                    " in a non-targeted amplicon)\n".format(len(passing_variants), len(filtered_no_amplicon),
+                                                            len(filtered_non_target_amplicon)))
+                logfile.write("---------------------------------------------\n")
+                logfile.write("Off Target Amplicon\tCounts\n")
+                for off_target in off_target_amplicons:
+                    logfile.write("{}\t{}\n".format(off_target, off_target_amplicons[off_target]))
 
-        sys.stdout.write("Sending {} variants to reporting (filtered {} variants for no amplicon data and {} for being"
-                         " in a non-targeted amplicon)\n".format(len(passing_variants), len(filtered_no_amplicon),
-                                                                 len(filtered_non_target_amplicon)))
+            sys.stdout.write("Sending {} variants to reporting (filtered {} variants for no amplicon data and {} for "
+                             "being in a non-targeted amplicon)\n".format(len(passing_variants),
+                                                                          len(filtered_no_amplicon),
+                                                                          len(filtered_non_target_amplicon)))
+
         utils.write_sample_variant_report(args.report, sample, passing_variants, target_amplicon_coverage, callers)
 
         sys.stdout.write("Writing coverage report\n")
