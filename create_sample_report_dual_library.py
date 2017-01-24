@@ -64,18 +64,20 @@ if __name__ == "__main__":
             logfile.write("Reporting Log for sample {}\n".format(sample))
             logfile.write("---------------------------------------------\n")
 
+        with open("{}_coverage_{}.txt".format(sample, args.report), "w") as coverage_report:
+            coverage_report.write("Sample:\t{}\n".format(sample))
+            coverage_report.write("---------------------------------------------\n")
+
         passing_variants = list()
-        reportable_amplicons = list()
-
-        filtered_no_amplicon = list()
-        filtered_non_target_amplicon = list()
-        filtered_no_requested_caller = list()
-
-        off_target_amplicons = defaultdict(int)
-
         target_amplicon_coverage = defaultdict(lambda: defaultdict(float))
 
         for library in samples[sample]:
+            reportable_amplicons = list()
+            off_target_amplicons = defaultdict(int)
+            filtered_no_amplicon = list()
+            filtered_non_target_amplicon = list()
+            filtered_no_requested_caller = list()
+
             report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}" \
                                 "".format(samples[sample][library]['panel'], samples[sample][library]['report'])
             target_amplicons = get_target_amplicons(report_panel_path)
@@ -86,6 +88,13 @@ if __name__ == "__main__":
             with open("{}.{}.log".format(sample, args.report), 'a') as logfile:
                 logfile.write("Processing variants for library {}\n".format(library))
                 logfile.write("Processing amplicons for library from file {}\n".format(report_panel_path))
+
+            with open("{}_coverage_{}.txt".format(sample, args.report), "a") as coverage_report:
+                coverage_report.write("Library:\t{}\n".format(samples[sample][library]['library_name']))
+                coverage_report.write("Run ID:\t{}\n".format(samples[sample][library]['run_id']))
+                coverage_report.write("Min Somatic Allele Frequency:\t{}\n".format(thresholds['min_saf']))
+                coverage_report.write("Max Population Germline Allele Frequency:\t{}\n".format(thresholds['max_maf']))
+                coverage_report.write("---------------------------------------------\n")
 
             variants = SampleVariant.objects.timeout(None).filter(
                 SampleVariant.reference_genome == config['genome_version'],
@@ -148,19 +157,18 @@ if __name__ == "__main__":
                 for off_target in off_target_amplicons:
                     logfile.write("{}\t{}\n".format(off_target, off_target_amplicons[off_target]))
 
+            with open("{}_coverage_{}.txt".format(sample, args.report), "w") as coverage_report:
+                coverage_report.write("Sample\tLibrary\tAmplicon\tNum Reads\tCoverage\n")
+                for amplicon in reportable_amplicons:
+                    coverage_report.write("{}\t{}\t{}\t{}\t{}\n".format(amplicon.sample,
+                                                                        amplicon.library_name,
+                                                                        amplicon.amplicon,
+                                                                        amplicon.num_reads,
+                                                                        amplicon.mean_coverage))
+
             sys.stdout.write("Sending {} variants to reporting (filtered {} variants for no amplicon data and {} for "
                              "being in a non-targeted amplicon)\n".format(len(passing_variants),
                                                                           len(filtered_no_amplicon),
                                                                           len(filtered_non_target_amplicon)))
 
         utils.write_sample_variant_report(args.report, sample, passing_variants, target_amplicon_coverage, callers)
-
-        sys.stdout.write("Writing coverage report\n")
-        with open("{}_coverage_{}.txt".format(sample, args.report), "w") as coverage_report:
-            coverage_report.write("Sample\tLibrary\tAmplicon\tNum Reads\tCoverage\n")
-            for amplicon in reportable_amplicons:
-                coverage_report.write("{}\t{}\t{}\t{}\t{}\n".format(amplicon.sample,
-                                                                    amplicon.library_name,
-                                                                    amplicon.amplicon,
-                                                                    amplicon.num_reads,
-                                                                    amplicon.mean_coverage))

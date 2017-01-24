@@ -63,17 +63,15 @@ if __name__ == "__main__":
             logfile.write("---------------------------------------------\n")
 
         passing_variants = list()
-        reportable_amplicons = list()
-
-        filtered_no_amplicon = list()
-        filtered_non_target_amplicon = list()
-        filtered_no_requested_caller = list()
-
-        off_target_amplicons = defaultdict(int)
-
         target_amplicon_coverage = defaultdict(lambda: defaultdict(float))
 
         for library in samples[sample]:
+            reportable_amplicons = list()
+            off_target_amplicons = defaultdict(int)
+            filtered_no_amplicon = list()
+            filtered_non_target_amplicon = list()
+            filtered_no_requested_caller = list()
+
             report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}" \
                                 "".format(samples[sample][library]['panel'], samples[sample][library]['report'])
             target_amplicons = get_target_amplicons(report_panel_path)
@@ -150,8 +148,5 @@ if __name__ == "__main__":
                                                                           len(filtered_no_amplicon),
                                                                           len(filtered_non_target_amplicon)))
 
-        sys.stdout.write("Sending {} variants to reporting (filtered {} variants for no amplicon data and {} for being"
-                         " in a non-targeted amplicon)\n".format(len(passing_variants), len(filtered_no_amplicon),
-                                                                 len(filtered_non_target_amplicon)))
         utils.write_sample_variant_report_no_caller_filter(args.report, sample, passing_variants,
                                                            target_amplicon_coverage, callers)

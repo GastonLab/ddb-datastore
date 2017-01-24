@@ -49,9 +49,7 @@ if __name__ == "__main__":
     else:
         connection.setup([args.address], "variantstore")
 
-    thresholds = {'min_saf': 0.01,
-                  'max_maf': 0.005,
-                  'depth': 200}
+    thresholds = {'max_maf': 0.005}
 
     callers = ("mutect", "platypus", "vardict", "scalpel", "freebayes", "pindel")
 
