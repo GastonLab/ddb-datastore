@@ -1,20 +1,19 @@
 #!/usr/bin/env python
 
-import argparse
-import getpass
-import xlsxwriter
 import sys
 import csv
-
-from cassandra.auth import PlainTextAuthProvider
-from cassandra.cqlengine import connection
-from ddb import configuration
-
 import utils
+import argparse
+import getpass
+
+from ddb import configuration
+from collections import defaultdict
+
 from variantstore import SampleVariant
 from coveragestore import SampleCoverage
 
-from collections import defaultdict
+from cassandra.cqlengine import connection
+from cassandra.auth import PlainTextAuthProvider
 
 
 def get_target_amplicons(filename):
@@ -61,6 +60,9 @@ if __name__ == "__main__":
     sys.stdout.write("Processing samples\n")
     for sample in samples:
         sys.stdout.write("Processing variants for sample {}\n".format(sample))
+        with open("{}.{}.log".format(sample, args.report), 'r') as logfile:
+            logfile.write("Reporting Log for sample {}\n".format(sample))
+            logfile.write("---------------------------------------------\n")
 
         passing_variants = list()
         reportable_amplicons = list()
@@ -68,6 +70,8 @@ if __name__ == "__main__":
         filtered_no_amplicon = list()
         filtered_non_target_amplicon = list()
         filtered_no_requested_caller = list()
+
+        off_target_amplicons = defaultdict(int)
 
         target_amplicon_coverage = defaultdict(lambda: defaultdict(float))
 
@@ -78,6 +82,10 @@ if __name__ == "__main__":
 
             sys.stdout.write("Processing variants for library {}\n".format(library))
             sys.stdout.write("Processing amplicons for library from file {}\n".format(report_panel_path))
+
+            with open("{}.{}.log".format(sample, args.report), 'a') as logfile:
+                logfile.write("Processing variants for library {}\n".format(library))
+                logfile.write("Processing amplicons for library from file {}\n".format(report_panel_path))
 
             variants = SampleVariant.objects.timeout(None).filter(
                 SampleVariant.reference_genome == config['genome_version'],
@@ -116,10 +124,24 @@ if __name__ == "__main__":
                                     break
                         else:
                             filtered_non_target_amplicon.append(variant)
+                            off_target_amplicons[amplicon] += 1
                 else:
                     filtered_no_amplicon.append(variant)
 
             sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
+            with open("{}.{}.log".format(sample, args.report), 'a') as logfile:
+                logfile.write("Retrieved {} total variants\n".format(variants.count()))
+
+        with open("{}.{}.log".format(sample, args.report), 'a') as logfile:
+            logfile.write("---------------------------------------------\n")
+            logfile.write(
+                "Sent {} variants to reporting (filtered {} variants for no amplicon data and {} for being"
+                " in a non-targeted amplicon)\n".format(len(passing_variants), len(filtered_no_amplicon),
+                                                        len(filtered_non_target_amplicon)))
+            logfile.write("---------------------------------------------\n")
+            logfile.write("Off Target Amplicon\tCounts\n")
+            for off_target in off_target_amplicons:
+                logfile.write("{}\t{}\n".format(off_target, off_target_amplicons[off_target]))
 
         sys.stdout.write("Sending {} variants to reporting (filtered {} variants for no amplicon data and {} for being"
                          " in a non-targeted amplicon)\n".format(len(passing_variants), len(filtered_no_amplicon),
