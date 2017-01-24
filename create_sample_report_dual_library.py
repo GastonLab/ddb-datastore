@@ -60,7 +60,7 @@ if __name__ == "__main__":
     sys.stdout.write("Processing samples\n")
     for sample in samples:
         sys.stdout.write("Processing variants for sample {}\n".format(sample))
-        with open("{}.{}.log".format(sample, args.report), 'r') as logfile:
+        with open("{}.{}.log".format(sample, args.report), 'w') as logfile:
             logfile.write("Reporting Log for sample {}\n".format(sample))
             logfile.write("---------------------------------------------\n")
 
