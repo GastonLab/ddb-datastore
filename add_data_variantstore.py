@@ -10,6 +10,7 @@ from datetime import datetime
 import cyvcf2
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cqlengine import connection
+from cassandra import WriteFailure
 from cyvcf2 import VCF
 from ddb import configuration
 from ddb import vcf_parsing
@@ -136,61 +137,68 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, sam
         #         )
 
         # Create Cassandra Object
-        sample_variant = SampleVariant.create(
-                sample=samples[sample]['sample_name'],
-                run_id=samples[sample]['run_id'],
-                library_name=samples[sample]['library_name'],
-                reference_genome=config['genome_version'],
-                chr=variant.CHROM,
-                pos=variant.start,
-                end=variant.end,
-                ref=variant.REF,
-                alt=variant.ALT[0],
-                extraction=samples[sample]['extraction'],
-                panel_name=samples[sample]['panel'],
-                # initial_report_panel=samples[sample]['report'],
-                target_pool=samples[sample]['target_pool'],
-                sequencer=samples[sample]['sequencer'],
-                rs_id=variant.ID,
-                date_annotated=datetime.now(),
-                subtype=variant.INFO.get('sub_type'),
-                type=variant.INFO.get('type'),
-                gene=top_impact.gene,
-                transcript=top_impact.transcript,
-                exon=top_impact.exon,
-                codon_change=top_impact.codon_change,
-                biotype=top_impact.biotype,
-                aa_change=top_impact.aa_change,
-                severity=top_impact.effect_severity,
-                impact=top_impact.top_consequence,
-                impact_so=top_impact.so,
-                max_maf_all=variant.INFO.get('max_aaf_all') or -1,
-                max_maf_no_fin=variant.INFO.get('max_aaf_no_fin') or -1,
-                transcripts_data=utils.get_transcript_effects(effects),
-                clinvar_data=utils.get_clinvar_info(variant),
-                cosmic_data=utils.get_cosmic_info(variant),
-                in_clinvar=vcf_parsing.var_is_in_clinvar(variant),
-                in_cosmic=vcf_parsing.var_is_in_cosmic(variant),
-                is_pathogenic=vcf_parsing.var_is_pathogenic(variant),
-                is_lof=vcf_parsing.var_is_lof(variant),
-                is_coding=vcf_parsing.var_is_coding(variant),
-                is_splicing=vcf_parsing.var_is_splicing(variant),
-                rs_ids=vcf_parsing.parse_rs_ids(variant),
-                cosmic_ids=vcf_parsing.parse_cosmic_ids(variant),
-                callers=callers,
-                population_freqs=population_freqs,
-                amplicon_data=amplicon_data,
-                max_som_aaf=max_som_aaf,
-                min_depth=min_depth,
-                max_depth=max_depth,
-                mutect=caller_variant_data_dicts['mutect'] or dict(),
-                freebayes=caller_variant_data_dicts['freebayes'] or dict(),
-                scalpel=caller_variant_data_dicts['scalpel'] or dict(),
-                platypus=caller_variant_data_dicts['platypus'] or dict(),
-                pindel=caller_variant_data_dicts['pindel'] or dict(),
-                vardict=caller_variant_data_dicts['vardict'] or dict(),
-                manta=caller_variant_data_dicts['manta'] or dict()
-                )
+        try:
+            sample_variant = SampleVariant.create(
+                    sample=samples[sample]['sample_name'],
+                    run_id=samples[sample]['run_id'],
+                    library_name=samples[sample]['library_name'],
+                    reference_genome=config['genome_version'],
+                    chr=variant.CHROM,
+                    pos=variant.start,
+                    end=variant.end,
+                    ref=variant.REF,
+                    alt=variant.ALT[0],
+                    extraction=samples[sample]['extraction'],
+                    panel_name=samples[sample]['panel'],
+                    # initial_report_panel=samples[sample]['report'],
+                    target_pool=samples[sample]['target_pool'],
+                    sequencer=samples[sample]['sequencer'],
+                    rs_id=variant.ID,
+                    date_annotated=datetime.now(),
+                    subtype=variant.INFO.get('sub_type'),
+                    type=variant.INFO.get('type'),
+                    gene=top_impact.gene,
+                    transcript=top_impact.transcript,
+                    exon=top_impact.exon,
+                    codon_change=top_impact.codon_change,
+                    biotype=top_impact.biotype,
+                    aa_change=top_impact.aa_change,
+                    severity=top_impact.effect_severity,
+                    impact=top_impact.top_consequence,
+                    impact_so=top_impact.so,
+                    max_maf_all=variant.INFO.get('max_aaf_all') or -1,
+                    max_maf_no_fin=variant.INFO.get('max_aaf_no_fin') or -1,
+                    transcripts_data=utils.get_transcript_effects(effects),
+                    clinvar_data=utils.get_clinvar_info(variant),
+                    cosmic_data=utils.get_cosmic_info(variant),
+                    in_clinvar=vcf_parsing.var_is_in_clinvar(variant),
+                    in_cosmic=vcf_parsing.var_is_in_cosmic(variant),
+                    is_pathogenic=vcf_parsing.var_is_pathogenic(variant),
+                    is_lof=vcf_parsing.var_is_lof(variant),
+                    is_coding=vcf_parsing.var_is_coding(variant),
+                    is_splicing=vcf_parsing.var_is_splicing(variant),
+                    rs_ids=vcf_parsing.parse_rs_ids(variant),
+                    cosmic_ids=vcf_parsing.parse_cosmic_ids(variant),
+                    callers=callers,
+                    population_freqs=population_freqs,
+                    amplicon_data=amplicon_data,
+                    max_som_aaf=max_som_aaf,
+                    min_depth=min_depth,
+                    max_depth=max_depth,
+                    mutect=caller_variant_data_dicts['mutect'] or dict(),
+                    freebayes=caller_variant_data_dicts['freebayes'] or dict(),
+                    scalpel=caller_variant_data_dicts['scalpel'] or dict(),
+                    platypus=caller_variant_data_dicts['platypus'] or dict(),
+                    pindel=caller_variant_data_dicts['pindel'] or dict(),
+                    vardict=caller_variant_data_dicts['vardict'] or dict(),
+                    manta=caller_variant_data_dicts['manta'] or dict()
+                    )
+        except WriteFailure:
+            sys.stderr.write("Failed to write variant to variantstore:\n")
+            sys.stderr.write("Sample: {}\t Library: {}\n".format(samples[sample]['sample_name'],
+                                                                 samples[sample]['library_name'],))
+            sys.stderr.write("{}\n".format(variant))
+
 
     job.fileStore.logToMaster("Data saved to Cassandra for sample {}\n".format(sample))
 
