@@ -204,6 +204,12 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, sam
                 err.write("{}\n".format(variant))
         added += 1
 
+    with open("{}.sample_variant_add.log".format(samples[sample]['library_name']), "a") as err:
+        err.write("Sample: {}\t Library: {}\n".format(samples[sample]['sample_name'],
+                                                      samples[sample]['library_name'], ))
+        err.write("Wrote {} variants to variantstore\n".format(added))
+        err.write("Failed to add {} variants to variantstore\n".format(failed))
+
     job.fileStore.logToMaster("Variant data for {} variants saved to Cassandra for sample {}."
                               "{} variants failed to add to database\n".format(added, sample, failed))
 
