@@ -194,11 +194,11 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, sam
                     manta=caller_variant_data_dicts['manta'] or dict()
                     )
         except WriteFailure:
-            sys.stderr.write("Failed to write variant to variantstore:\n")
-            sys.stderr.write("Sample: {}\t Library: {}\n".format(samples[sample]['sample_name'],
-                                                                 samples[sample]['library_name'],))
-            sys.stderr.write("{}\n".format(variant))
-
+            with open("{}.sample_variant_add.log".format(samples[sample]['library_name']), "a") as err:
+                err.write("Failed to write variant to variantstore:\n")
+                err.write("Sample: {}\t Library: {}\n".format(samples[sample]['sample_name'],
+                                                              samples[sample]['library_name'],))
+                err.write("{}\n".format(variant))
 
     job.fileStore.logToMaster("Data saved to Cassandra for sample {}\n".format(sample))
 
