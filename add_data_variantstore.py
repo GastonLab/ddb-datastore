@@ -48,6 +48,8 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, sam
     # Filter out variants with minor allele frequencies above the threshold but
     # retain any that are above the threshold but in COSMIC or in ClinVar and not listed as benign.
     sys.stdout.write("Processing individual variants\n")
+    added = 0
+    failed = 0
     for variant in vcf:
         # Parsing VCF and creating data structures for Cassandra model
         callers = variant.INFO.get('CALLERS').split(',')
@@ -194,13 +196,16 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, sam
                     manta=caller_variant_data_dicts['manta'] or dict()
                     )
         except WriteFailure:
+            failed += 1
             with open("{}.sample_variant_add.log".format(samples[sample]['library_name']), "a") as err:
                 err.write("Failed to write variant to variantstore:\n")
                 err.write("Sample: {}\t Library: {}\n".format(samples[sample]['sample_name'],
                                                               samples[sample]['library_name'],))
                 err.write("{}\n".format(variant))
+        added += 1
 
-    job.fileStore.logToMaster("Data saved to Cassandra for sample {}\n".format(sample))
+    job.fileStore.logToMaster("Variant data for {} variants saved to Cassandra for sample {}."
+                              "{} variants failed to add to database\n".format(added, sample, failed))
 
 
 if __name__ == "__main__":
