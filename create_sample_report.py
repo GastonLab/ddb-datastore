@@ -59,7 +59,6 @@ if __name__ == "__main__":
     for sample in samples:
         passing_variants = list()
         reportable_amplicons = list()
-
         filtered_no_amplicon = list()
         filtered_non_target_amplicon = list()
         filtered_no_requested_caller = list()
@@ -91,6 +90,7 @@ if __name__ == "__main__":
             )
 
             for result in coverage_data:
+                reportable_amplicons.append(result)
                 target_amplicon_coverage[amplicon]['num_reads'] = result.num_reads
                 target_amplicon_coverage[amplicon]['mean_coverage'] = result.mean_coverage
 
