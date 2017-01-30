@@ -77,12 +77,14 @@ if __name__ == "__main__":
             logfile.write("---------------------------------------------\n")
             logfile.write("Processing variants for library {}\n".format(sample))
             logfile.write("Processing amplicons for library from file {}\n".format(report_panel_path))
+            logfile.write("Reporting from amplicons in {}\n".format(samples[sample]['report']))
 
         with open("{}_coverage_{}.txt".format(sample, args.report), "w") as coverage_report:
             coverage_report.write("Sample:\t{}\n".format(sample))
             coverage_report.write("---------------------------------------------\n")
             coverage_report.write("Library:\t{}\n".format(samples[sample]['library_name']))
             coverage_report.write("Run ID:\t{}\n".format(samples[sample]['run_id']))
+            coverage_report.write("Report:\t{}\n".format(samples[sample]['report']))
             coverage_report.write("Min Somatic Allele Frequency:\t{}\n".format(thresholds['min_saf']))
             coverage_report.write("Max Population Germ line Allele Frequency:\t{}\n".format(thresholds['max_maf']))
             coverage_report.write("---------------------------------------------\n")

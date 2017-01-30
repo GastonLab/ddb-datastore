@@ -92,6 +92,7 @@ if __name__ == "__main__":
             with open("{}_coverage_{}.txt".format(sample, args.report), "a") as coverage_report:
                 coverage_report.write("Library:\t{}\n".format(samples[sample][library]['library_name']))
                 coverage_report.write("Run ID:\t{}\n".format(samples[sample][library]['run_id']))
+                coverage_report.write("Report:\t{}\n".format(samples[sample][library]['report']))
                 coverage_report.write("Min Somatic Allele Frequency:\t{}\n".format(thresholds['min_saf']))
                 coverage_report.write("Max Population Germline Allele Frequency:\t{}\n".format(thresholds['max_maf']))
                 coverage_report.write("---------------------------------------------\n")
