@@ -144,8 +144,6 @@ if __name__ == "__main__":
             sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
             with open("{}.{}.log".format(sample, args.report), 'a') as logfile:
                 logfile.write("Retrieved {} total variants\n".format(variants.count()))
-
-            with open("{}.{}.log".format(sample, args.report), 'a') as logfile:
                 logfile.write("---------------------------------------------\n")
                 logfile.write("{}\n".format(library))
                 logfile.write(
