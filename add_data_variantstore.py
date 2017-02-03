@@ -11,6 +11,7 @@ import cyvcf2
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cqlengine import connection
 from cassandra import WriteFailure
+from cassandra import InvalidRequest
 from cyvcf2 import VCF
 from ddb import configuration
 from ddb import vcf_parsing
@@ -144,6 +145,12 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, sam
                 err.write("Sample: {}\t Library: {}\n".format(samples[sample]['sample_name'],
                                                               samples[sample]['library_name'],))
                 err.write("{}\n".format(variant))
+        except InvalidRequest:
+            with open("{}.sample_variant_add.log".format(samples[sample]['library_name']), "a") as err:
+                err.write("Failed to write variant to variantstore:\n")
+                err.write("Sample: {}\t Library: {}\n".format(samples[sample]['sample_name'],
+                                                              samples[sample]['library_name'], ))
+                err.write("{}\n".format(variant))
 
         # Create Cassandra Object
         try:
@@ -209,6 +216,11 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions, sam
                 err.write("Sample: {}\t Library: {}\n".format(samples[sample]['sample_name'],
                                                               samples[sample]['library_name'],))
                 err.write("{}\n".format(variant))
+        except InvalidRequest:
+            with open("{}.sample_variant_add.log".format(samples[sample]['library_name']), "a") as err:
+                err.write("Failed to write variant to variantstore:\n")
+                err.write("Sample: {}\t Library: {}\n".format(samples[sample]['sample_name'],
+                                                              samples[sample]['library_name'], ))
         added += 1
 
     with open("{}.sample_variant_add.log".format(samples[sample]['library_name']), "a") as err:
