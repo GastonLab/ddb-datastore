@@ -77,6 +77,7 @@ if __name__ == "__main__":
             filtered_no_amplicon = list()
             filtered_non_target_amplicon = list()
             filtered_no_requested_caller = list()
+            low_saf_variant = list()
 
             report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}" \
                                 "".format(samples[sample][library]['panel'], samples[sample][library]['report'])
@@ -130,7 +131,10 @@ if __name__ == "__main__":
                         if amplicon in target_amplicons:
                             for caller in callers:
                                 if caller in variant.callers:
-                                    passing_variants.append(variant)
+                                    if variant.max_som_aaf >= thresholds['min_saf']:
+                                        passing_variants.append(variant)
+                                    else:
+                                        low_saf_variant.append(variant)
                                     break
                         else:
                             filtered_non_target_amplicon.append(variant)
