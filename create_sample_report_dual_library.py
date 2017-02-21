@@ -21,6 +21,7 @@ def get_target_amplicons(filename):
     with open(filename, "r") as bedfile:
         reader = csv.reader(bedfile, dialect='excel-tab')
         for row in reader:
+            sys.stdout.write("Appending amplicon {} to list\n".format(row[3]))
             amplicons_list.append(row[3])
 
     return amplicons_list
