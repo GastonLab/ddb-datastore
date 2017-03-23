@@ -2,6 +2,8 @@ import sys
 import csv
 import geneimpacts
 
+from collections import defaultdict
+
 
 def get_preferred_transcripts(transcripts_file):
     transcripts_list = list()
@@ -142,6 +144,68 @@ def variant_filter(variant, thresholds):
         info['dual'] = False
 
     return flag, info
+
+
+def filter_variants(sample, library, report_root, target_amplicons, callers, ordered_variants):
+
+    iterated = 0
+    passing_variants = list()
+    filtered_off_target = list()
+    freebayes_pindel_only_variants = list()
+
+    off_target_amplicons = defaultdict(int)
+
+    for variant in ordered_variants:
+        iterated += 1
+        if variant.amplicon_data['amplicon']:
+            amplicons = variant.amplicon_data['amplicon'].split(',')
+            for amplicon in amplicons:
+                if amplicon in target_amplicons:
+                    for caller in callers:
+                        if caller in variant.callers:
+                            if any(caller in ("freebayes", "pindel") for caller in variant.callers):
+                                if any(caller in ("mutect", "scalpel", "vardict", "platypus") for caller in
+                                       variant.callers):
+                                    # Other caller also called this variant
+                                    passing_variants.append(variant)
+                                else:
+                                    # Freebayes or Pindel called only
+                                    if variant.cosmic_ids:
+                                        # Pindel/FreeBayes only but COSMIC IDs
+                                        passing_variants.append(variant)
+                                    elif variant.clinvar_data['pathogenic'] != 'None':
+                                        # Pindel/FreeBayes only but Clinvar data
+                                        passing_variants.append(variant)
+                                    else:
+                                        # Freebayes or Pindel only, no cosmic or clinvar data
+                                        freebayes_pindel_only_variants.append(variant)
+                            break
+                else:
+                    filtered_off_target.append(variant)
+                    off_target_amplicons[amplicon] += 1
+        elif variant.amplicon_data['amplicon'] is 'None':
+            filtered_off_target.append(variant)
+            off_target_amplicons[amplicon] += 1
+        else:
+            filtered_off_target.append(variant)
+            off_target_amplicons[amplicon] += 1
+
+    sys.stdout.write("Iterated through {} variants\n".format(iterated))
+    with open("{}.{}.log".format(sample, report_root), 'a') as logfile:
+        logfile.write("Iterated through {} variants\n".format(iterated))
+
+    with open("{}.{}.log".format(sample, report_root), 'a') as logfile:
+        logfile.write("---------------------------------------------\n")
+        logfile.write("{}\n".format(library))
+        logfile.write(
+            "Sent {} variants to reporting (filtered {} off-target variants)"
+            "\n".format(len(passing_variants), len(filtered_off_target)))
+        logfile.write("---------------------------------------------\n")
+        logfile.write("Off Target Amplicon\tCounts\n")
+        for off_target in off_target_amplicons:
+            logfile.write("{}\t{}\n".format(off_target, off_target_amplicons[off_target]))
+
+    return passing_variants, filtered_off_target, freebayes_pindel_only_variants, off_target_amplicons
 
 
 def write_sample_variant_report(report_root, sample, variants, target_amplicon_coverage, callers):

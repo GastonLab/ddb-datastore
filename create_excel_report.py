@@ -63,9 +63,9 @@ if __name__ == "__main__":
         sys.stdout.write("Processing variants for sample {}\n".format(sample))
 
         wb = Workbook()
-        cov_ws = wb.create_sheet("Coverage", 0)
-        var_ws = wb.create_sheet("Variants", 1)
-        filter_ws = wb.create_sheet("Filtered Variants", 2)
+        cov_ws = wb.create_sheet(title="Coverage")
+        var_ws = wb.create_sheet(title="Variants")
+        filter_ws = wb.create_sheet(title="Filtered Variants")
 
         with open("{}.{}.log".format(sample, args.report), 'w') as logfile:
             logfile.write("Reporting Log for sample {}\n".format(sample))
@@ -119,55 +119,11 @@ if __name__ == "__main__":
             ordered_variants = variants.order_by('library_name', 'chr', 'pos',
                                                  'ref', 'alt').limit(variants.count() + 1000)
 
-            for variant in ordered_variants:
-                if variant.amplicon_data['amplicon']:
-                    amplicons = variant.amplicon_data['amplicon'].split(',')
-                    for amplicon in amplicons:
-                        if amplicon in target_amplicons:
-                            for caller in callers:
-                                if caller in variant.callers:
-                                    if any(caller in ("freebayes", "pindel") for caller in variant.callers):
-                                        if any(caller in ("mutect", "scalpel", "vardict", "platypus") for caller in
-                                               variant.callers):
-                                            # Other caller also called this variant
-                                            passing_variants.append(variant)
-                                        else:
-                                            # Freebayes or Pindel called only
-                                            if variant.cosmic_ids:
-                                                # Pindel/FreeBayes only but COSMIC IDs
-                                                passing_variants.append(variant)
-                                            elif variant.clinvar_data['pathogenic'] != 'None':
-                                                # Pindel/FreeBayes only but Clinvar data
-                                                passing_variants.append(variant)
-                                            else:
-                                                # Freebayes or Pindel only, no cosmic or clinvar data
-                                                freebayes_pindel_only_variants.append(variant)
-                                    break
-                        else:
-                            filtered_non_target_amplicon.append(variant)
-                            off_target_amplicons[amplicon] += 1
-                elif variant.amplicon_data['amplicon'] is 'None':
-                    filtered_no_amplicon.append(variant)
-                    off_target_amplicons[amplicon] += 1
-                else:
-                    filtered_no_amplicon.append(variant)
-                    off_target_amplicons[amplicon] += 1
-
-            sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
+            sys.stdout.write("Retrieved {} total variants\n".format(ordered_variants.count()))
             with open("{}.{}.log".format(sample, args.report), 'a') as logfile:
-                logfile.write("Retrieved {} total variants\n".format(variants.count()))
+                logfile.write("Retrieved {} total variants\n".format(ordered_variants.count()))
 
-            with open("{}.{}.log".format(sample, args.report), 'a') as logfile:
-                logfile.write("---------------------------------------------\n")
-                logfile.write("{}\n".format(library))
-                logfile.write(
-                    "Sent {} variants to reporting (filtered {} variants for no amplicon data and {} for being"
-                    " in a non-targeted amplicon)\n".format(len(passing_variants), len(filtered_no_amplicon),
-                                                            len(filtered_non_target_amplicon)))
-                logfile.write("---------------------------------------------\n")
-                logfile.write("Off Target Amplicon\tCounts\n")
-                for off_target in off_target_amplicons:
-                    logfile.write("{}\t{}\n".format(off_target, off_target_amplicons[off_target]))
+            utils.filter_variants(sample, library, args.report, target_amplicons, callers, ordered_variants)
 
             sys.stdout.write("Sending {} variants to reporting (filtered {} variants for no amplicon data and {} for "
                              "being in a non-targeted amplicon)\n".format(len(passing_variants),
@@ -176,3 +132,4 @@ if __name__ == "__main__":
 
         utils.write_sample_variant_report_no_caller_filter(args.report, sample, passing_variants,
                                                            target_amplicon_coverage, callers)
+        wb.save("{}_report.xlsx".format(sample))
