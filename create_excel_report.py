@@ -73,7 +73,8 @@ if __name__ == "__main__":
 
         passing_variants = list()
         low_freq_variants = list()
-        freebayes_pindel_only_variants = list()
+        off_target_variants = list()
+        fbayes_pindel_only_variants = list()
         target_amplicon_coverage = defaultdict(lambda: defaultdict(float))
 
         for library in samples[sample]:
@@ -123,7 +124,8 @@ if __name__ == "__main__":
             with open("{}.{}.log".format(sample, args.report), 'a') as logfile:
                 logfile.write("Retrieved {} total variants\n".format(ordered_variants.count()))
 
-            utils.filter_variants(sample, library, args.report, target_amplicons, callers, ordered_variants)
+            passing, off_target, low_freq, fbpindel_only, off_target_counts = \
+                utils.filter_variants(sample, library, args.report, target_amplicons, callers, ordered_variants)
 
             sys.stdout.write("Sending {} variants to reporting (filtered {} variants for no amplicon data and {} for "
                              "being in a non-targeted amplicon)\n".format(len(passing_variants),

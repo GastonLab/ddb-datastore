@@ -150,10 +150,11 @@ def filter_variants(sample, library, report_root, target_amplicons, callers, ord
 
     iterated = 0
     passing_variants = list()
+    filtered_low_freq = list()
     filtered_off_target = list()
     freebayes_pindel_only_variants = list()
 
-    off_target_amplicons = defaultdict(int)
+    off_target_amplicon_counts = defaultdict(int)
 
     for variant in ordered_variants:
         iterated += 1
@@ -182,13 +183,13 @@ def filter_variants(sample, library, report_root, target_amplicons, callers, ord
                             break
                 else:
                     filtered_off_target.append(variant)
-                    off_target_amplicons[amplicon] += 1
+                    off_target_amplicon_counts[amplicon] += 1
         elif variant.amplicon_data['amplicon'] is 'None':
             filtered_off_target.append(variant)
-            off_target_amplicons[amplicon] += 1
+            off_target_amplicon_counts[amplicon] += 1
         else:
             filtered_off_target.append(variant)
-            off_target_amplicons[amplicon] += 1
+            off_target_amplicon_counts[amplicon] += 1
 
     sys.stdout.write("Iterated through {} variants\n".format(iterated))
     with open("{}.{}.log".format(sample, report_root), 'a') as logfile:
@@ -202,10 +203,11 @@ def filter_variants(sample, library, report_root, target_amplicons, callers, ord
             "\n".format(len(passing_variants), len(filtered_off_target)))
         logfile.write("---------------------------------------------\n")
         logfile.write("Off Target Amplicon\tCounts\n")
-        for off_target in off_target_amplicons:
-            logfile.write("{}\t{}\n".format(off_target, off_target_amplicons[off_target]))
+        for off_target in off_target_amplicon_counts:
+            logfile.write("{}\t{}\n".format(off_target, off_target_amplicon_counts[off_target]))
 
-    return passing_variants, filtered_off_target, freebayes_pindel_only_variants, off_target_amplicons
+    return passing_variants, filtered_off_target, filtered_low_freq, freebayes_pindel_only_variants, \
+           off_target_amplicon_counts
 
 
 def write_sample_variant_report(report_root, sample, variants, target_amplicon_coverage, callers):
