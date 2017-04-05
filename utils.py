@@ -267,39 +267,44 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                     else:
                         # Freebayes or Pindel only, no cosmic or clinvar data
                         continue
+            try:
+                report.write("{sample}\t{library}\t{gene}\t{amp}\t{ref}\t{alt}\t{codon}\t{aa}\t"
+                             "{max_som_aaf}\t{callers}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t{csig}\t{hgvs}\t"
+                             "{cdis}\t{cov}\t{reads}\t{impact}\t{severity}\t{max_maf_all}\t{max_maf_no_fin}\t"
+                             "{min_depth}\t{max_depth}\t{chr}\t{start}\t{end}\t{rsids}"
+                             "".format(sample=variant.sample,
+                                       library=variant.library_name,
+                                       chr=variant.chr,
+                                       start=variant.pos,
+                                       end=variant.end,
+                                       gene=variant.gene,
+                                       ref=variant.ref,
+                                       alt=variant.alt,
+                                       codon=variant.codon_change,
+                                       aa=variant.aa_change,
+                                       rsids=",".join(variant.rs_ids),
+                                       cosmic=",".join(variant.cosmic_ids) or None,
+                                       cosmic_nsamples=variant.cosmic_data['num_samples'],
+                                       cosmic_aa=variant.cosmic_data['aa'],
+                                       amp=variant.amplicon_data['amplicon'],
+                                       csig=variant.clinvar_data['significance'],
+                                       hgvs=variant.clinvar_data['hgvs'],
+                                       cdis=variant.clinvar_data['disease'],
+                                       cov=target_amplicon_coverage[variant.amplicon_data['amplicon']]['mean_coverage'],
+                                       reads=target_amplicon_coverage[variant.amplicon_data['amplicon']]['num_reads'],
+                                       impact=variant.impact,
+                                       severity=variant.severity,
+                                       max_maf_all=variant.max_maf_all,
+                                       max_maf_no_fin=variant.max_maf_no_fin,
+                                       max_som_aaf=variant.max_som_aaf,
+                                       min_depth=variant.min_depth,
+                                       max_depth=variant.max_depth,
+                                       callers=",".join(variant.callers) or None))
+            except KeyError:
+                sys.stderr.write("Could not write variant to report, KeyError with missing data\n")
+                print variant
+                continue
 
-            report.write("{sample}\t{library}\t{gene}\t{amp}\t{ref}\t{alt}\t{codon}\t{aa}\t"
-                         "{max_som_aaf}\t{callers}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t{csig}\t{hgvs}\t{cdis}\t"
-                         "{cov}\t{reads}\t{impact}\t{severity}\t{max_maf_all}\t{max_maf_no_fin}\t"
-                         "{min_depth}\t{max_depth}\t{chr}\t{start}\t{end}\t{rsids}"
-                         "".format(sample=variant.sample,
-                                   library=variant.library_name,
-                                   chr=variant.chr,
-                                   start=variant.pos,
-                                   end=variant.end,
-                                   gene=variant.gene,
-                                   ref=variant.ref,
-                                   alt=variant.alt,
-                                   codon=variant.codon_change,
-                                   aa=variant.aa_change,
-                                   rsids=",".join(variant.rs_ids),
-                                   cosmic=",".join(variant.cosmic_ids) or None,
-                                   cosmic_nsamples=variant.cosmic_data['num_samples'],
-                                   cosmic_aa=variant.cosmic_data['aa'],
-                                   amp=variant.amplicon_data['amplicon'],
-                                   csig=variant.clinvar_data['significance'],
-                                   hgvs=variant.clinvar_data['hgvs'],
-                                   cdis=variant.clinvar_data['disease'] or None,
-                                   cov=target_amplicon_coverage[variant.amplicon_data['amplicon']]['mean_coverage'],
-                                   reads=target_amplicon_coverage[variant.amplicon_data['amplicon']]['num_reads'],
-                                   impact=variant.impact,
-                                   severity=variant.severity,
-                                   max_maf_all=variant.max_maf_all,
-                                   max_maf_no_fin=variant.max_maf_no_fin,
-                                   max_som_aaf=variant.max_som_aaf,
-                                   min_depth=variant.min_depth,
-                                   max_depth=variant.max_depth,
-                                   callers=",".join(variant.callers) or None))
             num_reported += 1
 
             if 'mutect' in callers:
