@@ -289,7 +289,7 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
                                    amp=variant.amplicon_data['amplicon'],
                                    csig=variant.clinvar_data['significance'],
                                    hgvs=variant.clinvar_data['hgvs'],
-                                   cdis=variant.clinvar_data['disease'],
+                                   cdis=variant.clinvar_data['disease'] or None,
                                    cov=target_amplicon_coverage[variant.amplicon_data['amplicon']]['mean_coverage'],
                                    reads=target_amplicon_coverage[variant.amplicon_data['amplicon']]['num_reads'],
                                    impact=variant.impact,
