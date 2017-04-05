@@ -60,7 +60,7 @@ def get_transcript_effects(effects):
     return transcript_effects
 
 
-def get_clinvar_info(variant):
+def get_clinvar_info(variant, samples, sample):
     clinvar_data = dict()
 
     try:
@@ -73,7 +73,11 @@ def get_clinvar_info(variant):
         clinvar_data['disease'] = variant.INFO.get('clinvar_diseasename') or 'None'
         clinvar_data['accession'] = variant.INFO.get('clinvar_accession') or 'None'
     except IndexError:
-        print variant
+        with open("{}.sample_variant_add.log".format(samples[sample]['library_name']), "a") as err:
+            err.write("Failed to write variant to variantstore:\n")
+            err.write("Sample: {}\t Library: {}\n".format(samples[sample]['sample_name'],
+                                                          samples[sample]['library_name'], ))
+            err.write("{}\n".format(variant))
 
     return clinvar_data
 
