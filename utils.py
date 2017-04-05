@@ -63,18 +63,20 @@ def get_transcript_effects(effects):
 def get_clinvar_info(variant, samples, sample):
     clinvar_data = dict()
 
+    clinvar_data['significance'] = variant.INFO.get('clinvar_significance') or 'None'
+    clinvar_data['pathogenic'] = variant.INFO.get('clinvar_pathogenic') or 'None'
+    clinvar_data['hgvs'] = variant.INFO.get('clinvar_hgvs') or 'None'
+    clinvar_data['revstatus'] = variant.INFO.get('clinvar_revstatus') or 'None'
+    clinvar_data['org'] = variant.INFO.get('clinvar_org') or 'None'
+    clinvar_data['disease'] = variant.INFO.get('clinvar_diseasename') or 'None'
+    clinvar_data['accession'] = variant.INFO.get('clinvar_accession') or 'None'
+
     try:
-        clinvar_data['significance'] = variant.INFO.get('clinvar_significance') or 'None'
-        clinvar_data['pathogenic'] = variant.INFO.get('clinvar_pathogenic') or 'None'
-        clinvar_data['hgvs'] = variant.INFO.get('clinvar_hgvs') or 'None'
-        clinvar_data['revstatus'] = variant.INFO.get('clinvar_revstatus') or 'None'
         clinvar_data['origin'] = variant.INFO.get('clinvar_origin') or 'None'
-        clinvar_data['org'] = variant.INFO.get('clinvar_org') or 'None'
-        clinvar_data['disease'] = variant.INFO.get('clinvar_diseasename') or 'None'
-        clinvar_data['accession'] = variant.INFO.get('clinvar_accession') or 'None'
     except IndexError:
+        clinvar_data['origin'] = 'None'
         with open("{}.sample_variant_add.log".format(samples[sample]['library_name']), "a") as err:
-            err.write("Failed to write variant to variantstore:\n")
+            err.write("Problem with ClinVar origin data for variant, setting to None:\n")
             err.write("Sample: {}\t Library: {}\n".format(samples[sample]['sample_name'],
                                                           samples[sample]['library_name'], ))
             err.write("{}\n".format(variant))
