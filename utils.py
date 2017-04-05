@@ -63,6 +63,8 @@ def get_transcript_effects(effects):
 def get_clinvar_info(variant):
     clinvar_data = dict()
 
+    print variant
+
     clinvar_data['significance'] = variant.INFO.get('clinvar_significance') or 'None'
     clinvar_data['pathogenic'] = variant.INFO.get('clinvar_pathogenic') or 'None'
     clinvar_data['hgvs'] = variant.INFO.get('clinvar_hgvs') or 'None'
