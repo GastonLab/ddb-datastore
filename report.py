@@ -51,21 +51,15 @@ if __name__ == "__main__":
 
     sys.stdout.write("Processing samples\n")
     for sample in samples:
+        on_target_variants = list()
         sys.stdout.write("Processing variants for sample {}\n".format(sample))
         with open("{}.{}.log".format(sample, args.report), 'w') as logfile:
             logfile.write("Reporting Log for sample {}\n".format(sample))
             logfile.write("---------------------------------------------\n")
 
-        on_target_caller_variants = list()
-        filtered_no_amplicon = list()
-        filtered_non_target_amplicon = list()
-        filtered_no_requested_caller = list()
-
         target_amplicon_coverage = defaultdict(lambda: defaultdict(float))
 
         for library in samples[sample]:
-            off_target_amplicons = defaultdict(int)
-
             report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}" \
                                 "".format(samples[sample][library]['panel'], samples[sample][library]['report'])
             target_amplicons = utils.get_target_amplicons(report_panel_path)
@@ -79,41 +73,8 @@ if __name__ == "__main__":
             reportable_amplicons, target_amplicon_coverage = utils.get_coverage_data(target_amplicons, samples, sample,
                                                                                      library, target_amplicon_coverage)
 
-            for variant in ordered_variants:
-                if variant.amplicon_data['amplicon']:
-                    amplicons = variant.amplicon_data['amplicon'].split(',')
-                    for amplicon in amplicons:
-                        if amplicon in target_amplicons:
-                            for caller in callers:
-                                if caller in variant.callers:
-                                    on_target_caller_variants.append(variant)
-                                    break
-                        else:
-                            filtered_non_target_amplicon.append(variant)
-                            off_target_amplicons[amplicon] += 1
-                elif variant.amplicon_data['amplicon'] is 'None':
-                    filtered_no_amplicon.append(variant)
-                    off_target_amplicons[amplicon] += 1
-                else:
-                    filtered_no_amplicon.append(variant)
-                    off_target_amplicons[amplicon] += 1
+            filtered_var_data = utils.classify_and_filter_variants(sample, library, args.report, target_amplicons,
+                                                                   callers, ordered_variants, thresholds)
 
-            with open("{}.{}.log".format(sample, args.report), 'a') as logfile:
-                logfile.write("---------------------------------------------\n")
-                logfile.write("{}\n".format(library))
-                logfile.write(
-                    "Sent {} variants to reporting (filtered {} variants for no amplicon data and {} for being"
-                    " in a non-targeted amplicon)\n".format(len(on_target_caller_variants), len(filtered_no_amplicon),
-                                                            len(filtered_non_target_amplicon)))
-                logfile.write("---------------------------------------------\n")
-                logfile.write("Off Target Amplicon\tCounts\n")
-                for off_target in off_target_amplicons:
-                    logfile.write("{}\t{}\n".format(off_target, off_target_amplicons[off_target]))
-
-            sys.stdout.write("Sending {} variants to reporting (filtered {} variants for no amplicon data and {} for "
-                             "being in a non-targeted amplicon)\n".format(len(on_target_caller_variants),
-                                                                          len(filtered_no_amplicon),
-                                                                          len(filtered_non_target_amplicon)))
-
-        utils.write_sample_variant_report_no_caller_filter(args.report, sample, on_target_caller_variants,
+        utils.write_sample_variant_report_no_caller_filter(args.report, sample, on_target_variants,
                                                            target_amplicon_coverage, callers)

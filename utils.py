@@ -204,7 +204,33 @@ def variant_filter(variant, thresholds):
     return flag, info
 
 
-def filter_variants(sample, library, report_root, target_amplicons, callers, ordered_variants, thresholds):
+def filter_variants_on_target(ordered_variants, target_amplicons):
+    on_target_variants = list()
+    filtered_no_amplicon = list()
+    filtered_non_target_amplicon = list()
+    off_target_amplicons = defaultdict(int)
+
+    for variant in ordered_variants:
+        if variant.amplicon_data['amplicon']:
+            amplicons = variant.amplicon_data['amplicon'].split(',')
+            for amplicon in amplicons:
+                if amplicon in target_amplicons:
+                    on_target_variants.append(variant)
+                    break
+                else:
+                    filtered_non_target_amplicon.append(variant)
+                    off_target_amplicons[amplicon] += 1
+        elif variant.amplicon_data['amplicon'] is 'None':
+            filtered_no_amplicon.append(variant)
+            off_target_amplicons[amplicon] += 1
+        else:
+            filtered_no_amplicon.append(variant)
+            off_target_amplicons[amplicon] += 1
+
+    return on_target_variants, filtered_no_amplicon, filtered_non_target_amplicon, off_target_amplicons
+
+
+def classify_and_filter_variants(sample, library, report_root, target_amplicons, callers, ordered_variants, thresholds):
 
     iterated = 0
     passing_variants = 0
@@ -288,14 +314,25 @@ def filter_variants(sample, library, report_root, target_amplicons, callers, ord
         logfile.write("---------------------------------------------\n")
         logfile.write("{}\n".format(library))
         logfile.write(
-            "Sent {} variants to reporting (filtered {} off-target  and {} low-frequency variants)"
+            "Sending {} variants to reporting (filtered {} off-target  and {} low-frequency variants)"
             "\n".format(passing_variants, filtered_low_freq, len(filtered_off_target)))
         logfile.write("---------------------------------------------\n")
         logfile.write("Off Target Amplicon\tCounts\n")
+
+        sys.stdout.write("---------------------------------------------\n")
+        sys.stdout.write("{}\n".format(library))
+        sys.stdout.write(
+            "Sending {} variants to reporting (filtered {} off-target  and {} low-frequency variants)"
+            "\n".format(passing_variants, filtered_low_freq, len(filtered_off_target)))
+        sys.stdout.write.write("---------------------------------------------\n")
+        sys.stdout.write.write("Off Target Amplicon\tCounts\n")
+
         for off_target in off_target_amplicon_counts:
             logfile.write("{}\t{}\n".format(off_target, off_target_amplicon_counts[off_target]))
+            sys.stdout.write("{}\t{}\n".format(off_target, off_target_amplicon_counts[off_target]))
 
-    return filtered_off_target, off_target_amplicon_counts
+    return tier1_pass_variants, tier1_fail_variants, vus_pass_variants, vus_fail_variants, tier4_pass_variants, \
+           tier4_fail_variants, filtered_off_target, off_target_amplicon_counts
 
 
 def write_sample_variant_report(report_root, sample, variants, target_amplicon_coverage, callers):
