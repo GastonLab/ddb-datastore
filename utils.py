@@ -3,6 +3,18 @@ import csv
 import geneimpacts
 
 from collections import defaultdict
+from variantstore import SampleVariant
+from coveragestore import SampleCoverage
+
+
+def get_target_amplicons(filename):
+    amplicons_list = list()
+    with open(filename, "r") as bedfile:
+        reader = csv.reader(bedfile, dialect='excel-tab')
+        for row in reader:
+            amplicons_list.append(row[3])
+
+    return amplicons_list
 
 
 def get_preferred_transcripts(transcripts_file):
@@ -127,6 +139,43 @@ def get_amplicon_data(variant):
     return data
 
 
+def get_variants(config, samples, sample, library, thresholds, report_root):
+    variants = SampleVariant.objects.timeout(None).filter(
+        SampleVariant.reference_genome == config['genome_version'],
+        SampleVariant.sample == samples[sample][library]['sample_name'],
+        SampleVariant.run_id == samples[sample][library]['run_id'],
+        SampleVariant.library_name == samples[sample][library]['library_name'],
+        SampleVariant.max_maf_all <= thresholds['max_maf'],
+    ).allow_filtering()
+
+    sys.stdout.write("Retrieved {} total variants\n".format(variants.count()))
+    with open("{}.{}.log".format(sample, report_root), 'a') as logfile:
+        logfile.write("Retrieved {} total variants\n".format(variants.count()))
+
+    ordered = variants.order_by('library_name', 'chr', 'pos', 'ref', 'alt').limit(variants.count() + 1000)
+
+    return ordered
+
+
+def get_coverage_data(target_amplicons, samples, sample, library, target_amplicon_coverage):
+    reportable_amplicons = list()
+    for amplicon in target_amplicons:
+        coverage_data = SampleCoverage.objects.timeout(None).filter(
+            SampleCoverage.sample == samples[sample][library]['sample_name'],
+            SampleCoverage.amplicon == amplicon,
+            SampleCoverage.run_id == samples[sample][library]['run_id'],
+            SampleCoverage.library_name == samples[sample][library]['library_name'],
+            SampleCoverage.program_name == "sambamba"
+        )
+        ordered_amplicons = coverage_data.order_by('amplicon', 'run_id').limit(coverage_data.count() + 1000)
+        for result in ordered_amplicons:
+            reportable_amplicons.append(result)
+            target_amplicon_coverage[amplicon]['num_reads'] = result.num_reads
+            target_amplicon_coverage[amplicon]['mean_coverage'] = result.mean_coverage
+
+    return reportable_amplicons, target_amplicon_coverage
+
+
 def variant_filter(variant, thresholds):
     flag = False
     info = dict()
@@ -155,14 +204,25 @@ def variant_filter(variant, thresholds):
     return flag, info
 
 
-def filter_variants(sample, library, report_root, target_amplicons, callers, ordered_variants):
+def filter_variants(sample, library, report_root, target_amplicons, callers, ordered_variants, thresholds):
 
     iterated = 0
-    passing_variants = list()
-    filtered_low_freq = list()
-    filtered_off_target = list()
-    freebayes_pindel_only_variants = list()
+    passing_variants = 0
+    filtered_low_freq = 0
 
+    tier1_pass_variants = list()
+    tier1_fail_variants = list()
+
+    tier2_pass_variants = list()
+    tier2_fail_variants = list()
+
+    vus_pass_variants = list()
+    vus_fail_variants = list()
+
+    tier4_pass_variants = list()
+    tier4_fail_variants = list()
+
+    filtered_off_target = list()
     off_target_amplicon_counts = defaultdict(int)
 
     for variant in ordered_variants:
@@ -173,23 +233,43 @@ def filter_variants(sample, library, report_root, target_amplicons, callers, ord
                 if amplicon in target_amplicons:
                     for caller in callers:
                         if caller in variant.callers:
-                            if any(caller in ("freebayes", "pindel") for caller in variant.callers):
-                                if any(caller in ("mutect", "scalpel", "vardict", "platypus") for caller in
-                                       variant.callers):
-                                    # Other caller also called this variant
-                                    passing_variants.append(variant)
+
+                            # Putting in to Tier1 based on COSMIC
+                            if variant.cosmic_ids:
+                                if variant.max_som_aaf < thresholds['min_saf']:
+                                    tier1_fail_variants.append(variant)
+                                    filtered_low_freq += 1
                                 else:
-                                    # Freebayes or Pindel called only
-                                    if variant.cosmic_ids:
-                                        # Pindel/FreeBayes only but COSMIC IDs
-                                        passing_variants.append(variant)
-                                    elif variant.clinvar_data['pathogenic'] != 'None':
-                                        # Pindel/FreeBayes only but Clinvar data
-                                        passing_variants.append(variant)
-                                    else:
-                                        # Freebayes or Pindel only, no cosmic or clinvar data
-                                        freebayes_pindel_only_variants.append(variant)
-                            break
+                                    tier1_pass_variants.append(variant)
+                                    passing_variants += 1
+                                break
+
+                            # Putting in to Tier1 based on ClinVar not being None or Benign
+                            if variant.clinvar_data['pathogenic'] != 'None':
+                                if variant.clinvar_data['pathogenic'] != 'benign':
+                                    if variant.clinvar_data['pathogenic'] != 'likely-benign':
+                                        if variant.max_som_aaf < thresholds['min_saf']:
+                                            tier1_fail_variants.append(variant)
+                                            filtered_low_freq += 1
+                                        else:
+                                            tier1_pass_variants.append(variant)
+                                            passing_variants += 1
+                                break
+
+                            if variant.severity == 'MED' or variant.severity == 'HIGH':
+                                if variant.max_som_aaf < thresholds['min_saf']:
+                                    vus_fail_variants.append(variant)
+                                    filtered_low_freq += 1
+                                else:
+                                    vus_pass_variants.append(variant)
+                                    passing_variants += 1
+                            else:
+                                if variant.max_som_aaf < thresholds['min_saf']:
+                                    tier4_fail_variants.append(variant)
+                                    filtered_low_freq += 1
+                                else:
+                                    tier4_pass_variants.append(variant)
+                                    passing_variants += 1
                 else:
                     filtered_off_target.append(variant)
                     off_target_amplicon_counts[amplicon] += 1
@@ -208,15 +288,14 @@ def filter_variants(sample, library, report_root, target_amplicons, callers, ord
         logfile.write("---------------------------------------------\n")
         logfile.write("{}\n".format(library))
         logfile.write(
-            "Sent {} variants to reporting (filtered {} off-target variants)"
-            "\n".format(len(passing_variants), len(filtered_off_target)))
+            "Sent {} variants to reporting (filtered {} off-target  and {} low-frequency variants)"
+            "\n".format(passing_variants, filtered_low_freq, len(filtered_off_target)))
         logfile.write("---------------------------------------------\n")
         logfile.write("Off Target Amplicon\tCounts\n")
         for off_target in off_target_amplicon_counts:
             logfile.write("{}\t{}\n".format(off_target, off_target_amplicon_counts[off_target]))
 
-    return passing_variants, filtered_off_target, filtered_low_freq, freebayes_pindel_only_variants, \
-           off_target_amplicon_counts
+    return filtered_off_target, off_target_amplicon_counts
 
 
 def write_sample_variant_report(report_root, sample, variants, target_amplicon_coverage, callers):
@@ -337,6 +416,100 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
 
 
 def write_sample_variant_report_no_caller_filter(report_root, sample, variants, target_amplicon_coverage, callers):
+    with open("{}.{}.txt".format(sample, report_root), 'w') as report:
+        report.write("Sample\tLibrary\tGene\tAmplicon\tRef\tAlt\tCodon\tAA\t"
+                     "max_somatic_aaf\tCallers\tCOSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\t"
+                     "Clin_Sig\tClin_HGVS\tClin_Disease\t"
+                     "Coverage\tNum Reads\tImpact\tSeverity\tmax_maf_all\tmax_maf_no_fin\t"
+                     "min_caller_depth\tmax_caller_depth\tChrom\tStart\tEnd\trsIDs")
+
+        if 'mutect' in callers:
+            report.write("\tMuTect_AF")
+
+        if 'vardict' in callers:
+            report.write("\tVarDict_AF")
+
+        if 'freebayes' in callers:
+            report.write("\tFreeBayes_AF")
+
+        if 'scalpel' in callers:
+            report.write("\tScalpel_AF")
+
+        if 'platypus' in callers:
+            report.write("\tPlatypus_AF")
+
+        if 'pindel' in callers:
+            report.write("\tPindel_AF")
+
+        report.write("\n")
+
+        num_reported = 0
+
+        for variant in variants:
+            report.write("{sample}\t{library}\t{gene}\t{amp}\t{ref}\t{alt}\t{codon}\t{aa}\t"
+                         "{max_som_aaf}\t{callers}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t{csig}\t{hgvs}\t{cdis}\t"
+                         "{cov}\t{reads}\t{impact}\t{severity}\t{max_maf_all}\t{max_maf_no_fin}\t"
+                         "{min_depth}\t{max_depth}\t{chr}\t{start}\t{end}\t{rsids}"
+                         "".format(sample=variant.sample,
+                                   library=variant.library_name,
+                                   chr=variant.chr,
+                                   start=variant.pos,
+                                   end=variant.end,
+                                   gene=variant.gene,
+                                   ref=variant.ref,
+                                   alt=variant.alt,
+                                   codon=variant.codon_change,
+                                   aa=variant.aa_change,
+                                   rsids=",".join(variant.rs_ids),
+                                   cosmic=",".join(variant.cosmic_ids) or None,
+                                   cosmic_nsamples=variant.cosmic_data['num_samples'],
+                                   cosmic_aa=variant.cosmic_data['aa'],
+                                   amp=variant.amplicon_data['amplicon'],
+                                   csig=variant.clinvar_data['significance'],
+                                   hgvs=variant.clinvar_data['hgvs'],
+                                   cdis=variant.clinvar_data['disease'],
+                                   cov=target_amplicon_coverage[variant.amplicon_data['amplicon']]['mean_coverage'],
+                                   reads=target_amplicon_coverage[variant.amplicon_data['amplicon']]['num_reads'],
+                                   impact=variant.impact,
+                                   severity=variant.severity,
+                                   max_maf_all=variant.max_maf_all,
+                                   max_maf_no_fin=variant.max_maf_no_fin,
+                                   max_som_aaf=variant.max_som_aaf,
+                                   min_depth=variant.min_depth,
+                                   max_depth=variant.max_depth,
+                                   callers=",".join(variant.callers) or None))
+            num_reported += 1
+
+            if 'mutect' in callers:
+                report.write("\t{maf}"
+                             "".format(maf=variant.mutect.get('AAF') or None))
+
+            if 'vardict' in callers:
+                report.write("\t{vaf}"
+                             "".format(vaf=variant.vardict.get('AAF') or None))
+
+            if 'freebayes' in callers:
+                report.write("\t{faf}"
+                             "".format(faf=variant.freebayes.get('AAF') or None))
+
+            if 'scalpel' in callers:
+                report.write("\t{saf}"
+                             "".format(saf=variant.scalpel.get('AAF') or None))
+
+            if 'platypus' in callers:
+                report.write("\t{plaf}"
+                             "".format(plaf=variant.platypus.get('AAF') or None))
+
+            if 'pindel' in callers:
+                report.write("\t{paf}"
+                             "".format(paf=variant.pindel.get('AAF') or None))
+
+            report.write("\n")
+
+        sys.stdout.write("Wrote {} variants in report\n".format(num_reported))
+
+
+def write_report(report_root, sample, variants, target_amplicon_coverage, callers):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
         report.write("Sample\tLibrary\tGene\tAmplicon\tRef\tAlt\tCodon\tAA\t"
                      "max_somatic_aaf\tCallers\tCOSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\t"
