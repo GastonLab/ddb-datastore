@@ -353,8 +353,8 @@ def classify_and_filter_variants(sample, library, report_root, target_amplicons,
         sys.stdout.write(
             "Sending {} variants to reporting (filtered {} off-target  and {} low-frequency variants)"
             "\n".format(passing_variants, filtered_low_freq, len(filtered_off_target)))
-        sys.stdout.write.write("---------------------------------------------\n")
-        sys.stdout.write.write("Off Target Amplicon\tCounts\n")
+        sys.stdout.write("---------------------------------------------\n")
+        sys.stdout.write("Off Target Amplicon\tCounts\n")
 
         for off_target in off_target_amplicon_counts:
             logfile.write("{}\t{}\n".format(off_target, off_target_amplicon_counts[off_target]))
