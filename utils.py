@@ -230,6 +230,35 @@ def filter_variants_on_target(ordered_variants, target_amplicons):
     return on_target_variants, filtered_no_amplicon, filtered_non_target_amplicon, off_target_amplicons
 
 
+def setup_report_header(filename, callers):
+    with open(filename, 'w') as report:
+        report.write("Sample\tLibrary\tGene\tAmplicon\tRef\tAlt\tCodon\tAA\t"
+                     "max_somatic_aaf\tCallers\tCOSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\t"
+                     "Clin_Sig\tClin_HGVS\tClin_Disease\t"
+                     "Coverage\tNum Reads\tImpact\tSeverity\tmax_maf_all\tmax_maf_no_fin\t"
+                     "min_caller_depth\tmax_caller_depth\tChrom\tStart\tEnd\trsIDs")
+
+        if 'mutect' in callers:
+            report.write("\tMuTect_AF")
+
+        if 'vardict' in callers:
+            report.write("\tVarDict_AF")
+
+        if 'freebayes' in callers:
+            report.write("\tFreeBayes_AF")
+
+        if 'scalpel' in callers:
+            report.write("\tScalpel_AF")
+
+        if 'platypus' in callers:
+            report.write("\tPlatypus_AF")
+
+        if 'pindel' in callers:
+            report.write("\tPindel_AF")
+
+        report.write("\n")
+
+
 def classify_and_filter_variants(sample, library, report_root, target_amplicons, callers, ordered_variants, thresholds):
 
     iterated = 0
@@ -333,6 +362,110 @@ def classify_and_filter_variants(sample, library, report_root, target_amplicons,
 
     return tier1_pass_variants, tier1_fail_variants, vus_pass_variants, vus_fail_variants, tier4_pass_variants, \
            tier4_fail_variants, filtered_off_target, off_target_amplicon_counts
+
+
+def write_reports(report_root, samples, sample, library, filtered_var_data, target_amplicon_coverage,
+                  reportable_amplicons, thresholds, callers):
+    tier1_pass_variants, tier1_fail_variants, vus_pass_variants, vus_fail_variants, tier4_pass_variants, \
+    tier4_fail_variants, filtered_off_target, off_target_amplicon_counts = filtered_var_data
+
+    with open("{}_coverage_{}.txt".format(sample, report_root), "a") as coverage_report:
+        coverage_report.write("Library:\t{}\n".format(samples[sample][library]['library_name']))
+        coverage_report.write("Run ID:\t{}\n".format(samples[sample][library]['run_id']))
+        coverage_report.write("Report:\t{}\n".format(samples[sample][library]['report']))
+        coverage_report.write("Min Somatic Allele Frequency:\t{}\n".format(thresholds['min_saf']))
+        coverage_report.write("Max Population Germline Allele Frequency:\t{}\n".format(thresholds['max_maf']))
+        coverage_report.write("---------------------------------------------\n")
+        coverage_report.write("Sample\tLibrary\tAmplicon\tNum Reads\tCoverage\n")
+        for amplicon in reportable_amplicons:
+            coverage_report.write("{}\t{}\t{}\t{}\t{}\n".format(amplicon.sample,
+                                                                amplicon.library_name,
+                                                                amplicon.amplicon,
+                                                                amplicon.num_reads,
+                                                                amplicon.mean_coverage))
+
+        write_report("{}_tier1_pass_variants_{}.txt".format(sample, report_root), tier1_pass_variants,
+                     target_amplicon_coverage, callers)
+        write_report("{}_tier1_fail_variants_{}.txt".format(sample, report_root), tier1_fail_variants,
+                     target_amplicon_coverage, callers)
+
+        write_report("{}_vus_pass_variants_{}.txt".format(sample, report_root), vus_pass_variants,
+                     target_amplicon_coverage, callers)
+        write_report("{}_vus_fail_variants_{}.txt".format(sample, report_root), vus_fail_variants,
+                     target_amplicon_coverage, callers)
+
+        write_report("{}_tier4_pass_variants_{}.txt".format(sample, report_root), tier4_pass_variants,
+                     target_amplicon_coverage, callers)
+        write_report("{}_tier4_fail_variants_{}.txt".format(sample, report_root), tier4_fail_variants,
+                     target_amplicon_coverage, callers)
+
+
+def write_report(filename, variants, target_amplicon_coverage, callers):
+    with open(filename, 'a') as report:
+        for variant in variants:
+            try:
+                report.write("{sample}\t{library}\t{gene}\t{amp}\t{ref}\t{alt}\t{codon}\t{aa}\t"
+                             "{max_som_aaf}\t{callers}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t{csig}\t{hgvs}\t"
+                             "{cdis}\t{cov}\t{reads}\t{impact}\t{severity}\t{max_maf_all}\t{max_maf_no_fin}\t"
+                             "{min_depth}\t{max_depth}\t{chr}\t{start}\t{end}\t{rsids}"
+                             "".format(sample=variant.sample,
+                                       library=variant.library_name,
+                                       chr=variant.chr,
+                                       start=variant.pos,
+                                       end=variant.end,
+                                       gene=variant.gene,
+                                       ref=variant.ref,
+                                       alt=variant.alt,
+                                       codon=variant.codon_change,
+                                       aa=variant.aa_change,
+                                       rsids=",".join(variant.rs_ids),
+                                       cosmic=",".join(variant.cosmic_ids) or None,
+                                       cosmic_nsamples=variant.cosmic_data['num_samples'],
+                                       cosmic_aa=variant.cosmic_data['aa'],
+                                       amp=variant.amplicon_data['amplicon'],
+                                       csig=variant.clinvar_data['significance'],
+                                       hgvs=variant.clinvar_data['hgvs'],
+                                       cdis=variant.clinvar_data['disease'],
+                                       cov=target_amplicon_coverage[variant.amplicon_data['amplicon']]['mean_coverage'],
+                                       reads=target_amplicon_coverage[variant.amplicon_data['amplicon']]['num_reads'],
+                                       impact=variant.impact,
+                                       severity=variant.severity,
+                                       max_maf_all=variant.max_maf_all,
+                                       max_maf_no_fin=variant.max_maf_no_fin,
+                                       max_som_aaf=variant.max_som_aaf,
+                                       min_depth=variant.min_depth,
+                                       max_depth=variant.max_depth,
+                                       callers=",".join(variant.callers) or None))
+            except KeyError:
+                sys.stderr.write("Could not write variant to report, KeyError with missing data\n")
+                print variant
+                continue
+
+            if 'mutect' in callers:
+                report.write("\t{maf}"
+                             "".format(maf=variant.mutect.get('AAF') or None))
+
+            if 'vardict' in callers:
+                report.write("\t{vaf}"
+                             "".format(vaf=variant.vardict.get('AAF') or None))
+
+            if 'freebayes' in callers:
+                report.write("\t{faf}"
+                             "".format(faf=variant.freebayes.get('AAF') or None))
+
+            if 'scalpel' in callers:
+                report.write("\t{saf}"
+                             "".format(saf=variant.scalpel.get('AAF') or None))
+
+            if 'platypus' in callers:
+                report.write("\t{plaf}"
+                             "".format(plaf=variant.platypus.get('AAF') or None))
+
+            if 'pindel' in callers:
+                report.write("\t{paf}"
+                             "".format(paf=variant.pindel.get('AAF') or None))
+
+            report.write("\n")
 
 
 def write_sample_variant_report(report_root, sample, variants, target_amplicon_coverage, callers):
@@ -453,100 +586,6 @@ def write_sample_variant_report(report_root, sample, variants, target_amplicon_c
 
 
 def write_sample_variant_report_no_caller_filter(report_root, sample, variants, target_amplicon_coverage, callers):
-    with open("{}.{}.txt".format(sample, report_root), 'w') as report:
-        report.write("Sample\tLibrary\tGene\tAmplicon\tRef\tAlt\tCodon\tAA\t"
-                     "max_somatic_aaf\tCallers\tCOSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\t"
-                     "Clin_Sig\tClin_HGVS\tClin_Disease\t"
-                     "Coverage\tNum Reads\tImpact\tSeverity\tmax_maf_all\tmax_maf_no_fin\t"
-                     "min_caller_depth\tmax_caller_depth\tChrom\tStart\tEnd\trsIDs")
-
-        if 'mutect' in callers:
-            report.write("\tMuTect_AF")
-
-        if 'vardict' in callers:
-            report.write("\tVarDict_AF")
-
-        if 'freebayes' in callers:
-            report.write("\tFreeBayes_AF")
-
-        if 'scalpel' in callers:
-            report.write("\tScalpel_AF")
-
-        if 'platypus' in callers:
-            report.write("\tPlatypus_AF")
-
-        if 'pindel' in callers:
-            report.write("\tPindel_AF")
-
-        report.write("\n")
-
-        num_reported = 0
-
-        for variant in variants:
-            report.write("{sample}\t{library}\t{gene}\t{amp}\t{ref}\t{alt}\t{codon}\t{aa}\t"
-                         "{max_som_aaf}\t{callers}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t{csig}\t{hgvs}\t{cdis}\t"
-                         "{cov}\t{reads}\t{impact}\t{severity}\t{max_maf_all}\t{max_maf_no_fin}\t"
-                         "{min_depth}\t{max_depth}\t{chr}\t{start}\t{end}\t{rsids}"
-                         "".format(sample=variant.sample,
-                                   library=variant.library_name,
-                                   chr=variant.chr,
-                                   start=variant.pos,
-                                   end=variant.end,
-                                   gene=variant.gene,
-                                   ref=variant.ref,
-                                   alt=variant.alt,
-                                   codon=variant.codon_change,
-                                   aa=variant.aa_change,
-                                   rsids=",".join(variant.rs_ids),
-                                   cosmic=",".join(variant.cosmic_ids) or None,
-                                   cosmic_nsamples=variant.cosmic_data['num_samples'],
-                                   cosmic_aa=variant.cosmic_data['aa'],
-                                   amp=variant.amplicon_data['amplicon'],
-                                   csig=variant.clinvar_data['significance'],
-                                   hgvs=variant.clinvar_data['hgvs'],
-                                   cdis=variant.clinvar_data['disease'],
-                                   cov=target_amplicon_coverage[variant.amplicon_data['amplicon']]['mean_coverage'],
-                                   reads=target_amplicon_coverage[variant.amplicon_data['amplicon']]['num_reads'],
-                                   impact=variant.impact,
-                                   severity=variant.severity,
-                                   max_maf_all=variant.max_maf_all,
-                                   max_maf_no_fin=variant.max_maf_no_fin,
-                                   max_som_aaf=variant.max_som_aaf,
-                                   min_depth=variant.min_depth,
-                                   max_depth=variant.max_depth,
-                                   callers=",".join(variant.callers) or None))
-            num_reported += 1
-
-            if 'mutect' in callers:
-                report.write("\t{maf}"
-                             "".format(maf=variant.mutect.get('AAF') or None))
-
-            if 'vardict' in callers:
-                report.write("\t{vaf}"
-                             "".format(vaf=variant.vardict.get('AAF') or None))
-
-            if 'freebayes' in callers:
-                report.write("\t{faf}"
-                             "".format(faf=variant.freebayes.get('AAF') or None))
-
-            if 'scalpel' in callers:
-                report.write("\t{saf}"
-                             "".format(saf=variant.scalpel.get('AAF') or None))
-
-            if 'platypus' in callers:
-                report.write("\t{plaf}"
-                             "".format(plaf=variant.platypus.get('AAF') or None))
-
-            if 'pindel' in callers:
-                report.write("\t{paf}"
-                             "".format(paf=variant.pindel.get('AAF') or None))
-
-            report.write("\n")
-
-        sys.stdout.write("Wrote {} variants in report\n".format(num_reported))
-
-
-def write_report(report_root, sample, variants, target_amplicon_coverage, callers):
     with open("{}.{}.txt".format(sample, report_root), 'w') as report:
         report.write("Sample\tLibrary\tGene\tAmplicon\tRef\tAlt\tCodon\tAA\t"
                      "max_somatic_aaf\tCallers\tCOSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\t"

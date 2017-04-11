@@ -51,13 +51,25 @@ if __name__ == "__main__":
 
     sys.stdout.write("Processing samples\n")
     for sample in samples:
-        on_target_variants = list()
         sys.stdout.write("Processing variants for sample {}\n".format(sample))
+        target_amplicon_coverage = defaultdict(lambda: defaultdict(float))
+
         with open("{}.{}.log".format(sample, args.report), 'w') as logfile:
             logfile.write("Reporting Log for sample {}\n".format(sample))
             logfile.write("---------------------------------------------\n")
 
-        target_amplicon_coverage = defaultdict(lambda: defaultdict(float))
+        with open("{}_coverage_{}.txt".format(sample, args.report), "w") as coverage_report:
+            coverage_report.write("Sample:\t{}\n".format(sample))
+            coverage_report.write("---------------------------------------------\n")
+
+        utils.setup_report_header("{}_tier1_pass_variants_{}.txt".format(sample, args.report), callers)
+        utils.setup_report_header("{}_tier1_fail_variants_{}.txt".format(sample, args.report), callers)
+
+        utils.setup_report_header("{}_vus_pass_variants_{}.txt".format(sample, args.report), callers)
+        utils.setup_report_header("{}_vus_fail_variants_{}.txt".format(sample, args.report), callers)
+
+        utils.setup_report_header("{}_tier4_pass_variants_{}.txt".format(sample, args.report), callers)
+        utils.setup_report_header("{}_tier4_fail_variants_{}.txt".format(sample, args.report), callers)
 
         for library in samples[sample]:
             report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}" \
@@ -76,5 +88,5 @@ if __name__ == "__main__":
             filtered_var_data = utils.classify_and_filter_variants(sample, library, args.report, target_amplicons,
                                                                    callers, ordered_variants, thresholds)
 
-        utils.write_sample_variant_report_no_caller_filter(args.report, sample, on_target_variants,
-                                                           target_amplicon_coverage, callers)
+            utils.write_reports(args.report, samples, sample, library, filtered_var_data, target_amplicon_coverage,
+                                reportable_amplicons, thresholds, callers)
