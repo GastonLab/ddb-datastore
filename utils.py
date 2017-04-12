@@ -353,13 +353,13 @@ def write_reports(report_names, samples, sample, library, filtered_var_data, tar
         coverage_report.write("Tier1 Pass Variants\t{}\n".format(len(tier1_pass_variants)))
         coverage_report.write("Tier1 Fail Variants\t{}\n".format(len(tier1_fail_variants)))
 
-        coverage_report.write("Tier1 Pass Variants\t{}\n".format(len(tier1_pass_variants)))
-        coverage_report.write("Tier1 Fail Variants\t{}\n".format(len(tier1_fail_variants)))
+        coverage_report.write("VUS Pass Variants\t{}\n".format(len(vus_pass_variants)))
+        coverage_report.write("VUS Fail Variants\t{}\n".format(len(vus_fail_variants)))
 
         coverage_report.write("Tier4 Pass Variants\t{}\n".format(len(tier4_pass_variants)))
         coverage_report.write("Tier4 Fail Variants\t{}\n".format(len(tier4_fail_variants)))
 
-        coverage_report.write("Off Target/Non-Reportable Amplicon Variants\t{}\n".format(filtered_off_target))
+        coverage_report.write("Off Target/Non-Reportable Amplicon Variants\t{}\n".format(len(filtered_off_target)))
         coverage_report.write("---------------------------------------------\n")
         coverage_report.write("Sample\tLibrary\tAmplicon\tNum Reads\tCoverage\n")
         for amplicon in reportable_amplicons:
