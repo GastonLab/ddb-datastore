@@ -145,8 +145,7 @@ def get_variants(config, samples, sample, library, thresholds, report_names):
         SampleVariant.sample == samples[sample][library]['sample_name'],
         SampleVariant.run_id == samples[sample][library]['run_id'],
         SampleVariant.library_name == samples[sample][library]['library_name'],
-        SampleVariant.max_maf_all <= thresholds['max_maf'],
-        SampleVariant.amplicon_data['amplicon'] != 'None'
+        SampleVariant.max_maf_all <= thresholds['max_maf']
     ).allow_filtering()
 
     num_var = variants.count()
@@ -156,7 +155,7 @@ def get_variants(config, samples, sample, library, thresholds, report_names):
 
     ordered = variants.order_by('library_name', 'chr', 'pos', 'ref', 'alt').limit(variants.count() + 1000)
 
-    return ordered, variants.count()
+    return ordered, num_var
 
 
 def get_coverage_data(target_amplicons, samples, sample, library, target_amplicon_coverage):
@@ -234,13 +233,13 @@ def classify_and_filter_variants(sample, library, report_names, target_amplicons
         variant_id = "{}:{}-{}_{}_{}_{}_{}".format(variant.chr, variant.pos, variant.end, variant.ref, variant.alt,
                                                    variant.codon_change, variant.aa_change)
         project_variant_data[variant_id]['variant'] = variant
-        if variant.amplicon_data['amplicon']:
+        if variant.amplicon_data['amplicon'] != 'None':
             amplicons = variant.amplicon_data['amplicon'].split(',')
+            assigned = 0
             for amplicon in amplicons:
                 if amplicon in target_amplicons:
                     for caller in callers:
                         if caller in variant.callers:
-
                             # Putting in to Tier1 based on COSMIC
                             if variant.cosmic_ids:
                                 if variant.max_som_aaf < thresholds['min_saf']:
@@ -255,7 +254,7 @@ def classify_and_filter_variants(sample, library, report_names, target_amplicons
                                     tier1_pass_variants.append(variant)
                                     project_variant_data[variant_id]['tier1_pass'] += 1
                                     passing_variants += 1
-                                break
+                                assigned += 1
 
                             # Putting in to Tier1 based on ClinVar not being None or Benign
                             if variant.clinvar_data['pathogenic'] != 'None':
@@ -273,7 +272,7 @@ def classify_and_filter_variants(sample, library, report_names, target_amplicons
                                             tier1_pass_variants.append(variant)
                                             project_variant_data[variant_id]['tier1_pass'] += 1
                                             passing_variants += 1
-                                break
+                                assigned += 1
 
                             if variant.severity == 'MED' or variant.severity == 'HIGH':
                                 if variant.max_som_aaf < thresholds['min_saf']:
@@ -288,6 +287,7 @@ def classify_and_filter_variants(sample, library, report_names, target_amplicons
                                     vus_pass_variants.append(variant)
                                     project_variant_data[variant_id]['vus_pass'] += 1
                                     passing_variants += 1
+                                assigned += 1
                             else:
                                 if variant.max_som_aaf < thresholds['min_saf']:
                                     tier4_fail_variants.append(variant)
@@ -301,9 +301,14 @@ def classify_and_filter_variants(sample, library, report_names, target_amplicons
                                     tier4_pass_variants.append(variant)
                                     project_variant_data[variant_id]['tier4_pass'] += 1
                                     passing_variants += 1
-                else:
-                    filtered_off_target.append(variant)
-                    off_target_amplicon_counts[amplicon] += 1
+                                assigned += 1
+                        if assigned > 0:
+                            break
+                    if assigned > 0:
+                        break
+            if assigned == 0:
+                filtered_off_target.append(variant)
+                off_target_amplicon_counts[amplicon] += 1
         elif variant.amplicon_data['amplicon'] is 'None':
             filtered_off_target.append(variant)
             off_target_amplicon_counts[amplicon] += 1
