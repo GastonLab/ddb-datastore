@@ -48,6 +48,7 @@ if __name__ == "__main__":
                   'depth': args.min_depth}
 
     callers = ("mutect", "platypus", "vardict", "scalpel", "freebayes", "pindel")
+    project_variant_data = defaultdict(lambda: defaultdict(int))
 
     sys.stdout.write("Processing samples\n")
     for sample in samples:
@@ -99,8 +100,23 @@ if __name__ == "__main__":
 
             sys.stdout.write("Filtering and classifying variants\n")
             filtered_var_data = utils.classify_and_filter_variants(sample, library, report_names, target_amplicons,
-                                                                   callers, ordered_variants, thresholds)
+                                                                   callers, ordered_variants, thresholds,
+                                                                   project_variant_data)
+            project_variant_data = filtered_var_data[-1]
 
             sys.stdout.write("Writing variant reports\n")
             utils.write_reports(report_names, samples, sample, library, filtered_var_data, target_amplicon_coverage,
                                 reportable_amplicons, num_var, thresholds, callers)
+
+    sys.stdout.write("Writing project/run level data\n")
+    with open("Summary_Data.txt") as summary:
+        summary.write("Variant\tNum Tier1 Pass\tNum Tier1 Fail\tNum VUS Pass\tNum VUS Fail\tNum Tier4 Pass\t"
+                      "Num Tier4 Fail\n")
+        for variant_id in project_variant_data:
+            summary.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(variant_id,
+                                                                project_variant_data[variant_id]['tier1_pass'],
+                                                                project_variant_data[variant_id]['tier1_fail'],
+                                                                project_variant_data[variant_id]['vus_pass'],
+                                                                project_variant_data[variant_id]['vus_fail'],
+                                                                project_variant_data[variant_id]['tier4_pass'],
+                                                                project_variant_data[variant_id]['tier4_fail']))
