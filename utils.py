@@ -206,6 +206,12 @@ def setup_report_header(filename, callers):
         report.write("\n")
 
 
+def classify_variant(variant):
+    classification = "tier4_fail"
+
+    return variant, classification
+
+
 def classify_and_filter_variants(sample, library, report_names, target_amplicons, callers, ordered_variants,
                                  thresholds, project_variant_data):
 
@@ -226,95 +232,90 @@ def classify_and_filter_variants(sample, library, report_names, target_amplicons
     tier4_fail_variants = list()
 
     filtered_off_target = list()
-    # off_target_amplicon_counts = defaultdict(int)
+    off_target_amplicon_counts = defaultdict(int)
 
     for variant in ordered_variants:
         iterated += 1
         variant_id = "{}:{}-{}_{}_{}_{}_{}".format(variant.chr, variant.pos, variant.end, variant.ref, variant.alt,
                                                    variant.codon_change, variant.aa_change)
         project_variant_data[variant_id]['variant'] = variant
-        if variant.amplicon_data['amplicon'] != 'None':
+
+        if variant.amplicon_data['amplicon'] is 'None':
+            filtered_off_target.append(variant)
+            off_target_amplicon_counts[variant.amplicon_data['amplicon']] += 1
+        else:
             amplicons = variant.amplicon_data['amplicon'].split(',')
-            assigned = 0
+            assignable = 0
             for amplicon in amplicons:
                 if amplicon in target_amplicons:
-                    for caller in callers:
-                        if caller in variant.callers:
-                            # Putting in to Tier1 based on COSMIC
-                            if variant.cosmic_ids:
-                                if variant.max_som_aaf < thresholds['min_saf']:
-                                    tier1_fail_variants.append(variant)
-                                    project_variant_data[variant_id]['tier1_fail'] += 1
-                                    filtered_low_freq += 1
-                                elif variant.max_depth < thresholds['depth']:
-                                    tier1_fail_variants.append(variant)
-                                    project_variant_data[variant_id]['tier1_fail'] += 1
-                                    filtered_low_freq += 1
-                                else:
-                                    tier1_pass_variants.append(variant)
-                                    project_variant_data[variant_id]['tier1_pass'] += 1
-                                    passing_variants += 1
-                                assigned += 1
+                    assignable += 1
+                    break
+            if assignable:
+                # Putting in to Tier1 based on COSMIC
+                if variant.cosmic_ids:
+                    if variant.max_som_aaf < thresholds['min_saf']:
+                        tier1_fail_variants.append(variant)
+                        project_variant_data[variant_id]['tier1_fail'] += 1
+                        filtered_low_freq += 1
+                    elif variant.max_depth < thresholds['depth']:
+                        tier1_fail_variants.append(variant)
+                        project_variant_data[variant_id]['tier1_fail'] += 1
+                        filtered_low_freq += 1
+                    else:
+                        tier1_pass_variants.append(variant)
+                        project_variant_data[variant_id]['tier1_pass'] += 1
+                        passing_variants += 1
+                    continue
 
-                            # Putting in to Tier1 based on ClinVar not being None or Benign
-                            if variant.clinvar_data['pathogenic'] != 'None':
-                                if variant.clinvar_data['pathogenic'] != 'benign':
-                                    if variant.clinvar_data['pathogenic'] != 'likely-benign':
-                                        if variant.max_som_aaf < thresholds['min_saf']:
-                                            tier1_fail_variants.append(variant)
-                                            project_variant_data[variant_id]['tier1_fail'] += 1
-                                            filtered_low_freq += 1
-                                        elif variant.max_depth < thresholds['depth']:
-                                            project_variant_data[variant_id]['tier1_fail'] += 1
-                                            tier1_fail_variants.append(variant)
-                                            filtered_low_freq += 1
-                                        else:
-                                            tier1_pass_variants.append(variant)
-                                            project_variant_data[variant_id]['tier1_pass'] += 1
-                                            passing_variants += 1
-                                assigned += 1
-
-                            if variant.severity == 'MED' or variant.severity == 'HIGH':
-                                if variant.max_som_aaf < thresholds['min_saf']:
-                                    vus_fail_variants.append(variant)
-                                    project_variant_data[variant_id]['vus_fail'] += 1
-                                    filtered_low_freq += 1
-                                elif variant.max_depth < thresholds['depth']:
-                                    vus_fail_variants.append(variant)
-                                    project_variant_data[variant_id]['vus_fail'] += 1
-                                    filtered_low_freq += 1
-                                else:
-                                    vus_pass_variants.append(variant)
-                                    project_variant_data[variant_id]['vus_pass'] += 1
-                                    passing_variants += 1
-                                assigned += 1
+                # Putting in to Tier1 based on ClinVar not being None or Benign
+                if variant.clinvar_data['pathogenic'] != 'None':
+                    if variant.clinvar_data['pathogenic'] != 'benign':
+                        if variant.clinvar_data['pathogenic'] != 'likely-benign':
+                            if variant.max_som_aaf < thresholds['min_saf']:
+                                tier1_fail_variants.append(variant)
+                                project_variant_data[variant_id]['tier1_fail'] += 1
+                                filtered_low_freq += 1
+                            elif variant.max_depth < thresholds['depth']:
+                                project_variant_data[variant_id]['tier1_fail'] += 1
+                                tier1_fail_variants.append(variant)
+                                filtered_low_freq += 1
                             else:
-                                if variant.max_som_aaf < thresholds['min_saf']:
-                                    tier4_fail_variants.append(variant)
-                                    project_variant_data[variant_id]['tier4_fail'] += 1
-                                    filtered_low_freq += 1
-                                elif variant.max_depth < thresholds['depth']:
-                                    tier4_fail_variants.append(variant)
-                                    project_variant_data[variant_id]['tier4_fail'] += 1
-                                    filtered_low_freq += 1
-                                else:
-                                    tier4_pass_variants.append(variant)
-                                    project_variant_data[variant_id]['tier4_pass'] += 1
-                                    passing_variants += 1
-                                assigned += 1
-                        if assigned > 0:
-                            break
-                    if assigned > 0:
-                        break
-            if assigned == 0:
+                                tier1_pass_variants.append(variant)
+                                project_variant_data[variant_id]['tier1_pass'] += 1
+                                passing_variants += 1
+                            continue
+
+                if variant.severity == 'MED' or variant.severity == 'HIGH':
+                    if variant.max_som_aaf < thresholds['min_saf']:
+                        vus_fail_variants.append(variant)
+                        project_variant_data[variant_id]['vus_fail'] += 1
+                        filtered_low_freq += 1
+                    elif variant.max_depth < thresholds['depth']:
+                        vus_fail_variants.append(variant)
+                        project_variant_data[variant_id]['vus_fail'] += 1
+                        filtered_low_freq += 1
+                    else:
+                        vus_pass_variants.append(variant)
+                        project_variant_data[variant_id]['vus_pass'] += 1
+                        passing_variants += 1
+                    continue
+                else:
+                    if variant.max_som_aaf < thresholds['min_saf']:
+                        tier4_fail_variants.append(variant)
+                        project_variant_data[variant_id]['tier4_fail'] += 1
+                        filtered_low_freq += 1
+                    elif variant.max_depth < thresholds['depth']:
+                        tier4_fail_variants.append(variant)
+                        project_variant_data[variant_id]['tier4_fail'] += 1
+                        filtered_low_freq += 1
+                    else:
+                        tier4_pass_variants.append(variant)
+                        project_variant_data[variant_id]['tier4_pass'] += 1
+                        passing_variants += 1
+                    continue
+            else:
                 filtered_off_target.append(variant)
-                # off_target_amplicon_counts[amplicon] += 1
-        elif variant.amplicon_data['amplicon'] is 'None':
-            filtered_off_target.append(variant)
-            # off_target_amplicon_counts[amplicon] += 1
-        else:
-            filtered_off_target.append(variant)
-            # off_target_amplicon_counts[amplicon] += 1
+                off_target_amplicon_counts[variant.amplicon_data['amplicon']] += 1
 
     sys.stdout.write("Iterated through {} variants\n".format(iterated))
     with open(report_names['log'], 'a') as logfile:
@@ -335,9 +336,9 @@ def classify_and_filter_variants(sample, library, report_names, target_amplicons
         sys.stdout.write("---------------------------------------------\n")
         sys.stdout.write("Off Target Amplicon\tCounts\n")
 
-        # for off_target in off_target_amplicon_counts:
-        #     logfile.write("{}\t{}\n".format(off_target, off_target_amplicon_counts[off_target]))
-        #     # sys.stdout.write("{}\t{}\n".format(off_target, off_target_amplicon_counts[off_target]))
+        for off_target in off_target_amplicon_counts:
+            logfile.write("{}\t{}\n".format(off_target, off_target_amplicon_counts[off_target]))
+            # sys.stdout.write("{}\t{}\n".format(off_target, off_target_amplicon_counts[off_target]))
 
     return tier1_pass_variants, tier1_fail_variants, vus_pass_variants, vus_fail_variants, tier4_pass_variants, \
            tier4_fail_variants, filtered_off_target, project_variant_data
