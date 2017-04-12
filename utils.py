@@ -276,8 +276,8 @@ def classify_and_filter_variants(sample, library, report_names, target_amplicons
                                 project_variant_data[variant_id]['tier1_fail'] += 1
                                 filtered_low_freq += 1
                             elif variant.max_depth < thresholds['depth']:
-                                project_variant_data[variant_id]['tier1_fail'] += 1
                                 tier1_fail_variants.append(variant)
+                                project_variant_data[variant_id]['tier1_fail'] += 1
                                 filtered_low_freq += 1
                             else:
                                 tier1_pass_variants.append(variant)
