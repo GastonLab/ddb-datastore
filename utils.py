@@ -146,6 +146,7 @@ def get_variants(config, samples, sample, library, thresholds, report_names):
         SampleVariant.run_id == samples[sample][library]['run_id'],
         SampleVariant.library_name == samples[sample][library]['library_name'],
         SampleVariant.max_maf_all <= thresholds['max_maf'],
+        SampleVariant.amplicon_data['amplicon'] != 'None'
     ).allow_filtering()
 
     num_var = variants.count()
