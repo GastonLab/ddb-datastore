@@ -109,7 +109,7 @@ if __name__ == "__main__":
                                 reportable_amplicons, num_var, thresholds, callers)
 
     sys.stdout.write("Writing project/run level data\n")
-    with open("Summary_Data.txt") as summary:
+    with open("Summary_Data.txt", 'w') as summary:
         summary.write("Variant\tNum Tier1 Pass\tNum Tier1 Fail\tNum VUS Pass\tNum VUS Fail\tNum Tier4 Pass\t"
                       "Num Tier4 Fail\n")
         for variant_id in project_variant_data:
