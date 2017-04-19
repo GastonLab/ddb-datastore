@@ -62,7 +62,8 @@ if __name__ == "__main__":
                         'vus_pass': "{}_vus_pass_variants_{}.txt".format(sample, args.report),
                         'vus_fail': "{}_vus_fail_variants_{}.txt".format(sample, args.report),
                         'tier4_pass': "{}_tier4_pass_variants_{}.txt".format(sample, args.report),
-                        'tier4_fail': "{}_tier4_fail_variants_{}.txt".format(sample, args.report)
+                        'tier4_fail': "{}_tier4_fail_variants_{}.txt".format(sample, args.report),
+                        'all_ordered': "{}_all_ordered_variants_{}.txt".format(sample, args.report)
                         }
 
         with open(report_names['log'], 'w') as logfile:
@@ -81,6 +82,7 @@ if __name__ == "__main__":
 
         utils.setup_report_header(report_names['tier4_pass'], callers)
         utils.setup_report_header(report_names['tier4_fail'], callers)
+        utils.setup_report_header(report_names['all_ordered'], callers)
 
         for library in samples[sample]:
             report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}" \
@@ -105,8 +107,8 @@ if __name__ == "__main__":
             project_variant_data = filtered_var_data[-1]
 
             sys.stdout.write("Writing variant reports\n")
-            utils.write_reports(report_names, samples, sample, library, filtered_var_data, target_amplicon_coverage,
-                                reportable_amplicons, num_var, thresholds, callers)
+            utils.write_reports(report_names, samples, sample, library, filtered_var_data, ordered_variants,
+                                target_amplicon_coverage, reportable_amplicons, num_var, thresholds, callers)
 
     sys.stdout.write("Writing project/run level data\n")
     with open("Summary_Data.txt", 'w') as summary:

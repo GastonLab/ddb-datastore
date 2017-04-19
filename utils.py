@@ -206,12 +206,6 @@ def setup_report_header(filename, callers):
         report.write("\n")
 
 
-def classify_variant(variant):
-    classification = "tier4_fail"
-
-    return variant, classification
-
-
 def classify_and_filter_variants(sample, library, report_names, target_amplicons, callers, ordered_variants,
                                  thresholds, project_variant_data):
 
@@ -344,7 +338,7 @@ def classify_and_filter_variants(sample, library, report_names, target_amplicons
            tier4_fail_variants, filtered_off_target, project_variant_data
 
 
-def write_reports(report_names, samples, sample, library, filtered_var_data, target_amplicon_coverage,
+def write_reports(report_names, samples, sample, library, filtered_var_data, ordered_variants, target_amplicon_coverage,
                   reportable_amplicons, num_var, thresholds, callers):
     tier1_pass_variants, tier1_fail_variants, vus_pass_variants, vus_fail_variants, tier4_pass_variants, \
     tier4_fail_variants, filtered_off_target, project_variant_data = filtered_var_data
@@ -384,6 +378,8 @@ def write_reports(report_names, samples, sample, library, filtered_var_data, tar
 
         write_report(report_names['tier4_pass'], tier4_pass_variants, target_amplicon_coverage, callers)
         write_report(report_names['tier4_fail'], tier4_fail_variants, target_amplicon_coverage, callers)
+
+        write_report(report_names['all_ordered'], tier4_fail_variants, target_amplicon_coverage, callers)
 
         return project_variant_data
 
