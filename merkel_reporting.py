@@ -63,7 +63,8 @@ if __name__ == "__main__":
                         'vus_fail': "{}_vus_fail_variants_{}.txt".format(sample, args.report),
                         'tier4_pass': "{}_tier4_pass_variants_{}.txt".format(sample, args.report),
                         'tier4_fail': "{}_tier4_fail_variants_{}.txt".format(sample, args.report),
-                        'all_ordered': "{}_all_ordered_variants_{}.txt".format(sample, args.report)
+                        'all_ordered': "{}_all_ordered_variants_{}.txt".format(sample, args.report),
+                        'categories': "{}_variants_by_category{}.txt".format(sample, args.report)
                         }
 
         with open(report_names['log'], 'w') as logfile:
@@ -82,6 +83,7 @@ if __name__ == "__main__":
 
         utils.setup_report_header(report_names['tier4_pass'], callers)
         utils.setup_report_header(report_names['tier4_fail'], callers)
+
         utils.setup_report_header(report_names['all_ordered'], callers)
 
         for library in samples[sample]:
@@ -122,3 +124,12 @@ if __name__ == "__main__":
                                                                 project_variant_data[variant_id]['vus_fail'],
                                                                 project_variant_data[variant_id]['tier4_pass'],
                                                                 project_variant_data[variant_id]['tier4_fail']))
+
+    sys.stdout.write("Writing project/run level category data\n")
+    with open("Category_Data.txt", 'w') as summary:
+        summary.write("Variant\tNum Pos\tNum Neg\tNum Combined\n")
+        for variant_id in project_variant_data:
+            summary.write("{}\t{}\t{}\t{}\n".format(variant_id, project_variant_data[variant_id]['positive'],
+                                                    project_variant_data[variant_id]['negative'],
+                                                    project_variant_data[variant_id]['combined']))
+

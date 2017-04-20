@@ -206,7 +206,7 @@ def setup_report_header(filename, callers):
         report.write("\n")
 
 
-def classify_and_filter_variants(sample, library, report_names, target_amplicons, callers, ordered_variants,
+def classify_and_filter_variants(samples, sample, library, report_names, target_amplicons, callers, ordered_variants,
                                  thresholds, project_variant_data):
 
     iterated = 0
@@ -228,11 +228,14 @@ def classify_and_filter_variants(sample, library, report_names, target_amplicons
     filtered_off_target = list()
     off_target_amplicon_counts = defaultdict(int)
 
+    category = samples[sample][library]['mcpyv']
+
     for variant in ordered_variants:
         iterated += 1
         variant_id = "{}:{}-{}_{}_{}_{}_{}".format(variant.chr, variant.pos, variant.end, variant.ref, variant.alt,
                                                    variant.codon_change, variant.aa_change)
         project_variant_data[variant_id]['variant'] = variant
+        project_variant_data[variant_id][category] += 1
 
         if variant.amplicon_data['amplicon'] is 'None':
             filtered_off_target.append(variant)
