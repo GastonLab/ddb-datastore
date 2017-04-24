@@ -14,7 +14,10 @@ from cassandra.cqlengine import connection
 from cassandra.auth import PlainTextAuthProvider
 
 
-def process_reporting_sample(job, sample, samples, report_root, callers, config, thresholds, target_amplicon_coverage):
+def process_reporting_sample(job, sample, samples, report_root, callers, config, thresholds, target_amplicon_coverage,
+                             addresses, authenticator):
+    connection.setup(addresses, "variantstore", auth_provider=authenticator)
+
     report_names = {'log': "{}.{}.log".format(sample, report_root),
                     'coverage': "{}_coverage_{}.txt".format(sample, report_root),
                     'tier1_pass': "{}_tier1_pass_variants_{}.txt".format(sample, report_root),
@@ -96,9 +99,8 @@ if __name__ == "__main__":
     if args.username:
         password = getpass.getpass()
         auth_provider = PlainTextAuthProvider(username=args.username, password=password)
-        connection.setup([args.address], "variantstore", auth_provider=auth_provider)
     else:
-        connection.setup([args.address], "variantstore")
+        auth_provider = None
 
     thresholds = {'min_saf': args.min_somatic_var_freq,
                   'max_maf': args.max_pop_freq,
@@ -113,7 +115,7 @@ if __name__ == "__main__":
         target_amplicon_coverage = defaultdict(lambda: defaultdict(float))
 
         process_job = Job.wrapJobFn(process_reporting_sample, sample, samples, args.report, callers, config,
-                                    thresholds, target_amplicon_coverage, cores=1)
+                                    thresholds, target_amplicon_coverage, [args.address], auth_provider, cores=1)
 
         root_job.addChild(process_job)
 
