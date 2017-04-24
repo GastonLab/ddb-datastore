@@ -483,7 +483,7 @@ def classify_and_filter_variants(samples, sample, library, report_names, target_
            tier4_fail_variants, filtered_off_target
 
 
-def process_reporting_sample(sample, samples, report_root, callers, config, thresholds, target_amplicon_coverage):
+def process_reporting_sample(job, sample, samples, report_root, callers, config, thresholds, target_amplicon_coverage):
     report_names = {'log': "{}.{}.log".format(sample, report_root),
                     'coverage': "{}_coverage_{}.txt".format(sample, report_root),
                     'tier1_pass': "{}_tier1_pass_variants_{}.txt".format(sample, report_root),
@@ -519,29 +519,29 @@ def process_reporting_sample(sample, samples, report_root, callers, config, thre
         target_amplicons = get_target_amplicons(report_panel_path)
 
         with open(report_names['log'], 'a') as logfile:
-            sys.stdout.write("Processing amplicons for library {} from file {}\n".format(library,
-                                                                                         report_panel_path))
+            job.fileStore.logToMaster("Processing amplicons for library {} from file {}\n".format(library,
+                                                                                                  report_panel_path))
             logfile.write("Processing amplicons for library {} from file {}\n".format(library, report_panel_path))
 
         ordered_variants, num_var = get_variants(config, samples, sample, library, thresholds, report_names)
 
-        sys.stdout.write("Processing amplicon coverage data\n")
+        job.fileStore.logToMaster("Processing amplicon coverage data\n")
         reportable_amplicons, target_amplicon_coverage = get_coverage_data(target_amplicons, samples, sample,
                                                                            library, target_amplicon_coverage)
 
-        sys.stdout.write("Filtering and classifying variants\n")
+        job.fileStore.logToMaster("Filtering and classifying variants\n")
         filtered_var_data = classify_and_filter_variants(samples, sample, library, report_names, target_amplicons,
                                                          callers, ordered_variants, config, thresholds)
 
-        sys.stdout.write("Writing variant reports\n")
-        write_reports(report_names, samples, sample, library, filtered_var_data, ordered_variants,
+        job.fileStore.logToMaster("Writing variant reports\n")
+        write_reports(job, report_names, samples, sample, library, filtered_var_data, ordered_variants,
                       target_amplicon_coverage, reportable_amplicons, num_var, thresholds, callers)
 
 
-def write_reports(report_names, samples, sample, library, filtered_var_data, ordered_variants, target_amplicon_coverage,
-                  reportable_amplicons, num_var, thresholds, callers):
+def write_reports(job, report_names, samples, sample, library, filtered_var_data, ordered_variants,
+                  target_amplicon_coverage, reportable_amplicons, num_var, thresholds, callers):
     tier1_pass_variants, tier1_fail_variants, vus_pass_variants, vus_fail_variants, tier4_pass_variants, \
-    tier4_fail_variants, filtered_off_target, project_variant_data = filtered_var_data
+    tier4_fail_variants, filtered_off_target = filtered_var_data
 
     with open(report_names['coverage'], "a") as coverage_report:
         coverage_report.write("Library:\t{}\n".format(samples[sample][library]['library_name']))
@@ -570,21 +570,19 @@ def write_reports(report_names, samples, sample, library, filtered_var_data, ord
                                                                 amplicon.num_reads,
                                                                 amplicon.mean_coverage))
 
-        write_report(report_names['tier1_pass'], tier1_pass_variants, target_amplicon_coverage, callers)
-        write_report(report_names['tier1_fail'], tier1_fail_variants, target_amplicon_coverage, callers)
+        write_report(job, report_names['tier1_pass'], tier1_pass_variants, target_amplicon_coverage, callers)
+        write_report(job, report_names['tier1_fail'], tier1_fail_variants, target_amplicon_coverage, callers)
 
-        write_report(report_names['vus_pass'], vus_pass_variants, target_amplicon_coverage, callers)
-        write_report(report_names['vus_fail'], vus_fail_variants, target_amplicon_coverage, callers)
+        write_report(job, report_names['vus_pass'], vus_pass_variants, target_amplicon_coverage, callers)
+        write_report(job, report_names['vus_fail'], vus_fail_variants, target_amplicon_coverage, callers)
 
-        write_report(report_names['tier4_pass'], tier4_pass_variants, target_amplicon_coverage, callers)
-        write_report(report_names['tier4_fail'], tier4_fail_variants, target_amplicon_coverage, callers)
+        write_report(job, report_names['tier4_pass'], tier4_pass_variants, target_amplicon_coverage, callers)
+        write_report(job, report_names['tier4_fail'], tier4_fail_variants, target_amplicon_coverage, callers)
 
-        write_report(report_names['all_ordered'], tier4_fail_variants, target_amplicon_coverage, callers)
-
-        return project_variant_data
+        write_report(job, report_names['all_ordered'], tier4_fail_variants, target_amplicon_coverage, callers)
 
 
-def write_report(filename, variants, target_amplicon_coverage, callers):
+def write_report(job, filename, variants, target_amplicon_coverage, callers):
     with open(filename, 'a') as report:
         for variant in variants:
             try:
@@ -623,7 +621,7 @@ def write_report(filename, variants, target_amplicon_coverage, callers):
                                        max_depth=variant.max_depth,
                                        callers=",".join(variant.callers) or None))
             except KeyError:
-                sys.stderr.write("Could not write variant to report, KeyError with missing data\n")
+                job.fileStore.logToMaster("Could not write variant to report, KeyError with missing data\n")
                 print variant
                 continue
 
