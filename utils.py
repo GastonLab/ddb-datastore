@@ -483,61 +483,6 @@ def classify_and_filter_variants(samples, sample, library, report_names, target_
            tier4_fail_variants, filtered_off_target
 
 
-def process_reporting_sample(job, sample, samples, report_root, callers, config, thresholds, target_amplicon_coverage):
-    report_names = {'log': "{}.{}.log".format(sample, report_root),
-                    'coverage': "{}_coverage_{}.txt".format(sample, report_root),
-                    'tier1_pass': "{}_tier1_pass_variants_{}.txt".format(sample, report_root),
-                    'tier1_fail': "{}_tier1_fail_variants_{}.txt".format(sample, report_root),
-                    'vus_pass': "{}_vus_pass_variants_{}.txt".format(sample, report_root),
-                    'vus_fail': "{}_vus_fail_variants_{}.txt".format(sample, report_root),
-                    'tier4_pass': "{}_tier4_pass_variants_{}.txt".format(sample, report_root),
-                    'tier4_fail': "{}_tier4_fail_variants_{}.txt".format(sample, report_root),
-                    'all_ordered': "{}_all_ordered_variants_{}.txt".format(sample, report_root)
-                    }
-
-    with open(report_names['log'], 'w') as logfile:
-        logfile.write("Reporting Log for sample {}\n".format(sample))
-        logfile.write("---------------------------------------------\n")
-
-    with open(report_names['coverage'], "w") as coverage_report:
-        coverage_report.write("Sample:\t{}\n".format(sample))
-        coverage_report.write("---------------------------------------------\n")
-
-    setup_report_header(report_names['tier1_pass'], callers)
-    setup_report_header(report_names['tier1_fail'], callers)
-
-    setup_report_header(report_names['vus_pass'], callers)
-    setup_report_header(report_names['vus_fail'], callers)
-
-    setup_report_header(report_names['tier4_pass'], callers)
-    setup_report_header(report_names['tier4_fail'], callers)
-    setup_report_header(report_names['all_ordered'], callers)
-
-    for library in samples[sample]:
-        report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}" \
-                            "".format(samples[sample][library]['panel'], samples[sample][library]['report'])
-        target_amplicons = get_target_amplicons(report_panel_path)
-
-        with open(report_names['log'], 'a') as logfile:
-            job.fileStore.logToMaster("Processing amplicons for library {} from file {}\n".format(library,
-                                                                                                  report_panel_path))
-            logfile.write("Processing amplicons for library {} from file {}\n".format(library, report_panel_path))
-
-        ordered_variants, num_var = get_variants(config, samples, sample, library, thresholds, report_names)
-
-        job.fileStore.logToMaster("Processing amplicon coverage data\n")
-        reportable_amplicons, target_amplicon_coverage = get_coverage_data(target_amplicons, samples, sample,
-                                                                           library, target_amplicon_coverage)
-
-        job.fileStore.logToMaster("Filtering and classifying variants\n")
-        filtered_var_data = classify_and_filter_variants(samples, sample, library, report_names, target_amplicons,
-                                                         callers, ordered_variants, config, thresholds)
-
-        job.fileStore.logToMaster("Writing variant reports\n")
-        write_reports(job, report_names, samples, sample, library, filtered_var_data, ordered_variants,
-                      target_amplicon_coverage, reportable_amplicons, num_var, thresholds, callers)
-
-
 def write_reports(job, report_names, samples, sample, library, filtered_var_data, ordered_variants,
                   target_amplicon_coverage, reportable_amplicons, num_var, thresholds, callers):
     tier1_pass_variants, tier1_fail_variants, vus_pass_variants, vus_fail_variants, tier4_pass_variants, \
