@@ -1,8 +1,11 @@
 import sys
 import csv
+import numpy as np
 import geneimpacts
 
 from collections import defaultdict
+
+from variantstore import Variant
 from variantstore import SampleVariant
 from coveragestore import SampleCoverage
 
@@ -180,10 +183,9 @@ def get_coverage_data(target_amplicons, samples, sample, library, target_amplico
 def setup_report_header(filename, callers):
     with open(filename, 'w') as report:
         report.write("Sample\tLibrary\tGene\tAmplicon\tRef\tAlt\tCodon\tAA\t"
-                     "max_somatic_aaf\tCallers\tCOSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\t"
-                     "Clin_Sig\tClin_HGVS\tClin_Disease\t"
-                     "Coverage\tNum Reads\tImpact\tSeverity\tmax_maf_all\tmax_maf_no_fin\t"
-                     "min_caller_depth\tmax_caller_depth\tChrom\tStart\tEnd\trsIDs")
+                     "Max VAF\tCallers\tMedian Variant AF\tVAF StdDev\tCOSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\t"
+                     "Clin_Sig\tClin_HGVS\tClin_Disease\tCoverage\tNum Reads\tImpact\tSeverity\tmax_maf_all\t"
+                     "max_maf_no_fin\tmin_caller_depth\tmax_caller_depth\tChrom\tStart\tEnd\trsIDs")
 
         if 'mutect' in callers:
             report.write("\tMuTect_AF")
@@ -206,8 +208,8 @@ def setup_report_header(filename, callers):
         report.write("\n")
 
 
-def classify_and_filter_variants(samples, sample, library, report_names, target_amplicons, callers, ordered_variants,
-                                 thresholds, project_variant_data):
+def classify_and_filter_variants_proj(samples, sample, library, report_names, target_amplicons, callers,
+                                      ordered_variants, config, thresholds, project_variant_data):
 
     iterated = 0
     passing_variants = 0
@@ -341,6 +343,201 @@ def classify_and_filter_variants(samples, sample, library, report_names, target_
            tier4_fail_variants, filtered_off_target, project_variant_data
 
 
+def classify_and_filter_variants(samples, sample, library, report_names, target_amplicons, callers, ordered_variants,
+                                 config, thresholds):
+
+    iterated = 0
+    passing_variants = 0
+    filtered_low_freq = 0
+
+    tier1_pass_variants = list()
+    tier1_fail_variants = list()
+
+    # tier2_pass_variants = list()
+    # tier2_fail_variants = list()
+
+    vus_pass_variants = list()
+    vus_fail_variants = list()
+
+    tier4_pass_variants = list()
+    tier4_fail_variants = list()
+
+    filtered_off_target = list()
+    off_target_amplicon_counts = defaultdict(int)
+
+    for variant in ordered_variants:
+        iterated += 1
+        variant_id = "{}:{}-{}_{}_{}_{}_{}".format(variant.chr, variant.pos, variant.end, variant.ref, variant.alt,
+                                                   variant.codon_change, variant.aa_change)
+
+        if variant.amplicon_data['amplicon'] is 'None':
+            filtered_off_target.append(variant)
+            off_target_amplicon_counts[variant.amplicon_data['amplicon']] += 1
+        else:
+            amplicons = variant.amplicon_data['amplicon'].split(',')
+            assignable = 0
+            for amplicon in amplicons:
+                if amplicon in target_amplicons:
+                    assignable += 1
+                    break
+            if assignable:
+                # Putting in to Tier1 based on COSMIC
+
+                match_variants = Variant.objects.timeout(None).filter(
+                    Variant.reference_genome == config['genome_version'],
+                    Variant.chr == variant.chr,
+                    Variant.pos == variant.pos,
+                    Variant.ref == variant.ref,
+                    Variant.alt == variant.alt
+                ).allow_filtering()
+
+                num_matches = match_variants.count()
+                ordered_var = match_variants.order_by('sample', 'library_name', 'run_id').limit(num_matches + 1000)
+                vafs = list()
+                for var in ordered_var:
+                    vaf = var.max_som_aaf
+                    vafs.append(vaf)
+                variant.vaf_median = np.median(vafs)
+                variant.vaf_std_dev = np.std(vafs)
+
+                if variant.cosmic_ids:
+                    if variant.max_som_aaf < thresholds['min_saf']:
+                        tier1_fail_variants.append(variant)
+                        filtered_low_freq += 1
+                    elif variant.max_depth < thresholds['depth']:
+                        tier1_fail_variants.append(variant)
+                        filtered_low_freq += 1
+                    else:
+                        tier1_pass_variants.append(variant)
+                        passing_variants += 1
+                    continue
+
+                # Putting in to Tier1 based on ClinVar not being None or Benign
+                if variant.clinvar_data['pathogenic'] != 'None':
+                    if variant.clinvar_data['pathogenic'] != 'benign':
+                        if variant.clinvar_data['pathogenic'] != 'likely-benign':
+                            if variant.max_som_aaf < thresholds['min_saf']:
+                                tier1_fail_variants.append(variant)
+                                project_variant_data[variant_id]['tier1_fail'] += 1
+                                filtered_low_freq += 1
+                            elif variant.max_depth < thresholds['depth']:
+                                tier1_fail_variants.append(variant)
+                                project_variant_data[variant_id]['tier1_fail'] += 1
+                                filtered_low_freq += 1
+                            else:
+                                tier1_pass_variants.append(variant)
+                                project_variant_data[variant_id]['tier1_pass'] += 1
+                                passing_variants += 1
+                            continue
+
+                if variant.severity == 'MED' or variant.severity == 'HIGH':
+                    if variant.max_som_aaf < thresholds['min_saf']:
+                        vus_fail_variants.append(variant)
+                        filtered_low_freq += 1
+                    elif variant.max_depth < thresholds['depth']:
+                        vus_fail_variants.append(variant)
+                        filtered_low_freq += 1
+                    else:
+                        vus_pass_variants.append(variant)
+                        passing_variants += 1
+                    continue
+                else:
+                    if variant.max_som_aaf < thresholds['min_saf']:
+                        tier4_fail_variants.append(variant)
+                        filtered_low_freq += 1
+                    elif variant.max_depth < thresholds['depth']:
+                        tier4_fail_variants.append(variant)
+                        filtered_low_freq += 1
+                    else:
+                        tier4_pass_variants.append(variant)
+                        passing_variants += 1
+                    continue
+            else:
+                filtered_off_target.append(variant)
+                off_target_amplicon_counts[variant.amplicon_data['amplicon']] += 1
+
+    sys.stdout.write("Iterated through {} variants\n".format(iterated))
+    with open(report_names['log'], 'a') as logfile:
+        logfile.write("Iterated through {} variants\n".format(iterated))
+        logfile.write("---------------------------------------------\n")
+        logfile.write("{}\n".format(library))
+        logfile.write(
+            "Sending {} variants to reporting (filtered {} off-target  and {} low frequency/low depth variants)"
+            "\n".format(passing_variants, filtered_low_freq, len(filtered_off_target)))
+        logfile.write("---------------------------------------------\n")
+        logfile.write("Off Target Amplicon\tCounts\n")
+
+        sys.stdout.write("---------------------------------------------\n")
+        sys.stdout.write("{}\n".format(library))
+        sys.stdout.write(
+            "Sending {} variants to reporting (filtered {} off-target  and {} low frequency/low depth variants)"
+            "\n".format(passing_variants, filtered_low_freq, len(filtered_off_target)))
+        sys.stdout.write("---------------------------------------------\n")
+        sys.stdout.write("Off Target Amplicon\tCounts\n")
+
+        for off_target in off_target_amplicon_counts:
+            logfile.write("{}\t{}\n".format(off_target, off_target_amplicon_counts[off_target]))
+            # sys.stdout.write("{}\t{}\n".format(off_target, off_target_amplicon_counts[off_target]))
+
+    return tier1_pass_variants, tier1_fail_variants, vus_pass_variants, vus_fail_variants, tier4_pass_variants, \
+           tier4_fail_variants, filtered_off_target
+
+
+def process_reporting_sample(sample, samples, report_root, callers, config, thresholds, target_amplicon_coverage):
+    report_names = {'log': "{}.{}.log".format(sample, report_root),
+                    'coverage': "{}_coverage_{}.txt".format(sample, report_root),
+                    'tier1_pass': "{}_tier1_pass_variants_{}.txt".format(sample, report_root),
+                    'tier1_fail': "{}_tier1_fail_variants_{}.txt".format(sample, report_root),
+                    'vus_pass': "{}_vus_pass_variants_{}.txt".format(sample, report_root),
+                    'vus_fail': "{}_vus_fail_variants_{}.txt".format(sample, report_root),
+                    'tier4_pass': "{}_tier4_pass_variants_{}.txt".format(sample, report_root),
+                    'tier4_fail': "{}_tier4_fail_variants_{}.txt".format(sample, report_root),
+                    'all_ordered': "{}_all_ordered_variants_{}.txt".format(sample, report_root)
+                    }
+
+    with open(report_names['log'], 'w') as logfile:
+        logfile.write("Reporting Log for sample {}\n".format(sample))
+        logfile.write("---------------------------------------------\n")
+
+    with open(report_names['coverage'], "w") as coverage_report:
+        coverage_report.write("Sample:\t{}\n".format(sample))
+        coverage_report.write("---------------------------------------------\n")
+
+    setup_report_header(report_names['tier1_pass'], callers)
+    setup_report_header(report_names['tier1_fail'], callers)
+
+    setup_report_header(report_names['vus_pass'], callers)
+    setup_report_header(report_names['vus_fail'], callers)
+
+    setup_report_header(report_names['tier4_pass'], callers)
+    setup_report_header(report_names['tier4_fail'], callers)
+    setup_report_header(report_names['all_ordered'], callers)
+
+    for library in samples[sample]:
+        report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}" \
+                            "".format(samples[sample][library]['panel'], samples[sample][library]['report'])
+        target_amplicons = get_target_amplicons(report_panel_path)
+
+        with open(report_names['log'], 'a') as logfile:
+            sys.stdout.write("Processing amplicons for library {} from file {}\n".format(library,
+                                                                                         report_panel_path))
+            logfile.write("Processing amplicons for library {} from file {}\n".format(library, report_panel_path))
+
+        ordered_variants, num_var = get_variants(config, samples, sample, library, thresholds, report_names)
+
+        sys.stdout.write("Processing amplicon coverage data\n")
+        reportable_amplicons, target_amplicon_coverage = get_coverage_data(target_amplicons, samples, sample,
+                                                                           library, target_amplicon_coverage)
+
+        sys.stdout.write("Filtering and classifying variants\n")
+        filtered_var_data = classify_and_filter_variants(samples, sample, library, report_names, target_amplicons,
+                                                         callers, ordered_variants, config, thresholds)
+
+        sys.stdout.write("Writing variant reports\n")
+        write_reports(report_names, samples, sample, library, filtered_var_data, ordered_variants,
+                      target_amplicon_coverage, reportable_amplicons, num_var, thresholds, callers)
+
+
 def write_reports(report_names, samples, sample, library, filtered_var_data, ordered_variants, target_amplicon_coverage,
                   reportable_amplicons, num_var, thresholds, callers):
     tier1_pass_variants, tier1_fail_variants, vus_pass_variants, vus_fail_variants, tier4_pass_variants, \
@@ -392,9 +589,9 @@ def write_report(filename, variants, target_amplicon_coverage, callers):
         for variant in variants:
             try:
                 report.write("{sample}\t{library}\t{gene}\t{amp}\t{ref}\t{alt}\t{codon}\t{aa}\t"
-                             "{max_som_aaf}\t{callers}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t{csig}\t{hgvs}\t"
-                             "{cdis}\t{cov}\t{reads}\t{impact}\t{severity}\t{max_maf_all}\t{max_maf_no_fin}\t"
-                             "{min_depth}\t{max_depth}\t{chr}\t{start}\t{end}\t{rsids}"
+                             "{max_som_aaf}\t{callers}\t{med}\t{std}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
+                             "{csig}\t{hgvs}\t{cdis}\t{cov}\t{reads}\t{impact}\t{severity}\t{max_maf_all}\t"
+                             "{max_maf_no_fin}\t{min_depth}\t{max_depth}\t{chr}\t{start}\t{end}\t{rsids}"
                              "".format(sample=variant.sample,
                                        library=variant.library_name,
                                        chr=variant.chr,
@@ -420,6 +617,8 @@ def write_report(filename, variants, target_amplicon_coverage, callers):
                                        max_maf_all=variant.max_maf_all,
                                        max_maf_no_fin=variant.max_maf_no_fin,
                                        max_som_aaf=variant.max_som_aaf,
+                                       med=variant.vaf_median,
+                                       std=variant.vaf_std_dev,
                                        min_depth=variant.min_depth,
                                        max_depth=variant.max_depth,
                                        callers=",".join(variant.callers) or None))

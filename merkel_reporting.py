@@ -103,9 +103,9 @@ if __name__ == "__main__":
                                                                                      library, target_amplicon_coverage)
 
             sys.stdout.write("Filtering and classifying variants\n")
-            filtered_var_data = utils.classify_and_filter_variants(samples, sample, library, report_names,
-                                                                   target_amplicons, callers, ordered_variants,
-                                                                   thresholds, project_variant_data)
+            filtered_var_data = utils.classify_and_filter_variants_proj(samples, sample, library, report_names,
+                                                                        target_amplicons, callers, ordered_variants,
+                                                                        config, thresholds, project_variant_data)
             project_variant_data = filtered_var_data[-1]
 
             sys.stdout.write("Writing variant reports\n")
