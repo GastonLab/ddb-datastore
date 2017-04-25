@@ -142,7 +142,8 @@ def get_amplicon_data(variant):
     return data
 
 
-def get_variants(config, samples, sample, library, thresholds, report_names):
+def get_variants(job, config, samples, sample, library, thresholds, report_names, connection, addresses, authenticator):
+    connection.setup(addresses, "variantstore", auth_provider=authenticator)
     variants = SampleVariant.objects.timeout(None).filter(
         SampleVariant.reference_genome == config['genome_version'],
         SampleVariant.sample == samples[sample][library]['sample_name'],
@@ -152,13 +153,13 @@ def get_variants(config, samples, sample, library, thresholds, report_names):
     ).allow_filtering()
 
     num_var = variants.count()
-    sys.stdout.write("Retrieved {} total variants\n".format(num_var))
+    job.fileStore.logToMaster("Retrieved {} total variants\n".format(num_var))
     with open(report_names['log'], 'a') as logfile:
-        logfile.write("Retrieved {} total variants\n".format(variants.count()))
+        logfile.write("Retrieved {} total variants\n".format(num_var))
 
     ordered = variants.order_by('library_name', 'chr', 'pos', 'ref', 'alt').limit(variants.count() + 1000)
 
-    return ordered, num_var
+    return ordered
 
 
 def get_coverage_data(target_amplicons, samples, sample, library, target_amplicon_coverage):
@@ -343,8 +344,10 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
            tier4_fail_variants, filtered_off_target, project_variant_data
 
 
-def classify_and_filter_variants(samples, sample, library, report_names, target_amplicons, callers, ordered_variants,
-                                 config, thresholds):
+def classify_and_filter_variants(job, samples, sample, library, report_names, target_amplicons, callers,
+                                 ordered_variants, config, thresholds, connection, addresses, authenticator):
+    job.fileStore.logToMaster("Filtering and classifying variants\n")
+    connection.setup(addresses, "variantstore", auth_provider=authenticator)
 
     iterated = 0
     passing_variants = 0
@@ -456,7 +459,7 @@ def classify_and_filter_variants(samples, sample, library, report_names, target_
                 filtered_off_target.append(variant)
                 off_target_amplicon_counts[variant.amplicon_data['amplicon']] += 1
 
-    sys.stdout.write("Iterated through {} variants\n".format(iterated))
+    job.fileStore.logToMaster("Iterated through {} variants\n".format(iterated))
     with open(report_names['log'], 'a') as logfile:
         logfile.write("Iterated through {} variants\n".format(iterated))
         logfile.write("---------------------------------------------\n")
@@ -467,17 +470,16 @@ def classify_and_filter_variants(samples, sample, library, report_names, target_
         logfile.write("---------------------------------------------\n")
         logfile.write("Off Target Amplicon\tCounts\n")
 
-        sys.stdout.write("---------------------------------------------\n")
-        sys.stdout.write("{}\n".format(library))
-        sys.stdout.write(
+        job.fileStore.logToMaster("---------------------------------------------\n")
+        job.fileStore.logToMaster("{}\n".format(library))
+        job.fileStore.logToMaster(
             "Sending {} variants to reporting (filtered {} off-target  and {} low frequency/low depth variants)"
             "\n".format(passing_variants, filtered_low_freq, len(filtered_off_target)))
-        sys.stdout.write("---------------------------------------------\n")
-        sys.stdout.write("Off Target Amplicon\tCounts\n")
+        job.fileStore.logToMaster("---------------------------------------------\n")
+        job.fileStore.logToMaster("Off Target Amplicon\tCounts\n")
 
         for off_target in off_target_amplicon_counts:
             logfile.write("{}\t{}\n".format(off_target, off_target_amplicon_counts[off_target]))
-            # sys.stdout.write("{}\t{}\n".format(off_target, off_target_amplicon_counts[off_target]))
 
     return tier1_pass_variants, tier1_fail_variants, vus_pass_variants, vus_fail_variants, tier4_pass_variants, \
            tier4_fail_variants, filtered_off_target
