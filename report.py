@@ -5,6 +5,7 @@ import numpy as np
 import sys
 import getpass
 import argparse
+import toil_reporting_utils
 from collections import defaultdict
 
 from toil.job import Job
@@ -210,7 +211,11 @@ if __name__ == "__main__":
     for sample in samples:
         sample_job = Job.wrapJobFn(process_sample, config, sample, samples, [args.address], auth_provider,
                                    thresholds, callers, cores=1)
+        report_job = Job.wrapJobFn(toil_reporting_utils.create_report, sample_job.rv(), sample, samples, callers,
+                                   thresholds, cores=1)
+
         root_job.addChild(sample_job)
+        sample_job.addChild(report_job)
 
     # Start workflow execution
     Job.Runner.startToil(root_job, args)
