@@ -17,7 +17,7 @@ from cassandra.cqlengine import connection
 from cassandra.auth import PlainTextAuthProvider
 
 
-def process_sample(job, sample, samples, addresses, authenticator, thresholds, callers):
+def process_sample(job, config, sample, samples, addresses, authenticator, thresholds, callers):
     job.fileStore.logToMaster("Retrieving data for sample {}\n".format(sample))
     job.fileStore.logToMaster("Retrieving coverage data from database\n")
     connection.setup(addresses, "coveragestore", auth_provider=authenticator)
@@ -208,7 +208,7 @@ if __name__ == "__main__":
     root_job = Job.wrapJobFn(pipeline.spawn_batch_jobs, cores=1)
 
     for sample in samples:
-        sample_job = Job.wrapJobFn(process_sample, sample, samples, [args.address], auth_provider,
+        sample_job = Job.wrapJobFn(process_sample, config, sample, samples, [args.address], auth_provider,
                                    thresholds, callers, cores=1)
         root_job.addChild(sample_job)
 
