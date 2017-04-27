@@ -42,6 +42,7 @@ def get_variants(job, config, samples, sample, thresholds, amplicon_coverage, co
 
 
 def get_coverage_data(job, samples, sample, connection, addresses, authenticator):
+    job.fileStore.logToMaster("Retrieving coverage data for sample {}\n".format(sample))
     connection.setup(addresses, "coveragestore", auth_provider=authenticator)
     target_amplicon_coverage = dict()
 
