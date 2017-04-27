@@ -187,131 +187,131 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     lib_string = " | ".join(libraries)
     reports_string = " | ".join(report_templates)
 
-    coverage_sheet.cell(row=0, column=0, value="Sample")
-    coverage_sheet.cell(row=0, column=1, value="{}".format(sample))
+    coverage_sheet.cell(row=1, column=1, value="Sample")
+    coverage_sheet.cell(row=1, column=2, value="{}".format(sample))
 
-    coverage_sheet.cell(row=1, column=0, value="Libraries")
-    coverage_sheet.cell(row=1, column=1, value="{}".format(lib_string))
+    coverage_sheet.cell(row=2, column=1, value="Libraries")
+    coverage_sheet.cell(row=2, column=2, value="{}".format(lib_string))
 
-    coverage_sheet.cell(row=2, column=0, value="Run ID")
-    coverage_sheet.cell(row=2, column=1, value="{}".format(run_id))
+    coverage_sheet.cell(row=3, column=1, value="Run ID")
+    coverage_sheet.cell(row=3, column=2, value="{}".format(run_id))
 
-    coverage_sheet.cell(row=3, column=0, value="Reporting Templates")
-    coverage_sheet.cell(row=3, column=1, value="{}".format(reports_string))
+    coverage_sheet.cell(row=4, column=1, value="Reporting Templates")
+    coverage_sheet.cell(row=4, column=2, value="{}".format(reports_string))
 
-    coverage_sheet.cell(row=3, column=0, value="Minimum Reportable Somatic Allele Frequency")
-    coverage_sheet.cell(row=3, column=1, value="{}".format(thresholds['min_saf']))
+    coverage_sheet.cell(row=5, column=1, value="Minimum Reportable Somatic Allele Frequency")
+    coverage_sheet.cell(row=5, column=2, value="{}".format(thresholds['min_saf']))
 
-    coverage_sheet.cell(row=3, column=0, value="Minimum Amplicon Depth")
-    coverage_sheet.cell(row=3, column=1, value="{}".format(thresholds['depth']))
+    coverage_sheet.cell(row=6, column=1, value="Minimum Amplicon Depth")
+    coverage_sheet.cell(row=6, column=2, value="{}".format(thresholds['depth']))
 
-    coverage_sheet.cell(row=4, column=0, value="Maximum Population Allele Frequency")
-    coverage_sheet.cell(row=4, column=1, value="{}".format(thresholds['max_maf']))
+    coverage_sheet.cell(row=7, column=1, value="Maximum Population Allele Frequency")
+    coverage_sheet.cell(row=7, column=2, value="{}".format(thresholds['max_maf']))
 
-    coverage_sheet.cell(row=5, column=0, value="Sample")
-    coverage_sheet.cell(row=5, column=1, value="Library")
-    coverage_sheet.cell(row=5, column=2, value="Amplicon")
-    coverage_sheet.cell(row=5, column=3, value="Num Reads")
-    coverage_sheet.cell(row=5, column=4, value="Coverage")
+    coverage_sheet.cell(row=8, column=1, value="Sample")
+    coverage_sheet.cell(row=8, column=2, value="Library")
+    coverage_sheet.cell(row=8, column=3, value="Amplicon")
+    coverage_sheet.cell(row=8, column=4, value="Num Reads")
+    coverage_sheet.cell(row=8, column=5, value="Coverage")
 
-    row_num = 6
+    row_num = 9
     for amplicon in report_data['coverage']:
-        coverage_sheet.cell(row=row_num, column=0, value="{}".format(report_data['coverage'][amplicon].sample))
-        coverage_sheet.cell(row=row_num, column=1, value="{}".format(report_data['coverage'][amplicon].library_name))
-        coverage_sheet.cell(row=row_num, column=2, value="{}".format(report_data['coverage'][amplicon].amplicon))
-        coverage_sheet.cell(row=row_num, column=3, value="{}".format(report_data['coverage'][amplicon].num_reads))
-        coverage_sheet.cell(row=row_num, column=4, value="{}".format(report_data['coverage'][amplicon].mean_coverage))
+        coverage_sheet.cell(row=row_num, column=1, value="{}".format(report_data['coverage'][amplicon].sample))
+        coverage_sheet.cell(row=row_num, column=2, value="{}".format(report_data['coverage'][amplicon].library_name))
+        coverage_sheet.cell(row=row_num, column=3, value="{}".format(report_data['coverage'][amplicon].amplicon))
+        coverage_sheet.cell(row=row_num, column=4, value="{}".format(report_data['coverage'][amplicon].num_reads))
+        coverage_sheet.cell(row=row_num, column=5, value="{}".format(report_data['coverage'][amplicon].mean_coverage))
 
         row_num += 1
 
     ####################################################################################################################
 
-    tier1_sheet.cell(row=0, column=0, value="Sample")
-    tier1_sheet.cell(row=0, column=1, value="Library")
-    tier1_sheet.cell(row=0, column=2, value="Gene")
-    tier1_sheet.cell(row=0, column=3, value="Amplicon")
-    tier1_sheet.cell(row=0, column=4, value="Ref")
-    tier1_sheet.cell(row=0, column=5, value="Alt")
-    tier1_sheet.cell(row=0, column=6, value="Codon")
-    tier1_sheet.cell(row=0, column=7, value="AA")
-    tier1_sheet.cell(row=0, column=8, value="Max Caller Somatic VAF")
-    tier1_sheet.cell(row=0, column=9, value="Callers")
-    tier1_sheet.cell(row=0, column=10, value="COSMIC IDs")
-    tier1_sheet.cell(row=0, column=11, value="Num COSMIC Samples")
-    tier1_sheet.cell(row=0, column=12, value="COSMIC AA")
-    tier1_sheet.cell(row=0, column=13, value="Clinvar Significance")
-    tier1_sheet.cell(row=0, column=14, value="Clinvar HGVS")
-    tier1_sheet.cell(row=0, column=15, value="Clinvar Disease")
-    tier1_sheet.cell(row=0, column=16, value="Coverage")
-    tier1_sheet.cell(row=0, column=17, value="Num Reads")
-    tier1_sheet.cell(row=0, column=18, value="Impact")
-    tier1_sheet.cell(row=0, column=19, value="Severity")
-    tier1_sheet.cell(row=0, column=20, value="Maximum Population AF")
-    tier1_sheet.cell(row=0, column=21, value="Min Caller Depth")
-    tier1_sheet.cell(row=0, column=22, value="Max Caller Depth")
-    tier1_sheet.cell(row=0, column=23, value="Chrom")
-    tier1_sheet.cell(row=0, column=24, value="Start")
-    tier1_sheet.cell(row=0, column=25, value="End")
-    tier1_sheet.cell(row=0, column=26, value="rsIDs")
+    tier1_sheet.cell(row=1, column=1, value="Sample")
+    tier1_sheet.cell(row=1, column=2, value="Library")
+    tier1_sheet.cell(row=1, column=3, value="Gene")
+    tier1_sheet.cell(row=1, column=4, value="Amplicon")
+    tier1_sheet.cell(row=1, column=5, value="Ref")
+    tier1_sheet.cell(row=1, column=6, value="Alt")
+    tier1_sheet.cell(row=1, column=7, value="Codon")
+    tier1_sheet.cell(row=1, column=8, value="AA")
+    tier1_sheet.cell(row=1, column=9, value="Max Caller Somatic VAF")
+    tier1_sheet.cell(row=1, column=10, value="Callers")
+    tier1_sheet.cell(row=1, column=11, value="COSMIC IDs")
+    tier1_sheet.cell(row=1, column=12, value="Num COSMIC Samples")
+    tier1_sheet.cell(row=1, column=13, value="COSMIC AA")
+    tier1_sheet.cell(row=1, column=14, value="Clinvar Significance")
+    tier1_sheet.cell(row=1, column=15, value="Clinvar HGVS")
+    tier1_sheet.cell(row=1, column=16, value="Clinvar Disease")
+    tier1_sheet.cell(row=1, column=17, value="Coverage")
+    tier1_sheet.cell(row=1, column=18, value="Num Reads")
+    tier1_sheet.cell(row=1, column=19, value="Impact")
+    tier1_sheet.cell(row=1, column=20, value="Severity")
+    tier1_sheet.cell(row=1, column=21, value="Maximum Population AF")
+    tier1_sheet.cell(row=1, column=22, value="Min Caller Depth")
+    tier1_sheet.cell(row=1, column=23, value="Max Caller Depth")
+    tier1_sheet.cell(row=1, column=24, value="Chrom")
+    tier1_sheet.cell(row=1, column=25, value="Start")
+    tier1_sheet.cell(row=1, column=26, value="End")
+    tier1_sheet.cell(row=1, column=27, value="rsIDs")
 
-    col = 27
+    col = 28
     if 'mutect' in callers:
-        tier1_sheet.cell(row=0, column=col, value="MuTect_AF")
+        tier1_sheet.cell(row=1, column=col, value="MuTect_AF")
         col += 1
 
     if 'vardict' in callers:
-        tier1_sheet.cell(row=0, column=col, value="VarDict_AF")
+        tier1_sheet.cell(row=1, column=col, value="VarDict_AF")
         col += 1
 
     if 'freebayes' in callers:
-        tier1_sheet.cell(row=0, column=col, value="FreeBayes_AF")
+        tier1_sheet.cell(row=1, column=col, value="FreeBayes_AF")
         col += 1
 
     if 'scalpel' in callers:
-        tier1_sheet.cell(row=0, column=col, value="Scalpel_AF")
+        tier1_sheet.cell(row=1, column=col, value="Scalpel_AF")
         col += 1
 
     if 'platypus' in callers:
-        tier1_sheet.cell(row=0, column=col, value="Platypus_AF")
+        tier1_sheet.cell(row=1, column=col, value="Platypus_AF")
         col += 1
 
     if 'pindel' in callers:
-        tier1_sheet.cell(row=0, column=col, value="Pindel_AF")
+        tier1_sheet.cell(row=1, column=col, value="Pindel_AF")
         col += 1
 
-    row = 1
-    for variant in report_data['']:
-        tier1_sheet.cell(row=row, column=0, value="{}".format(variant.sample))
-        tier1_sheet.cell(row=row, column=1, value="{}".format(variant.library_name))
-        tier1_sheet.cell(row=row, column=2, value="{}".format(variant.gene))
-        tier1_sheet.cell(row=row, column=3, value="{}".format(variant.amplicon_data['amplicon']))
-        tier1_sheet.cell(row=row, column=4, value="{}".format(variant.ref))
-        tier1_sheet.cell(row=row, column=5, value="{}".format(variant.alt))
-        tier1_sheet.cell(row=row, column=6, value="{}".format(variant.codon_change))
-        tier1_sheet.cell(row=row, column=7, value="{}".format(variant.aa_change))
-        tier1_sheet.cell(row=row, column=8, value="{}".format(variant.max_som_aaf))
-        tier1_sheet.cell(row=row, column=9, value="{}".format(",".join(variant.callers) or None))
-        tier1_sheet.cell(row=row, column=10, value="{}".format(",".join(variant.cosmic_ids) or None))
-        tier1_sheet.cell(row=row, column=11, value="{}".format(variant.cosmic_data['num_samples']))
-        tier1_sheet.cell(row=row, column=12, value="{}".format(variant.cosmic_data['aa']))
-        tier1_sheet.cell(row=row, column=13, value="{}".format(variant.clinvar_data['significance']))
-        tier1_sheet.cell(row=row, column=14, value="{}".format(variant.clinvar_data['hgvs']))
-        tier1_sheet.cell(row=row, column=15, value="{}".format(variant.clinvar_data['disease']))
-        tier1_sheet.cell(row=row, column=16,
-                         value="{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['mean_coverage']))
+    row = 2
+    for variant in report_data['variants']['tier1_pass_variants']:
+        tier1_sheet.cell(row=row, column=1, value="{}".format(variant.sample))
+        tier1_sheet.cell(row=row, column=2, value="{}".format(variant.library_name))
+        tier1_sheet.cell(row=row, column=3, value="{}".format(variant.gene))
+        tier1_sheet.cell(row=row, column=4, value="{}".format(variant.amplicon_data['amplicon']))
+        tier1_sheet.cell(row=row, column=5, value="{}".format(variant.ref))
+        tier1_sheet.cell(row=row, column=6, value="{}".format(variant.alt))
+        tier1_sheet.cell(row=row, column=7, value="{}".format(variant.codon_change))
+        tier1_sheet.cell(row=row, column=8, value="{}".format(variant.aa_change))
+        tier1_sheet.cell(row=row, column=9, value="{}".format(variant.max_som_aaf))
+        tier1_sheet.cell(row=row, column=10, value="{}".format(",".join(variant.callers) or None))
+        tier1_sheet.cell(row=row, column=11, value="{}".format(",".join(variant.cosmic_ids) or None))
+        tier1_sheet.cell(row=row, column=12, value="{}".format(variant.cosmic_data['num_samples']))
+        tier1_sheet.cell(row=row, column=13, value="{}".format(variant.cosmic_data['aa']))
+        tier1_sheet.cell(row=row, column=14, value="{}".format(variant.clinvar_data['significance']))
+        tier1_sheet.cell(row=row, column=15, value="{}".format(variant.clinvar_data['hgvs']))
+        tier1_sheet.cell(row=row, column=16, value="{}".format(variant.clinvar_data['disease']))
         tier1_sheet.cell(row=row, column=17,
+                         value="{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['mean_coverage']))
+        tier1_sheet.cell(row=row, column=18,
                          value="{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['num_reads']))
-        tier1_sheet.cell(row=row, column=18, value="{}".format(variant.impact))
-        tier1_sheet.cell(row=row, column=19, value="{}".format(variant.severity))
-        tier1_sheet.cell(row=row, column=20, value="{}".format(variant.max_maf_all))
-        tier1_sheet.cell(row=row, column=21, value="{}".format(variant.min_depth))
-        tier1_sheet.cell(row=row, column=22, value="{}".format(variant.max_depth))
-        tier1_sheet.cell(row=row, column=23, value="{}".format(variant.chr))
-        tier1_sheet.cell(row=row, column=24, value="{}".format(variant.pos))
-        tier1_sheet.cell(row=row, column=25, value="{}".format(variant.end))
-        tier1_sheet.cell(row=row, column=26, value="{}".format(",".join(variant.rs_ids)))
+        tier1_sheet.cell(row=row, column=19, value="{}".format(variant.impact))
+        tier1_sheet.cell(row=row, column=20, value="{}".format(variant.severity))
+        tier1_sheet.cell(row=row, column=21, value="{}".format(variant.max_maf_all))
+        tier1_sheet.cell(row=row, column=22, value="{}".format(variant.min_depth))
+        tier1_sheet.cell(row=row, column=23, value="{}".format(variant.max_depth))
+        tier1_sheet.cell(row=row, column=24, value="{}".format(variant.chr))
+        tier1_sheet.cell(row=row, column=25, value="{}".format(variant.pos))
+        tier1_sheet.cell(row=row, column=26, value="{}".format(variant.end))
+        tier1_sheet.cell(row=row, column=27, value="{}".format(",".join(variant.rs_ids)))
 
-        col = 27
+        col = 28
         if 'mutect' in callers:
             tier1_sheet.cell(row=row, column=col, value="{}".format(variant.mutect.get('AAF') or None))
             col += 1
@@ -340,92 +340,92 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
 
     ####################################################################################################################
 
-    tier3_sheet.cell(row=0, column=0, value="Sample")
-    tier3_sheet.cell(row=0, column=1, value="Library")
-    tier3_sheet.cell(row=0, column=2, value="Gene")
-    tier3_sheet.cell(row=0, column=3, value="Amplicon")
-    tier3_sheet.cell(row=0, column=4, value="Ref")
-    tier3_sheet.cell(row=0, column=5, value="Alt")
-    tier3_sheet.cell(row=0, column=6, value="Codon")
-    tier3_sheet.cell(row=0, column=7, value="AA")
-    tier3_sheet.cell(row=0, column=8, value="Max Caller Somatic VAF")
-    tier3_sheet.cell(row=0, column=9, value="Callers")
-    tier3_sheet.cell(row=0, column=10, value="COSMIC IDs")
-    tier3_sheet.cell(row=0, column=11, value="Num COSMIC Samples")
-    tier3_sheet.cell(row=0, column=12, value="COSMIC AA")
-    tier3_sheet.cell(row=0, column=13, value="Clinvar Significance")
-    tier3_sheet.cell(row=0, column=14, value="Clinvar HGVS")
-    tier3_sheet.cell(row=0, column=15, value="Clinvar Disease")
-    tier3_sheet.cell(row=0, column=16, value="Coverage")
-    tier3_sheet.cell(row=0, column=17, value="Num Reads")
-    tier3_sheet.cell(row=0, column=18, value="Impact")
-    tier3_sheet.cell(row=0, column=19, value="Severity")
-    tier3_sheet.cell(row=0, column=20, value="Maximum Population AF")
-    tier3_sheet.cell(row=0, column=21, value="Min Caller Depth")
-    tier3_sheet.cell(row=0, column=22, value="Max Caller Depth")
-    tier3_sheet.cell(row=0, column=23, value="Chrom")
-    tier3_sheet.cell(row=0, column=24, value="Start")
-    tier3_sheet.cell(row=0, column=25, value="End")
-    tier3_sheet.cell(row=0, column=26, value="rsIDs")
+    tier3_sheet.cell(row=1, column=1, value="Sample")
+    tier3_sheet.cell(row=1, column=2, value="Library")
+    tier3_sheet.cell(row=1, column=3, value="Gene")
+    tier3_sheet.cell(row=1, column=4, value="Amplicon")
+    tier3_sheet.cell(row=1, column=5, value="Ref")
+    tier3_sheet.cell(row=1, column=6, value="Alt")
+    tier3_sheet.cell(row=1, column=7, value="Codon")
+    tier3_sheet.cell(row=1, column=8, value="AA")
+    tier3_sheet.cell(row=1, column=9, value="Max Caller Somatic VAF")
+    tier3_sheet.cell(row=1, column=10, value="Callers")
+    tier3_sheet.cell(row=1, column=11, value="COSMIC IDs")
+    tier3_sheet.cell(row=1, column=12, value="Num COSMIC Samples")
+    tier3_sheet.cell(row=1, column=13, value="COSMIC AA")
+    tier3_sheet.cell(row=1, column=14, value="Clinvar Significance")
+    tier3_sheet.cell(row=1, column=15, value="Clinvar HGVS")
+    tier3_sheet.cell(row=1, column=16, value="Clinvar Disease")
+    tier3_sheet.cell(row=1, column=17, value="Coverage")
+    tier3_sheet.cell(row=1, column=18, value="Num Reads")
+    tier3_sheet.cell(row=1, column=19, value="Impact")
+    tier3_sheet.cell(row=1, column=20, value="Severity")
+    tier3_sheet.cell(row=1, column=21, value="Maximum Population AF")
+    tier3_sheet.cell(row=1, column=22, value="Min Caller Depth")
+    tier3_sheet.cell(row=1, column=23, value="Max Caller Depth")
+    tier3_sheet.cell(row=1, column=24, value="Chrom")
+    tier3_sheet.cell(row=1, column=25, value="Start")
+    tier3_sheet.cell(row=1, column=26, value="End")
+    tier3_sheet.cell(row=1, column=27, value="rsIDs")
 
-    col = 27
+    col = 28
     if 'mutect' in callers:
-        tier3_sheet.cell(row=0, column=col, value="MuTect_AF")
+        tier3_sheet.cell(row=1, column=col, value="MuTect_AF")
         col += 1
 
     if 'vardict' in callers:
-        tier3_sheet.cell(row=0, column=col, value="VarDict_AF")
+        tier3_sheet.cell(row=1, column=col, value="VarDict_AF")
         col += 1
 
     if 'freebayes' in callers:
-        tier3_sheet.cell(row=0, column=col, value="FreeBayes_AF")
+        tier3_sheet.cell(row=1, column=col, value="FreeBayes_AF")
         col += 1
 
     if 'scalpel' in callers:
-        tier3_sheet.cell(row=0, column=col, value="Scalpel_AF")
+        tier3_sheet.cell(row=1, column=col, value="Scalpel_AF")
         col += 1
 
     if 'platypus' in callers:
-        tier3_sheet.cell(row=0, column=col, value="Platypus_AF")
+        tier3_sheet.cell(row=1, column=col, value="Platypus_AF")
         col += 1
 
     if 'pindel' in callers:
-        tier3_sheet.cell(row=0, column=col, value="Pindel_AF")
+        tier3_sheet.cell(row=1, column=col, value="Pindel_AF")
         col += 1
 
-    row = 1
-    for variant in report_data['']:
-        tier3_sheet.cell(row=row, column=0, value="{}".format(variant.sample))
-        tier3_sheet.cell(row=row, column=1, value="{}".format(variant.library_name))
-        tier3_sheet.cell(row=row, column=2, value="{}".format(variant.gene))
-        tier3_sheet.cell(row=row, column=3, value="{}".format(variant.amplicon_data['amplicon']))
-        tier3_sheet.cell(row=row, column=4, value="{}".format(variant.ref))
-        tier3_sheet.cell(row=row, column=5, value="{}".format(variant.alt))
-        tier3_sheet.cell(row=row, column=6, value="{}".format(variant.codon_change))
-        tier3_sheet.cell(row=row, column=7, value="{}".format(variant.aa_change))
-        tier3_sheet.cell(row=row, column=8, value="{}".format(variant.max_som_aaf))
-        tier3_sheet.cell(row=row, column=9, value="{}".format(",".join(variant.callers) or None))
-        tier3_sheet.cell(row=row, column=10, value="{}".format(",".join(variant.cosmic_ids) or None))
-        tier3_sheet.cell(row=row, column=11, value="{}".format(variant.cosmic_data['num_samples']))
-        tier3_sheet.cell(row=row, column=12, value="{}".format(variant.cosmic_data['aa']))
-        tier3_sheet.cell(row=row, column=13, value="{}".format(variant.clinvar_data['significance']))
-        tier3_sheet.cell(row=row, column=14, value="{}".format(variant.clinvar_data['hgvs']))
-        tier3_sheet.cell(row=row, column=15, value="{}".format(variant.clinvar_data['disease']))
-        tier3_sheet.cell(row=row, column=16,
-                         value="{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['mean_coverage']))
+    row = 2
+    for variant in report_data['variants']['tier3_pass_variants']:
+        tier3_sheet.cell(row=row, column=1, value="{}".format(variant.sample))
+        tier3_sheet.cell(row=row, column=2, value="{}".format(variant.library_name))
+        tier3_sheet.cell(row=row, column=3, value="{}".format(variant.gene))
+        tier3_sheet.cell(row=row, column=4, value="{}".format(variant.amplicon_data['amplicon']))
+        tier3_sheet.cell(row=row, column=5, value="{}".format(variant.ref))
+        tier3_sheet.cell(row=row, column=6, value="{}".format(variant.alt))
+        tier3_sheet.cell(row=row, column=7, value="{}".format(variant.codon_change))
+        tier3_sheet.cell(row=row, column=8, value="{}".format(variant.aa_change))
+        tier3_sheet.cell(row=row, column=9, value="{}".format(variant.max_som_aaf))
+        tier3_sheet.cell(row=row, column=10, value="{}".format(",".join(variant.callers) or None))
+        tier3_sheet.cell(row=row, column=11, value="{}".format(",".join(variant.cosmic_ids) or None))
+        tier3_sheet.cell(row=row, column=12, value="{}".format(variant.cosmic_data['num_samples']))
+        tier3_sheet.cell(row=row, column=13, value="{}".format(variant.cosmic_data['aa']))
+        tier3_sheet.cell(row=row, column=14, value="{}".format(variant.clinvar_data['significance']))
+        tier3_sheet.cell(row=row, column=15, value="{}".format(variant.clinvar_data['hgvs']))
+        tier3_sheet.cell(row=row, column=16, value="{}".format(variant.clinvar_data['disease']))
         tier3_sheet.cell(row=row, column=17,
+                         value="{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['mean_coverage']))
+        tier3_sheet.cell(row=row, column=18,
                          value="{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['num_reads']))
-        tier3_sheet.cell(row=row, column=18, value="{}".format(variant.impact))
-        tier3_sheet.cell(row=row, column=19, value="{}".format(variant.severity))
-        tier3_sheet.cell(row=row, column=20, value="{}".format(variant.max_maf_all))
-        tier3_sheet.cell(row=row, column=21, value="{}".format(variant.min_depth))
-        tier3_sheet.cell(row=row, column=22, value="{}".format(variant.max_depth))
-        tier3_sheet.cell(row=row, column=23, value="{}".format(variant.chr))
-        tier3_sheet.cell(row=row, column=24, value="{}".format(variant.pos))
-        tier3_sheet.cell(row=row, column=25, value="{}".format(variant.end))
-        tier3_sheet.cell(row=row, column=26, value="{}".format(",".join(variant.rs_ids)))
+        tier3_sheet.cell(row=row, column=19, value="{}".format(variant.impact))
+        tier3_sheet.cell(row=row, column=20, value="{}".format(variant.severity))
+        tier3_sheet.cell(row=row, column=21, value="{}".format(variant.max_maf_all))
+        tier3_sheet.cell(row=row, column=22, value="{}".format(variant.min_depth))
+        tier3_sheet.cell(row=row, column=23, value="{}".format(variant.max_depth))
+        tier3_sheet.cell(row=row, column=24, value="{}".format(variant.chr))
+        tier3_sheet.cell(row=row, column=25, value="{}".format(variant.pos))
+        tier3_sheet.cell(row=row, column=26, value="{}".format(variant.end))
+        tier3_sheet.cell(row=row, column=27, value="{}".format(",".join(variant.rs_ids)))
 
-        col = 27
+        col = 28
         if 'mutect' in callers:
             tier3_sheet.cell(row=row, column=col, value="{}".format(variant.mutect.get('AAF') or None))
             col += 1
@@ -450,96 +450,94 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
             tier3_sheet.cell(row=row, column=col, value="{}".format(variant.pindel.get('AAF') or None))
             col += 1
 
-        row += 1
-
     ####################################################################################################################
 
-    tier4_sheet.cell(row=0, column=0, value="Sample")
-    tier4_sheet.cell(row=0, column=1, value="Library")
-    tier4_sheet.cell(row=0, column=2, value="Gene")
-    tier4_sheet.cell(row=0, column=3, value="Amplicon")
-    tier4_sheet.cell(row=0, column=4, value="Ref")
-    tier4_sheet.cell(row=0, column=5, value="Alt")
-    tier4_sheet.cell(row=0, column=6, value="Codon")
-    tier4_sheet.cell(row=0, column=7, value="AA")
-    tier4_sheet.cell(row=0, column=8, value="Max Caller Somatic VAF")
-    tier4_sheet.cell(row=0, column=9, value="Callers")
-    tier4_sheet.cell(row=0, column=10, value="COSMIC IDs")
-    tier4_sheet.cell(row=0, column=11, value="Num COSMIC Samples")
-    tier4_sheet.cell(row=0, column=12, value="COSMIC AA")
-    tier4_sheet.cell(row=0, column=13, value="Clinvar Significance")
-    tier4_sheet.cell(row=0, column=14, value="Clinvar HGVS")
-    tier4_sheet.cell(row=0, column=15, value="Clinvar Disease")
-    tier4_sheet.cell(row=0, column=16, value="Coverage")
-    tier4_sheet.cell(row=0, column=17, value="Num Reads")
-    tier4_sheet.cell(row=0, column=18, value="Impact")
-    tier4_sheet.cell(row=0, column=19, value="Severity")
-    tier4_sheet.cell(row=0, column=20, value="Maximum Population AF")
-    tier4_sheet.cell(row=0, column=21, value="Min Caller Depth")
-    tier4_sheet.cell(row=0, column=22, value="Max Caller Depth")
-    tier4_sheet.cell(row=0, column=23, value="Chrom")
-    tier4_sheet.cell(row=0, column=24, value="Start")
-    tier4_sheet.cell(row=0, column=25, value="End")
-    tier4_sheet.cell(row=0, column=26, value="rsIDs")
+    tier4_sheet.cell(row=1, column=1, value="Sample")
+    tier4_sheet.cell(row=1, column=2, value="Library")
+    tier4_sheet.cell(row=1, column=3, value="Gene")
+    tier4_sheet.cell(row=1, column=4, value="Amplicon")
+    tier4_sheet.cell(row=1, column=5, value="Ref")
+    tier4_sheet.cell(row=1, column=6, value="Alt")
+    tier4_sheet.cell(row=1, column=7, value="Codon")
+    tier4_sheet.cell(row=1, column=8, value="AA")
+    tier4_sheet.cell(row=1, column=9, value="Max Caller Somatic VAF")
+    tier4_sheet.cell(row=1, column=10, value="Callers")
+    tier4_sheet.cell(row=1, column=11, value="COSMIC IDs")
+    tier4_sheet.cell(row=1, column=12, value="Num COSMIC Samples")
+    tier4_sheet.cell(row=1, column=13, value="COSMIC AA")
+    tier4_sheet.cell(row=1, column=14, value="Clinvar Significance")
+    tier4_sheet.cell(row=1, column=15, value="Clinvar HGVS")
+    tier4_sheet.cell(row=1, column=16, value="Clinvar Disease")
+    tier4_sheet.cell(row=1, column=17, value="Coverage")
+    tier4_sheet.cell(row=1, column=18, value="Num Reads")
+    tier4_sheet.cell(row=1, column=19, value="Impact")
+    tier4_sheet.cell(row=1, column=20, value="Severity")
+    tier4_sheet.cell(row=1, column=21, value="Maximum Population AF")
+    tier4_sheet.cell(row=1, column=22, value="Min Caller Depth")
+    tier4_sheet.cell(row=1, column=23, value="Max Caller Depth")
+    tier4_sheet.cell(row=1, column=24, value="Chrom")
+    tier4_sheet.cell(row=1, column=25, value="Start")
+    tier4_sheet.cell(row=1, column=26, value="End")
+    tier4_sheet.cell(row=1, column=27, value="rsIDs")
 
-    col = 27
+    col = 28
     if 'mutect' in callers:
-        tier4_sheet.cell(row=0, column=col, value="MuTect_AF")
+        tier4_sheet.cell(row=1, column=col, value="MuTect_AF")
         col += 1
 
     if 'vardict' in callers:
-        tier4_sheet.cell(row=0, column=col, value="VarDict_AF")
+        tier4_sheet.cell(row=1, column=col, value="VarDict_AF")
         col += 1
 
     if 'freebayes' in callers:
-        tier4_sheet.cell(row=0, column=col, value="FreeBayes_AF")
+        tier4_sheet.cell(row=1, column=col, value="FreeBayes_AF")
         col += 1
 
     if 'scalpel' in callers:
-        tier4_sheet.cell(row=0, column=col, value="Scalpel_AF")
+        tier4_sheet.cell(row=1, column=col, value="Scalpel_AF")
         col += 1
 
     if 'platypus' in callers:
-        tier4_sheet.cell(row=0, column=col, value="Platypus_AF")
+        tier4_sheet.cell(row=1, column=col, value="Platypus_AF")
         col += 1
 
     if 'pindel' in callers:
-        tier4_sheet.cell(row=0, column=col, value="Pindel_AF")
+        tier4_sheet.cell(row=1, column=col, value="Pindel_AF")
         col += 1
 
-    row = 1
-    for variant in report_data['']:
-        tier4_sheet.cell(row=row, column=0, value="{}".format(variant.sample))
-        tier4_sheet.cell(row=row, column=1, value="{}".format(variant.library_name))
-        tier4_sheet.cell(row=row, column=2, value="{}".format(variant.gene))
-        tier4_sheet.cell(row=row, column=3, value="{}".format(variant.amplicon_data['amplicon']))
-        tier4_sheet.cell(row=row, column=4, value="{}".format(variant.ref))
-        tier4_sheet.cell(row=row, column=5, value="{}".format(variant.alt))
-        tier4_sheet.cell(row=row, column=6, value="{}".format(variant.codon_change))
-        tier4_sheet.cell(row=row, column=7, value="{}".format(variant.aa_change))
-        tier4_sheet.cell(row=row, column=8, value="{}".format(variant.max_som_aaf))
-        tier4_sheet.cell(row=row, column=9, value="{}".format(",".join(variant.callers) or None))
-        tier4_sheet.cell(row=row, column=10, value="{}".format(",".join(variant.cosmic_ids) or None))
-        tier4_sheet.cell(row=row, column=11, value="{}".format(variant.cosmic_data['num_samples']))
-        tier4_sheet.cell(row=row, column=12, value="{}".format(variant.cosmic_data['aa']))
-        tier4_sheet.cell(row=row, column=13, value="{}".format(variant.clinvar_data['significance']))
-        tier4_sheet.cell(row=row, column=14, value="{}".format(variant.clinvar_data['hgvs']))
-        tier4_sheet.cell(row=row, column=15, value="{}".format(variant.clinvar_data['disease']))
-        tier4_sheet.cell(row=row, column=16,
-                         value="{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['mean_coverage']))
+    row = 2
+    for variant in report_data['variants']['tier3_pass_variants']:
+        tier4_sheet.cell(row=row, column=1, value="{}".format(variant.sample))
+        tier4_sheet.cell(row=row, column=2, value="{}".format(variant.library_name))
+        tier4_sheet.cell(row=row, column=3, value="{}".format(variant.gene))
+        tier4_sheet.cell(row=row, column=4, value="{}".format(variant.amplicon_data['amplicon']))
+        tier4_sheet.cell(row=row, column=5, value="{}".format(variant.ref))
+        tier4_sheet.cell(row=row, column=6, value="{}".format(variant.alt))
+        tier4_sheet.cell(row=row, column=7, value="{}".format(variant.codon_change))
+        tier4_sheet.cell(row=row, column=8, value="{}".format(variant.aa_change))
+        tier4_sheet.cell(row=row, column=9, value="{}".format(variant.max_som_aaf))
+        tier4_sheet.cell(row=row, column=10, value="{}".format(",".join(variant.callers) or None))
+        tier4_sheet.cell(row=row, column=11, value="{}".format(",".join(variant.cosmic_ids) or None))
+        tier4_sheet.cell(row=row, column=12, value="{}".format(variant.cosmic_data['num_samples']))
+        tier4_sheet.cell(row=row, column=13, value="{}".format(variant.cosmic_data['aa']))
+        tier4_sheet.cell(row=row, column=14, value="{}".format(variant.clinvar_data['significance']))
+        tier4_sheet.cell(row=row, column=15, value="{}".format(variant.clinvar_data['hgvs']))
+        tier4_sheet.cell(row=row, column=16, value="{}".format(variant.clinvar_data['disease']))
         tier4_sheet.cell(row=row, column=17,
+                         value="{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['mean_coverage']))
+        tier4_sheet.cell(row=row, column=18,
                          value="{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['num_reads']))
-        tier4_sheet.cell(row=row, column=18, value="{}".format(variant.impact))
-        tier4_sheet.cell(row=row, column=19, value="{}".format(variant.severity))
-        tier4_sheet.cell(row=row, column=20, value="{}".format(variant.max_maf_all))
-        tier4_sheet.cell(row=row, column=21, value="{}".format(variant.min_depth))
-        tier4_sheet.cell(row=row, column=22, value="{}".format(variant.max_depth))
-        tier4_sheet.cell(row=row, column=23, value="{}".format(variant.chr))
-        tier4_sheet.cell(row=row, column=24, value="{}".format(variant.pos))
-        tier4_sheet.cell(row=row, column=25, value="{}".format(variant.end))
-        tier4_sheet.cell(row=row, column=26, value="{}".format(",".join(variant.rs_ids)))
+        tier4_sheet.cell(row=row, column=19, value="{}".format(variant.impact))
+        tier4_sheet.cell(row=row, column=20, value="{}".format(variant.severity))
+        tier4_sheet.cell(row=row, column=21, value="{}".format(variant.max_maf_all))
+        tier4_sheet.cell(row=row, column=22, value="{}".format(variant.min_depth))
+        tier4_sheet.cell(row=row, column=23, value="{}".format(variant.max_depth))
+        tier4_sheet.cell(row=row, column=24, value="{}".format(variant.chr))
+        tier4_sheet.cell(row=row, column=25, value="{}".format(variant.pos))
+        tier4_sheet.cell(row=row, column=26, value="{}".format(variant.end))
+        tier4_sheet.cell(row=row, column=27, value="{}".format(",".join(variant.rs_ids)))
 
-        col = 27
+        col = 28
         if 'mutect' in callers:
             tier4_sheet.cell(row=row, column=col, value="{}".format(variant.mutect.get('AAF') or None))
             col += 1
@@ -564,98 +562,94 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
             tier4_sheet.cell(row=row, column=col, value="{}".format(variant.pindel.get('AAF') or None))
             col += 1
 
-        row += 1
-
     ####################################################################################################################
 
-    tier1_fail_sheet.cell(row=0, column=0, value="Sample")
-    tier1_fail_sheet.cell(row=0, column=1, value="Library")
-    tier1_fail_sheet.cell(row=0, column=2, value="Gene")
-    tier1_fail_sheet.cell(row=0, column=3, value="Amplicon")
-    tier1_fail_sheet.cell(row=0, column=4, value="Ref")
-    tier1_fail_sheet.cell(row=0, column=5, value="Alt")
-    tier1_fail_sheet.cell(row=0, column=6, value="Codon")
-    tier1_fail_sheet.cell(row=0, column=7, value="AA")
-    tier1_fail_sheet.cell(row=0, column=8, value="Max Caller Somatic VAF")
-    tier1_fail_sheet.cell(row=0, column=9, value="Callers")
-    tier1_fail_sheet.cell(row=0, column=10, value="COSMIC IDs")
-    tier1_fail_sheet.cell(row=0, column=11, value="Num COSMIC Samples")
-    tier1_fail_sheet.cell(row=0, column=12, value="COSMIC AA")
-    tier1_fail_sheet.cell(row=0, column=13, value="Clinvar Significance")
-    tier1_fail_sheet.cell(row=0, column=14, value="Clinvar HGVS")
-    tier1_fail_sheet.cell(row=0, column=15, value="Clinvar Disease")
-    tier1_fail_sheet.cell(row=0, column=16, value="Coverage")
-    tier1_fail_sheet.cell(row=0, column=17, value="Num Reads")
-    tier1_fail_sheet.cell(row=0, column=18, value="Impact")
-    tier1_fail_sheet.cell(row=0, column=19, value="Severity")
-    tier1_fail_sheet.cell(row=0, column=20, value="Maximum Population AF")
-    tier1_fail_sheet.cell(row=0, column=21, value="Min Caller Depth")
-    tier1_fail_sheet.cell(row=0, column=22, value="Max Caller Depth")
-    tier1_fail_sheet.cell(row=0, column=23, value="Chrom")
-    tier1_fail_sheet.cell(row=0, column=24, value="Start")
-    tier1_fail_sheet.cell(row=0, column=25, value="End")
-    tier1_fail_sheet.cell(row=0, column=26, value="rsIDs")
+    tier1_fail_sheet.cell(row=1, column=1, value="Sample")
+    tier1_fail_sheet.cell(row=1, column=2, value="Library")
+    tier1_fail_sheet.cell(row=1, column=3, value="Gene")
+    tier1_fail_sheet.cell(row=1, column=4, value="Amplicon")
+    tier1_fail_sheet.cell(row=1, column=5, value="Ref")
+    tier1_fail_sheet.cell(row=1, column=6, value="Alt")
+    tier1_fail_sheet.cell(row=1, column=7, value="Codon")
+    tier1_fail_sheet.cell(row=1, column=8, value="AA")
+    tier1_fail_sheet.cell(row=1, column=9, value="Max Caller Somatic VAF")
+    tier1_fail_sheet.cell(row=1, column=10, value="Callers")
+    tier1_fail_sheet.cell(row=1, column=11, value="COSMIC IDs")
+    tier1_fail_sheet.cell(row=1, column=12, value="Num COSMIC Samples")
+    tier1_fail_sheet.cell(row=1, column=13, value="COSMIC AA")
+    tier1_fail_sheet.cell(row=1, column=14, value="Clinvar Significance")
+    tier1_fail_sheet.cell(row=1, column=15, value="Clinvar HGVS")
+    tier1_fail_sheet.cell(row=1, column=16, value="Clinvar Disease")
+    tier1_fail_sheet.cell(row=1, column=17, value="Coverage")
+    tier1_fail_sheet.cell(row=1, column=18, value="Num Reads")
+    tier1_fail_sheet.cell(row=1, column=19, value="Impact")
+    tier1_fail_sheet.cell(row=1, column=20, value="Severity")
+    tier1_fail_sheet.cell(row=1, column=21, value="Maximum Population AF")
+    tier1_fail_sheet.cell(row=1, column=22, value="Min Caller Depth")
+    tier1_fail_sheet.cell(row=1, column=23, value="Max Caller Depth")
+    tier1_fail_sheet.cell(row=1, column=24, value="Chrom")
+    tier1_fail_sheet.cell(row=1, column=25, value="Start")
+    tier1_fail_sheet.cell(row=1, column=26, value="End")
+    tier1_fail_sheet.cell(row=1, column=27, value="rsIDs")
 
-    col = 27
+    col = 28
     if 'mutect' in callers:
-        tier1_fail_sheet.cell(row=0, column=col, value="MuTect_AF")
+        tier1_fail_sheet.cell(row=1, column=col, value="MuTect_AF")
         col += 1
 
     if 'vardict' in callers:
-        tier1_fail_sheet.cell(row=0, column=col, value="VarDict_AF")
+        tier1_fail_sheet.cell(row=1, column=col, value="VarDict_AF")
         col += 1
 
     if 'freebayes' in callers:
-        tier1_fail_sheet.cell(row=0, column=col, value="FreeBayes_AF")
+        tier1_fail_sheet.cell(row=1, column=col, value="FreeBayes_AF")
         col += 1
 
     if 'scalpel' in callers:
-        tier1_fail_sheet.cell(row=0, column=col, value="Scalpel_AF")
+        tier1_fail_sheet.cell(row=1, column=col, value="Scalpel_AF")
         col += 1
 
     if 'platypus' in callers:
-        tier1_fail_sheet.cell(row=0, column=col, value="Platypus_AF")
+        tier1_fail_sheet.cell(row=1, column=col, value="Platypus_AF")
         col += 1
 
     if 'pindel' in callers:
-        tier1_fail_sheet.cell(row=0, column=col, value="Pindel_AF")
+        tier1_fail_sheet.cell(row=1, column=col, value="Pindel_AF")
         col += 1
 
-    row = 1
-    for variant in report_data['']:
-        tier1_fail_sheet.cell(row=row, column=0, value="{}".format(variant.sample))
-        tier1_fail_sheet.cell(row=row, column=1, value="{}".format(variant.library_name))
-        tier1_fail_sheet.cell(row=row, column=2, value="{}".format(variant.gene))
-        tier1_fail_sheet.cell(row=row, column=3, value="{}".format(variant.amplicon_data['amplicon']))
-        tier1_fail_sheet.cell(row=row, column=4, value="{}".format(variant.ref))
-        tier1_fail_sheet.cell(row=row, column=5, value="{}".format(variant.alt))
-        tier1_fail_sheet.cell(row=row, column=6, value="{}".format(variant.codon_change))
-        tier1_fail_sheet.cell(row=row, column=7, value="{}".format(variant.aa_change))
-        tier1_fail_sheet.cell(row=row, column=8, value="{}".format(variant.max_som_aaf))
-        tier1_fail_sheet.cell(row=row, column=9, value="{}".format(",".join(variant.callers) or None))
-        tier1_fail_sheet.cell(row=row, column=10, value="{}".format(",".join(variant.cosmic_ids) or None))
-        tier1_fail_sheet.cell(row=row, column=11, value="{}".format(variant.cosmic_data['num_samples']))
-        tier1_fail_sheet.cell(row=row, column=12, value="{}".format(variant.cosmic_data['aa']))
-        tier1_fail_sheet.cell(row=row, column=13, value="{}".format(variant.clinvar_data['significance']))
-        tier1_fail_sheet.cell(row=row, column=14, value="{}".format(variant.clinvar_data['hgvs']))
-        tier1_fail_sheet.cell(row=row, column=15, value="{}".format(variant.clinvar_data['disease']))
-        tier1_fail_sheet.cell(row=row, column=16,
-                              value="{}".format(
-                                  report_data['coverage'][variant.amplicon_data['amplicon']]['mean_coverage']))
+    row = 2
+    for variant in report_data['variants']['tier1_pass_variants']:
+        tier1_fail_sheet.cell(row=row, column=1, value="{}".format(variant.sample))
+        tier1_fail_sheet.cell(row=row, column=2, value="{}".format(variant.library_name))
+        tier1_fail_sheet.cell(row=row, column=3, value="{}".format(variant.gene))
+        tier1_fail_sheet.cell(row=row, column=4, value="{}".format(variant.amplicon_data['amplicon']))
+        tier1_fail_sheet.cell(row=row, column=5, value="{}".format(variant.ref))
+        tier1_fail_sheet.cell(row=row, column=6, value="{}".format(variant.alt))
+        tier1_fail_sheet.cell(row=row, column=7, value="{}".format(variant.codon_change))
+        tier1_fail_sheet.cell(row=row, column=8, value="{}".format(variant.aa_change))
+        tier1_fail_sheet.cell(row=row, column=9, value="{}".format(variant.max_som_aaf))
+        tier1_fail_sheet.cell(row=row, column=10, value="{}".format(",".join(variant.callers) or None))
+        tier1_fail_sheet.cell(row=row, column=11, value="{}".format(",".join(variant.cosmic_ids) or None))
+        tier1_fail_sheet.cell(row=row, column=12, value="{}".format(variant.cosmic_data['num_samples']))
+        tier1_fail_sheet.cell(row=row, column=13, value="{}".format(variant.cosmic_data['aa']))
+        tier1_fail_sheet.cell(row=row, column=14, value="{}".format(variant.clinvar_data['significance']))
+        tier1_fail_sheet.cell(row=row, column=15, value="{}".format(variant.clinvar_data['hgvs']))
+        tier1_fail_sheet.cell(row=row, column=16, value="{}".format(variant.clinvar_data['disease']))
         tier1_fail_sheet.cell(row=row, column=17,
-                              value="{}".format(
-                                  report_data['coverage'][variant.amplicon_data['amplicon']]['num_reads']))
-        tier1_fail_sheet.cell(row=row, column=18, value="{}".format(variant.impact))
-        tier1_fail_sheet.cell(row=row, column=19, value="{}".format(variant.severity))
-        tier1_fail_sheet.cell(row=row, column=20, value="{}".format(variant.max_maf_all))
-        tier1_fail_sheet.cell(row=row, column=21, value="{}".format(variant.min_depth))
-        tier1_fail_sheet.cell(row=row, column=22, value="{}".format(variant.max_depth))
-        tier1_fail_sheet.cell(row=row, column=23, value="{}".format(variant.chr))
-        tier1_fail_sheet.cell(row=row, column=24, value="{}".format(variant.pos))
-        tier1_fail_sheet.cell(row=row, column=25, value="{}".format(variant.end))
-        tier1_fail_sheet.cell(row=row, column=26, value="{}".format(",".join(variant.rs_ids)))
+                         value="{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['mean_coverage']))
+        tier1_fail_sheet.cell(row=row, column=18,
+                         value="{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['num_reads']))
+        tier1_fail_sheet.cell(row=row, column=19, value="{}".format(variant.impact))
+        tier1_fail_sheet.cell(row=row, column=20, value="{}".format(variant.severity))
+        tier1_fail_sheet.cell(row=row, column=21, value="{}".format(variant.max_maf_all))
+        tier1_fail_sheet.cell(row=row, column=22, value="{}".format(variant.min_depth))
+        tier1_fail_sheet.cell(row=row, column=23, value="{}".format(variant.max_depth))
+        tier1_fail_sheet.cell(row=row, column=24, value="{}".format(variant.chr))
+        tier1_fail_sheet.cell(row=row, column=25, value="{}".format(variant.pos))
+        tier1_fail_sheet.cell(row=row, column=26, value="{}".format(variant.end))
+        tier1_fail_sheet.cell(row=row, column=27, value="{}".format(",".join(variant.rs_ids)))
 
-        col = 27
+        col = 28
         if 'mutect' in callers:
             tier1_fail_sheet.cell(row=row, column=col, value="{}".format(variant.mutect.get('AAF') or None))
             col += 1
@@ -684,94 +678,94 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
 
     ####################################################################################################################
 
-    tier3_fail_sheet.cell(row=0, column=0, value="Sample")
-    tier3_fail_sheet.cell(row=0, column=1, value="Library")
-    tier3_fail_sheet.cell(row=0, column=2, value="Gene")
-    tier3_fail_sheet.cell(row=0, column=3, value="Amplicon")
-    tier3_fail_sheet.cell(row=0, column=4, value="Ref")
-    tier3_fail_sheet.cell(row=0, column=5, value="Alt")
-    tier3_fail_sheet.cell(row=0, column=6, value="Codon")
-    tier3_fail_sheet.cell(row=0, column=7, value="AA")
-    tier3_fail_sheet.cell(row=0, column=8, value="Max Caller Somatic VAF")
-    tier3_fail_sheet.cell(row=0, column=9, value="Callers")
-    tier3_fail_sheet.cell(row=0, column=10, value="COSMIC IDs")
-    tier3_fail_sheet.cell(row=0, column=11, value="Num COSMIC Samples")
-    tier3_fail_sheet.cell(row=0, column=12, value="COSMIC AA")
-    tier3_fail_sheet.cell(row=0, column=13, value="Clinvar Significance")
-    tier3_fail_sheet.cell(row=0, column=14, value="Clinvar HGVS")
-    tier3_fail_sheet.cell(row=0, column=15, value="Clinvar Disease")
-    tier3_fail_sheet.cell(row=0, column=16, value="Coverage")
-    tier3_fail_sheet.cell(row=0, column=17, value="Num Reads")
-    tier3_fail_sheet.cell(row=0, column=18, value="Impact")
-    tier3_fail_sheet.cell(row=0, column=19, value="Severity")
-    tier3_fail_sheet.cell(row=0, column=20, value="Maximum Population AF")
-    tier3_fail_sheet.cell(row=0, column=21, value="Min Caller Depth")
-    tier3_fail_sheet.cell(row=0, column=22, value="Max Caller Depth")
-    tier3_fail_sheet.cell(row=0, column=23, value="Chrom")
-    tier3_fail_sheet.cell(row=0, column=24, value="Start")
-    tier3_fail_sheet.cell(row=0, column=25, value="End")
-    tier3_fail_sheet.cell(row=0, column=26, value="rsIDs")
+    tier3_fail_sheet.cell(row=1, column=1, value="Sample")
+    tier3_fail_sheet.cell(row=1, column=2, value="Library")
+    tier3_fail_sheet.cell(row=1, column=3, value="Gene")
+    tier3_fail_sheet.cell(row=1, column=4, value="Amplicon")
+    tier3_fail_sheet.cell(row=1, column=5, value="Ref")
+    tier3_fail_sheet.cell(row=1, column=6, value="Alt")
+    tier3_fail_sheet.cell(row=1, column=7, value="Codon")
+    tier3_fail_sheet.cell(row=1, column=8, value="AA")
+    tier3_fail_sheet.cell(row=1, column=9, value="Max Caller Somatic VAF")
+    tier3_fail_sheet.cell(row=1, column=10, value="Callers")
+    tier3_fail_sheet.cell(row=1, column=11, value="COSMIC IDs")
+    tier3_fail_sheet.cell(row=1, column=12, value="Num COSMIC Samples")
+    tier3_fail_sheet.cell(row=1, column=13, value="COSMIC AA")
+    tier3_fail_sheet.cell(row=1, column=14, value="Clinvar Significance")
+    tier3_fail_sheet.cell(row=1, column=15, value="Clinvar HGVS")
+    tier3_fail_sheet.cell(row=1, column=16, value="Clinvar Disease")
+    tier3_fail_sheet.cell(row=1, column=17, value="Coverage")
+    tier3_fail_sheet.cell(row=1, column=18, value="Num Reads")
+    tier3_fail_sheet.cell(row=1, column=19, value="Impact")
+    tier3_fail_sheet.cell(row=1, column=20, value="Severity")
+    tier3_fail_sheet.cell(row=1, column=21, value="Maximum Population AF")
+    tier3_fail_sheet.cell(row=1, column=22, value="Min Caller Depth")
+    tier3_fail_sheet.cell(row=1, column=23, value="Max Caller Depth")
+    tier3_fail_sheet.cell(row=1, column=24, value="Chrom")
+    tier3_fail_sheet.cell(row=1, column=25, value="Start")
+    tier3_fail_sheet.cell(row=1, column=26, value="End")
+    tier3_fail_sheet.cell(row=1, column=27, value="rsIDs")
 
-    col = 27
+    col = 28
     if 'mutect' in callers:
-        tier3_fail_sheet.cell(row=0, column=col, value="MuTect_AF")
+        tier3_fail_sheet.cell(row=1, column=col, value="MuTect_AF")
         col += 1
 
     if 'vardict' in callers:
-        tier3_fail_sheet.cell(row=0, column=col, value="VarDict_AF")
+        tier3_fail_sheet.cell(row=1, column=col, value="VarDict_AF")
         col += 1
 
     if 'freebayes' in callers:
-        tier3_fail_sheet.cell(row=0, column=col, value="FreeBayes_AF")
+        tier3_fail_sheet.cell(row=1, column=col, value="FreeBayes_AF")
         col += 1
 
     if 'scalpel' in callers:
-        tier3_fail_sheet.cell(row=0, column=col, value="Scalpel_AF")
+        tier3_fail_sheet.cell(row=1, column=col, value="Scalpel_AF")
         col += 1
 
     if 'platypus' in callers:
-        tier3_fail_sheet.cell(row=0, column=col, value="Platypus_AF")
+        tier3_fail_sheet.cell(row=1, column=col, value="Platypus_AF")
         col += 1
 
     if 'pindel' in callers:
-        tier3_fail_sheet.cell(row=0, column=col, value="Pindel_AF")
+        tier3_fail_sheet.cell(row=1, column=col, value="Pindel_AF")
         col += 1
 
-    row = 1
-    for variant in report_data['']:
-        tier3_fail_sheet.cell(row=row, column=0, value="{}".format(variant.sample))
-        tier3_fail_sheet.cell(row=row, column=1, value="{}".format(variant.library_name))
-        tier3_fail_sheet.cell(row=row, column=2, value="{}".format(variant.gene))
-        tier3_fail_sheet.cell(row=row, column=3, value="{}".format(variant.amplicon_data['amplicon']))
-        tier3_fail_sheet.cell(row=row, column=4, value="{}".format(variant.ref))
-        tier3_fail_sheet.cell(row=row, column=5, value="{}".format(variant.alt))
-        tier3_fail_sheet.cell(row=row, column=6, value="{}".format(variant.codon_change))
-        tier3_fail_sheet.cell(row=row, column=7, value="{}".format(variant.aa_change))
-        tier3_fail_sheet.cell(row=row, column=8, value="{}".format(variant.max_som_aaf))
-        tier3_fail_sheet.cell(row=row, column=9, value="{}".format(",".join(variant.callers) or None))
-        tier3_fail_sheet.cell(row=row, column=10, value="{}".format(",".join(variant.cosmic_ids) or None))
-        tier3_fail_sheet.cell(row=row, column=11, value="{}".format(variant.cosmic_data['num_samples']))
-        tier3_fail_sheet.cell(row=row, column=12, value="{}".format(variant.cosmic_data['aa']))
-        tier3_fail_sheet.cell(row=row, column=13, value="{}".format(variant.clinvar_data['significance']))
-        tier3_fail_sheet.cell(row=row, column=14, value="{}".format(variant.clinvar_data['hgvs']))
-        tier3_fail_sheet.cell(row=row, column=15, value="{}".format(variant.clinvar_data['disease']))
-        tier3_fail_sheet.cell(row=row, column=16,
-                              value="{}".format(
-                                  report_data['coverage'][variant.amplicon_data['amplicon']]['mean_coverage']))
+    row = 2
+    for variant in report_data['variants']['tier1_pass_variants']:
+        tier3_fail_sheet.cell(row=row, column=1, value="{}".format(variant.sample))
+        tier3_fail_sheet.cell(row=row, column=2, value="{}".format(variant.library_name))
+        tier3_fail_sheet.cell(row=row, column=3, value="{}".format(variant.gene))
+        tier3_fail_sheet.cell(row=row, column=4, value="{}".format(variant.amplicon_data['amplicon']))
+        tier3_fail_sheet.cell(row=row, column=5, value="{}".format(variant.ref))
+        tier3_fail_sheet.cell(row=row, column=6, value="{}".format(variant.alt))
+        tier3_fail_sheet.cell(row=row, column=7, value="{}".format(variant.codon_change))
+        tier3_fail_sheet.cell(row=row, column=8, value="{}".format(variant.aa_change))
+        tier3_fail_sheet.cell(row=row, column=9, value="{}".format(variant.max_som_aaf))
+        tier3_fail_sheet.cell(row=row, column=10, value="{}".format(",".join(variant.callers) or None))
+        tier3_fail_sheet.cell(row=row, column=11, value="{}".format(",".join(variant.cosmic_ids) or None))
+        tier3_fail_sheet.cell(row=row, column=12, value="{}".format(variant.cosmic_data['num_samples']))
+        tier3_fail_sheet.cell(row=row, column=13, value="{}".format(variant.cosmic_data['aa']))
+        tier3_fail_sheet.cell(row=row, column=14, value="{}".format(variant.clinvar_data['significance']))
+        tier3_fail_sheet.cell(row=row, column=15, value="{}".format(variant.clinvar_data['hgvs']))
+        tier3_fail_sheet.cell(row=row, column=16, value="{}".format(variant.clinvar_data['disease']))
         tier3_fail_sheet.cell(row=row, column=17,
                               value="{}".format(
+                                  report_data['coverage'][variant.amplicon_data['amplicon']]['mean_coverage']))
+        tier3_fail_sheet.cell(row=row, column=18,
+                              value="{}".format(
                                   report_data['coverage'][variant.amplicon_data['amplicon']]['num_reads']))
-        tier3_fail_sheet.cell(row=row, column=18, value="{}".format(variant.impact))
-        tier3_fail_sheet.cell(row=row, column=19, value="{}".format(variant.severity))
-        tier3_fail_sheet.cell(row=row, column=20, value="{}".format(variant.max_maf_all))
-        tier3_fail_sheet.cell(row=row, column=21, value="{}".format(variant.min_depth))
-        tier3_fail_sheet.cell(row=row, column=22, value="{}".format(variant.max_depth))
-        tier3_fail_sheet.cell(row=row, column=23, value="{}".format(variant.chr))
-        tier3_fail_sheet.cell(row=row, column=24, value="{}".format(variant.pos))
-        tier3_fail_sheet.cell(row=row, column=25, value="{}".format(variant.end))
-        tier3_fail_sheet.cell(row=row, column=26, value="{}".format(",".join(variant.rs_ids)))
+        tier3_fail_sheet.cell(row=row, column=19, value="{}".format(variant.impact))
+        tier3_fail_sheet.cell(row=row, column=20, value="{}".format(variant.severity))
+        tier3_fail_sheet.cell(row=row, column=21, value="{}".format(variant.max_maf_all))
+        tier3_fail_sheet.cell(row=row, column=22, value="{}".format(variant.min_depth))
+        tier3_fail_sheet.cell(row=row, column=23, value="{}".format(variant.max_depth))
+        tier3_fail_sheet.cell(row=row, column=24, value="{}".format(variant.chr))
+        tier3_fail_sheet.cell(row=row, column=25, value="{}".format(variant.pos))
+        tier3_fail_sheet.cell(row=row, column=26, value="{}".format(variant.end))
+        tier3_fail_sheet.cell(row=row, column=27, value="{}".format(",".join(variant.rs_ids)))
 
-        col = 27
+        col = 28
         if 'mutect' in callers:
             tier3_fail_sheet.cell(row=row, column=col, value="{}".format(variant.mutect.get('AAF') or None))
             col += 1
@@ -800,94 +794,94 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
 
     ####################################################################################################################
 
-    tier4_fail_sheet.cell(row=0, column=0, value="Sample")
-    tier4_fail_sheet.cell(row=0, column=1, value="Library")
-    tier4_fail_sheet.cell(row=0, column=2, value="Gene")
-    tier4_fail_sheet.cell(row=0, column=3, value="Amplicon")
-    tier4_fail_sheet.cell(row=0, column=4, value="Ref")
-    tier4_fail_sheet.cell(row=0, column=5, value="Alt")
-    tier4_fail_sheet.cell(row=0, column=6, value="Codon")
-    tier4_fail_sheet.cell(row=0, column=7, value="AA")
-    tier4_fail_sheet.cell(row=0, column=8, value="Max Caller Somatic VAF")
-    tier4_fail_sheet.cell(row=0, column=9, value="Callers")
-    tier4_fail_sheet.cell(row=0, column=10, value="COSMIC IDs")
-    tier4_fail_sheet.cell(row=0, column=11, value="Num COSMIC Samples")
-    tier4_fail_sheet.cell(row=0, column=12, value="COSMIC AA")
-    tier4_fail_sheet.cell(row=0, column=13, value="Clinvar Significance")
-    tier4_fail_sheet.cell(row=0, column=14, value="Clinvar HGVS")
-    tier4_fail_sheet.cell(row=0, column=15, value="Clinvar Disease")
-    tier4_fail_sheet.cell(row=0, column=16, value="Coverage")
-    tier4_fail_sheet.cell(row=0, column=17, value="Num Reads")
-    tier4_fail_sheet.cell(row=0, column=18, value="Impact")
-    tier4_fail_sheet.cell(row=0, column=19, value="Severity")
-    tier4_fail_sheet.cell(row=0, column=20, value="Maximum Population AF")
-    tier4_fail_sheet.cell(row=0, column=21, value="Min Caller Depth")
-    tier4_fail_sheet.cell(row=0, column=22, value="Max Caller Depth")
-    tier4_fail_sheet.cell(row=0, column=23, value="Chrom")
-    tier4_fail_sheet.cell(row=0, column=24, value="Start")
-    tier4_fail_sheet.cell(row=0, column=25, value="End")
-    tier4_fail_sheet.cell(row=0, column=26, value="rsIDs")
+    tier4_fail_sheet.cell(row=1, column=1, value="Sample")
+    tier4_fail_sheet.cell(row=1, column=2, value="Library")
+    tier4_fail_sheet.cell(row=1, column=3, value="Gene")
+    tier4_fail_sheet.cell(row=1, column=4, value="Amplicon")
+    tier4_fail_sheet.cell(row=1, column=5, value="Ref")
+    tier4_fail_sheet.cell(row=1, column=6, value="Alt")
+    tier4_fail_sheet.cell(row=1, column=7, value="Codon")
+    tier4_fail_sheet.cell(row=1, column=8, value="AA")
+    tier4_fail_sheet.cell(row=1, column=9, value="Max Caller Somatic VAF")
+    tier4_fail_sheet.cell(row=1, column=10, value="Callers")
+    tier4_fail_sheet.cell(row=1, column=11, value="COSMIC IDs")
+    tier4_fail_sheet.cell(row=1, column=12, value="Num COSMIC Samples")
+    tier4_fail_sheet.cell(row=1, column=13, value="COSMIC AA")
+    tier4_fail_sheet.cell(row=1, column=14, value="Clinvar Significance")
+    tier4_fail_sheet.cell(row=1, column=15, value="Clinvar HGVS")
+    tier4_fail_sheet.cell(row=1, column=16, value="Clinvar Disease")
+    tier4_fail_sheet.cell(row=1, column=17, value="Coverage")
+    tier4_fail_sheet.cell(row=1, column=18, value="Num Reads")
+    tier4_fail_sheet.cell(row=1, column=19, value="Impact")
+    tier4_fail_sheet.cell(row=1, column=20, value="Severity")
+    tier4_fail_sheet.cell(row=1, column=21, value="Maximum Population AF")
+    tier4_fail_sheet.cell(row=1, column=22, value="Min Caller Depth")
+    tier4_fail_sheet.cell(row=1, column=23, value="Max Caller Depth")
+    tier4_fail_sheet.cell(row=1, column=24, value="Chrom")
+    tier4_fail_sheet.cell(row=1, column=25, value="Start")
+    tier4_fail_sheet.cell(row=1, column=26, value="End")
+    tier4_fail_sheet.cell(row=1, column=27, value="rsIDs")
 
-    col = 27
+    col = 28
     if 'mutect' in callers:
-        tier4_fail_sheet.cell(row=0, column=col, value="MuTect_AF")
+        tier4_fail_sheet.cell(row=1, column=col, value="MuTect_AF")
         col += 1
 
     if 'vardict' in callers:
-        tier4_fail_sheet.cell(row=0, column=col, value="VarDict_AF")
+        tier4_fail_sheet.cell(row=1, column=col, value="VarDict_AF")
         col += 1
 
     if 'freebayes' in callers:
-        tier4_fail_sheet.cell(row=0, column=col, value="FreeBayes_AF")
+        tier4_fail_sheet.cell(row=1, column=col, value="FreeBayes_AF")
         col += 1
 
     if 'scalpel' in callers:
-        tier4_fail_sheet.cell(row=0, column=col, value="Scalpel_AF")
+        tier4_fail_sheet.cell(row=1, column=col, value="Scalpel_AF")
         col += 1
 
     if 'platypus' in callers:
-        tier4_fail_sheet.cell(row=0, column=col, value="Platypus_AF")
+        tier4_fail_sheet.cell(row=1, column=col, value="Platypus_AF")
         col += 1
 
     if 'pindel' in callers:
-        tier4_fail_sheet.cell(row=0, column=col, value="Pindel_AF")
+        tier4_fail_sheet.cell(row=1, column=col, value="Pindel_AF")
         col += 1
 
-    row = 1
-    for variant in report_data['']:
-        tier4_fail_sheet.cell(row=row, column=0, value="{}".format(variant.sample))
-        tier4_fail_sheet.cell(row=row, column=1, value="{}".format(variant.library_name))
-        tier4_fail_sheet.cell(row=row, column=2, value="{}".format(variant.gene))
-        tier4_fail_sheet.cell(row=row, column=3, value="{}".format(variant.amplicon_data['amplicon']))
-        tier4_fail_sheet.cell(row=row, column=4, value="{}".format(variant.ref))
-        tier4_fail_sheet.cell(row=row, column=5, value="{}".format(variant.alt))
-        tier4_fail_sheet.cell(row=row, column=6, value="{}".format(variant.codon_change))
-        tier4_fail_sheet.cell(row=row, column=7, value="{}".format(variant.aa_change))
-        tier4_fail_sheet.cell(row=row, column=8, value="{}".format(variant.max_som_aaf))
-        tier4_fail_sheet.cell(row=row, column=9, value="{}".format(",".join(variant.callers) or None))
-        tier4_fail_sheet.cell(row=row, column=10, value="{}".format(",".join(variant.cosmic_ids) or None))
-        tier4_fail_sheet.cell(row=row, column=11, value="{}".format(variant.cosmic_data['num_samples']))
-        tier4_fail_sheet.cell(row=row, column=12, value="{}".format(variant.cosmic_data['aa']))
-        tier4_fail_sheet.cell(row=row, column=13, value="{}".format(variant.clinvar_data['significance']))
-        tier4_fail_sheet.cell(row=row, column=14, value="{}".format(variant.clinvar_data['hgvs']))
-        tier4_fail_sheet.cell(row=row, column=15, value="{}".format(variant.clinvar_data['disease']))
-        tier4_fail_sheet.cell(row=row, column=16,
-                              value="{}".format(
-                                  report_data['coverage'][variant.amplicon_data['amplicon']]['mean_coverage']))
+    row = 2
+    for variant in report_data['variants']['tier1_pass_variants']:
+        tier4_fail_sheet.cell(row=row, column=1, value="{}".format(variant.sample))
+        tier4_fail_sheet.cell(row=row, column=2, value="{}".format(variant.library_name))
+        tier4_fail_sheet.cell(row=row, column=3, value="{}".format(variant.gene))
+        tier4_fail_sheet.cell(row=row, column=4, value="{}".format(variant.amplicon_data['amplicon']))
+        tier4_fail_sheet.cell(row=row, column=5, value="{}".format(variant.ref))
+        tier4_fail_sheet.cell(row=row, column=6, value="{}".format(variant.alt))
+        tier4_fail_sheet.cell(row=row, column=7, value="{}".format(variant.codon_change))
+        tier4_fail_sheet.cell(row=row, column=8, value="{}".format(variant.aa_change))
+        tier4_fail_sheet.cell(row=row, column=9, value="{}".format(variant.max_som_aaf))
+        tier4_fail_sheet.cell(row=row, column=10, value="{}".format(",".join(variant.callers) or None))
+        tier4_fail_sheet.cell(row=row, column=11, value="{}".format(",".join(variant.cosmic_ids) or None))
+        tier4_fail_sheet.cell(row=row, column=12, value="{}".format(variant.cosmic_data['num_samples']))
+        tier4_fail_sheet.cell(row=row, column=13, value="{}".format(variant.cosmic_data['aa']))
+        tier4_fail_sheet.cell(row=row, column=14, value="{}".format(variant.clinvar_data['significance']))
+        tier4_fail_sheet.cell(row=row, column=15, value="{}".format(variant.clinvar_data['hgvs']))
+        tier4_fail_sheet.cell(row=row, column=16, value="{}".format(variant.clinvar_data['disease']))
         tier4_fail_sheet.cell(row=row, column=17,
                               value="{}".format(
+                                  report_data['coverage'][variant.amplicon_data['amplicon']]['mean_coverage']))
+        tier4_fail_sheet.cell(row=row, column=18,
+                              value="{}".format(
                                   report_data['coverage'][variant.amplicon_data['amplicon']]['num_reads']))
-        tier4_fail_sheet.cell(row=row, column=18, value="{}".format(variant.impact))
-        tier4_fail_sheet.cell(row=row, column=19, value="{}".format(variant.severity))
-        tier4_fail_sheet.cell(row=row, column=20, value="{}".format(variant.max_maf_all))
-        tier4_fail_sheet.cell(row=row, column=21, value="{}".format(variant.min_depth))
-        tier4_fail_sheet.cell(row=row, column=22, value="{}".format(variant.max_depth))
-        tier4_fail_sheet.cell(row=row, column=23, value="{}".format(variant.chr))
-        tier4_fail_sheet.cell(row=row, column=24, value="{}".format(variant.pos))
-        tier4_fail_sheet.cell(row=row, column=25, value="{}".format(variant.end))
-        tier4_fail_sheet.cell(row=row, column=26, value="{}".format(",".join(variant.rs_ids)))
+        tier4_fail_sheet.cell(row=row, column=19, value="{}".format(variant.impact))
+        tier4_fail_sheet.cell(row=row, column=20, value="{}".format(variant.severity))
+        tier4_fail_sheet.cell(row=row, column=21, value="{}".format(variant.max_maf_all))
+        tier4_fail_sheet.cell(row=row, column=22, value="{}".format(variant.min_depth))
+        tier4_fail_sheet.cell(row=row, column=23, value="{}".format(variant.max_depth))
+        tier4_fail_sheet.cell(row=row, column=24, value="{}".format(variant.chr))
+        tier4_fail_sheet.cell(row=row, column=25, value="{}".format(variant.pos))
+        tier4_fail_sheet.cell(row=row, column=26, value="{}".format(variant.end))
+        tier4_fail_sheet.cell(row=row, column=27, value="{}".format(",".join(variant.rs_ids)))
 
-        col = 27
+        col = 28
         if 'mutect' in callers:
             tier4_fail_sheet.cell(row=row, column=col, value="{}".format(variant.mutect.get('AAF') or None))
             col += 1
