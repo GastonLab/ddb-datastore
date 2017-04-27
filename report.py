@@ -19,7 +19,7 @@ from cassandra.cqlengine import connection
 from cassandra.auth import PlainTextAuthProvider
 
 
-def process_sample(job, sample, samples, addresses, authenticator):
+def process_sample(job, sample, samples, addresses, authenticator, thresholds, callers):
     job.fileStore.logToMaster("Retrieving data for sample {}\n".format(sample))
     job.fileStore.logToMaster("Retrieving coverage data from database\n")
     connection.setup(addresses, "coveragestore", auth_provider=authenticator)
@@ -168,6 +168,8 @@ def process_sample(job, sample, samples, addresses, authenticator):
     report_data['variants'] = filtered_variant_data
     report_data['coverage'] = target_amplicon_coverage
 
+    return report_data
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -208,20 +210,9 @@ if __name__ == "__main__":
     root_job = Job.wrapJobFn(pipeline.spawn_batch_jobs, cores=1)
 
     for sample in samples:
-        sample_job = Job.wrapJobFn(pipeline.spawn_batch_jobs, cores=1)
-        coverage_job = Job.wrapJobFn(toil_reporting_utils.get_coverage_data, samples, sample, [args.address],
-                                     auth_provider, cores=1)
-
-        # var_job = Job.wrapJobFn(toil_reporting_utils.get_variants, config, samples, sample, thresholds,
-        #                         coverage_job.rv(), [args.address], auth_provider, cores=1)
-        #
-        # report_job = Job.wrapJobFn(toil_reporting_utils.create_report, var_job.rv(), sample, samples, callers,
-        #                            thresholds)
-
+        sample_job = Job.wrapJobFn(process_sample, sample, samples, [args.address], auth_provider,
+                                   thresholds, callers, cores=1)
         root_job.addChild(sample_job)
-        sample_job.addChild(coverage_job)
-        # coverage_job.addChild(var_job)
-        # sample_job.addFollowOn(report_job)
 
     # Start workflow execution
     Job.Runner.startToil(root_job, args)
