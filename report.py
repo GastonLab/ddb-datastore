@@ -505,7 +505,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
         col += 1
 
     row = 2
-    for variant in report_data['variants']['tier3_pass_variants']:
+    for variant in report_data['variants']['tier4_pass_variants']:
         tier4_sheet.cell(row=row, column=1, value="{}".format(variant.sample))
         tier4_sheet.cell(row=row, column=2, value="{}".format(variant.library_name))
         tier4_sheet.cell(row=row, column=3, value="{}".format(variant.gene))
@@ -617,7 +617,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
         col += 1
 
     row = 2
-    for variant in report_data['variants']['tier1_pass_variants']:
+    for variant in report_data['variants']['tier1_fail_variants']:
         tier1_fail_sheet.cell(row=row, column=1, value="{}".format(variant.sample))
         tier1_fail_sheet.cell(row=row, column=2, value="{}".format(variant.library_name))
         tier1_fail_sheet.cell(row=row, column=3, value="{}".format(variant.gene))
@@ -731,7 +731,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
         col += 1
 
     row = 2
-    for variant in report_data['variants']['tier1_pass_variants']:
+    for variant in report_data['variants']['tier3_fail_variants']:
         tier3_fail_sheet.cell(row=row, column=1, value="{}".format(variant.sample))
         tier3_fail_sheet.cell(row=row, column=2, value="{}".format(variant.library_name))
         tier3_fail_sheet.cell(row=row, column=3, value="{}".format(variant.gene))
@@ -847,7 +847,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
         col += 1
 
     row = 2
-    for variant in report_data['variants']['tier1_pass_variants']:
+    for variant in report_data['variants']['tier4_fail_variants']:
         tier4_fail_sheet.cell(row=row, column=1, value="{}".format(variant.sample))
         tier4_fail_sheet.cell(row=row, column=2, value="{}".format(variant.library_name))
         tier4_fail_sheet.cell(row=row, column=3, value="{}".format(variant.gene))
