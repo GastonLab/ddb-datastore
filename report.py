@@ -26,7 +26,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     report_data = dict()
     filtered_variant_data = defaultdict(list)
     off_target_amplicon_counts = defaultdict(int)
-    target_amplicon_coverage = defaultdict(lambda: defaultdict(float))
+    target_amplicon_coverage = dict()
 
     iterated = 0
     passing_variants = 0
@@ -51,8 +51,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
             )
             ordered_amplicons = coverage_data.order_by('amplicon', 'run_id').limit(coverage_data.count() + 1000)
             for result in ordered_amplicons:
-                target_amplicon_coverage[amplicon]['num_reads'] = result.num_reads
-                target_amplicon_coverage[amplicon]['mean_coverage'] = result.mean_coverage
+                target_amplicon_coverage[amplicon] = result
 
         job.fileStore.logToMaster("{}: retrieving variants".format(library))
         variants = SampleVariant.objects.timeout(None).filter(
