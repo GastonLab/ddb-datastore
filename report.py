@@ -225,11 +225,11 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
         coverage_sheet.cell(row=row_num, column=5, value="{}".format(report_data['coverage'][amplicon].mean_coverage))
 
         if report_data['coverage'][amplicon].mean_coverage < 250:
-            coverage_sheet(row=row_num, column=1).fill = PatternFill(bgColor="FFC7CE", fill_type="solid")
+            coverage_sheet.cell(row=row_num, column=1).fill = PatternFill(bgColor="FFC7CE", fill_type="solid")
         elif report_data['coverage'][amplicon].mean_coverage < 500:
-            coverage_sheet(row=row_num, column=1).fill = PatternFill(bgColor="FDC478", fill_type="solid")
+            coverage_sheet.cell(row=row_num, column=1).fill = PatternFill(bgColor="FDC478", fill_type="solid")
         else:
-            coverage_sheet(row=row_num, column=1).fill = PatternFill(bgColor="3ED626", fill_type="solid")
+            coverage_sheet.cell(row=row_num, column=1).fill = PatternFill(bgColor="3ED626", fill_type="solid")
 
         row_num += 1
 
