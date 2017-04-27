@@ -55,7 +55,7 @@ if __name__ == "__main__":
                                      auth_provider, cores=1)
 
         # var_job = Job.wrapJobFn(toil_reporting_utils.get_variants, config, samples, sample, thresholds,
-        #                         coverage_job.rv(), connection, [args.address], auth_provider, cores=1)
+        #                         coverage_job.rv(), [args.address], auth_provider, cores=1)
         #
         # report_job = Job.wrapJobFn(toil_reporting_utils.create_report, var_job.rv(), sample, samples, callers,
         #                            thresholds)

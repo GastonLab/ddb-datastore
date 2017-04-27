@@ -9,7 +9,7 @@ from variantstore import SampleVariant
 from coveragestore import SampleCoverage
 
 
-def get_variants(job, config, samples, sample, thresholds, amplicon_coverage, connection, addresses, authenticator):
+def get_variants(job, config, samples, sample, thresholds, amplicon_coverage, addresses, authenticator):
     connection.setup(addresses, "variantstore", auth_provider=authenticator)
     filtered_sample_variants = list()
     report_data = dict()
