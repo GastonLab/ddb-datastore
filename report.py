@@ -5,8 +5,6 @@ import numpy as np
 import sys
 import getpass
 import argparse
-import toil_reporting_utils
-
 from collections import defaultdict
 
 from toil.job import Job
@@ -26,8 +24,8 @@ def process_sample(job, sample, samples, addresses, authenticator, thresholds, c
 
     report_data = dict()
     filtered_variant_data = defaultdict(list)
-    target_amplicon_coverage = dict()
     off_target_amplicon_counts = defaultdict(int)
+    target_amplicon_coverage = defaultdict(lambda: defaultdict(float))
 
     iterated = 0
     passing_variants = 0
