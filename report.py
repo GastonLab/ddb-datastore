@@ -8,9 +8,6 @@ import toil_reporting_utils
 from toil.job import Job
 from ddb import configuration
 from ddb_ngsflow import pipeline
-from collections import defaultdict
-
-from cassandra.cqlengine import connection
 from cassandra.auth import PlainTextAuthProvider
 
 
@@ -54,8 +51,8 @@ if __name__ == "__main__":
 
     for sample in samples:
         sample_job = Job.wrapJobFn(pipeline.spawn_batch_jobs, cores=1)
-        coverage_job = Job.wrapJobFn(toil_reporting_utils.get_coverage_data, samples, sample, connection,
-                                     args.address, auth_provider, cores=1)
+        coverage_job = Job.wrapJobFn(toil_reporting_utils.get_coverage_data, samples, sample, [args.address],
+                                     auth_provider, cores=1)
 
         # var_job = Job.wrapJobFn(toil_reporting_utils.get_variants, config, samples, sample, thresholds,
         #                         coverage_job.rv(), connection, [args.address], auth_provider, cores=1)

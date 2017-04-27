@@ -3,6 +3,7 @@ import numpy as np
 
 from openpyxl import Workbook
 from collections import defaultdict
+from cassandra.cqlengine import connection
 from variantstore import Variant
 from variantstore import SampleVariant
 from coveragestore import SampleCoverage
@@ -41,9 +42,9 @@ def get_variants(job, config, samples, sample, thresholds, amplicon_coverage, co
     return report_data
 
 
-def get_coverage_data(job, samples, sample, connection, address, authenticator):
+def get_coverage_data(job, samples, sample, addresses, authenticator):
     job.fileStore.logToMaster("Retrieving coverage data for sample {}\n".format(sample))
-    connection.setup(address, "coveragestore", auth_provider=authenticator)
+    connection.setup(addresses, "coveragestore", auth_provider=authenticator)
     target_amplicon_coverage = dict()
 
     for library in samples[sample]:
