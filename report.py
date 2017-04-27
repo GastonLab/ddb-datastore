@@ -170,7 +170,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     report_name = "{}.xlsx".format(sample)
     wb = Workbook()
     coverage_sheet = wb.create_sheet(title="Coverage")
-    tier1_sheet = wb.create_sheet(title="Tier1/2 Pass")
+    tier1_sheet = wb.create_sheet(title="Tier1 and 2 Pass")
     tier3_sheet = wb.create_sheet(title="Tier3 Pass")
     tier4_sheet = wb.create_sheet(title="Tier4 Pass")
     tier1_fail_sheet = wb.create_sheet(title="Tier1/2 Fail")
