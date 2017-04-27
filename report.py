@@ -58,16 +58,16 @@ if __name__ == "__main__":
 
         coverage_job = Job.wrapJobFn(toil_reporting_utils.get_coverage_data, samples, sample, cores=1)
 
-        var_job = Job.wrapJobFn(toil_reporting_utils.get_variants, config, samples, sample, thresholds,
-                                coverage_job.rv(), connection, [args.address], auth_provider, cores=1)
-
-        report_job = Job.wrapJobFn(toil_reporting_utils.create_report, var_job.rv(), sample, samples, callers,
-                                   thresholds)
+        # var_job = Job.wrapJobFn(toil_reporting_utils.get_variants, config, samples, sample, thresholds,
+        #                         coverage_job.rv(), connection, [args.address], auth_provider, cores=1)
+        #
+        # report_job = Job.wrapJobFn(toil_reporting_utils.create_report, var_job.rv(), sample, samples, callers,
+        #                            thresholds)
 
         root_job.addChild(sample_job)
         sample_job.addChild(coverage_job)
-        coverage_job.addChild(var_job)
-        sample_job.addFollowOn(report_job)
+        # coverage_job.addChild(var_job)
+        # sample_job.addFollowOn(report_job)
 
     # Start workflow execution
     Job.Runner.startToil(root_job, args)
