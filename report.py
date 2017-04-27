@@ -173,7 +173,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     tier1_sheet = wb.create_sheet(title="Tier1 and 2 Pass")
     tier3_sheet = wb.create_sheet(title="Tier3 Pass")
     tier4_sheet = wb.create_sheet(title="Tier4 Pass")
-    tier1_fail_sheet = wb.create_sheet(title="Tier1/2 Fail")
+    tier1_fail_sheet = wb.create_sheet(title="Tier1 and 2 Fail")
     tier3_fail_sheet = wb.create_sheet(title="Tier3 Fail")
     tier4_fail_sheet = wb.create_sheet(title="Tier4 Fail")
 
