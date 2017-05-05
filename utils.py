@@ -183,7 +183,7 @@ def get_coverage_data(target_amplicons, samples, sample, library, target_amplico
 def setup_report_header(filename, callers):
     with open(filename, 'w') as report:
         report.write("Sample\tLibrary\tGene\tAmplicon\tRef\tAlt\tCodon\tAA\t"
-                     "Max VAF\tCallers\tMedian Variant AF\tVAF StdDev\tCOSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\t"
+                     "Max VAF\tCallers\tCOSMIC_IDs\tCOSMIC_NumSamples\tCOSMIC_AA\t"
                      "Clin_Sig\tClin_HGVS\tClin_Disease\tCoverage\tNum Reads\tImpact\tSeverity\tmax_maf_all\t"
                      "max_maf_no_fin\tmin_caller_depth\tmax_caller_depth\tChrom\tStart\tEnd\trsIDs")
 
@@ -393,7 +393,7 @@ def write_report(filename, variants, target_amplicon_coverage, callers):
         for variant in variants:
             try:
                 report.write("{sample}\t{library}\t{gene}\t{amp}\t{ref}\t{alt}\t{codon}\t{aa}\t"
-                             "{max_som_aaf}\t{callers}\t{med}\t{std}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
+                             "{max_som_aaf}\t{callers}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
                              "{csig}\t{hgvs}\t{cdis}\t{cov}\t{reads}\t{impact}\t{severity}\t{max_maf_all}\t"
                              "{max_maf_no_fin}\t{min_depth}\t{max_depth}\t{chr}\t{start}\t{end}\t{rsids}"
                              "".format(sample=variant.sample,
@@ -421,8 +421,6 @@ def write_report(filename, variants, target_amplicon_coverage, callers):
                                        max_maf_all=variant.max_maf_all,
                                        max_maf_no_fin=variant.max_maf_no_fin,
                                        max_som_aaf=variant.max_som_aaf,
-                                       med=variant.vaf_median,
-                                       std=variant.vaf_std_dev,
                                        min_depth=variant.min_depth,
                                        max_depth=variant.max_depth,
                                        callers=",".join(variant.callers) or None))
