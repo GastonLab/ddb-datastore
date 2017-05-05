@@ -142,8 +142,7 @@ def get_amplicon_data(variant):
     return data
 
 
-def get_variants(job, config, samples, sample, library, thresholds, report_names, connection, addresses, authenticator):
-    connection.setup(addresses, "variantstore", auth_provider=authenticator)
+def get_variants(config, samples, sample, library, thresholds, report_names):
     variants = SampleVariant.objects.timeout(None).filter(
         SampleVariant.reference_genome == config['genome_version'],
         SampleVariant.sample == samples[sample][library]['sample_name'],
@@ -153,7 +152,7 @@ def get_variants(job, config, samples, sample, library, thresholds, report_names
     ).allow_filtering()
 
     num_var = variants.count()
-    job.fileStore.logToMaster("Retrieved {} total variants\n".format(num_var))
+    sys.stdout.write("Retrieved {} total variants\n".format(num_var))
     with open(report_names['log'], 'a') as logfile:
         logfile.write("Retrieved {} total variants\n".format(num_var))
 
