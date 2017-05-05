@@ -80,23 +80,6 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
                         assignable += 1
                         break
                 if assignable:
-                    # match_variants = Variant.objects.timeout(None).filter(
-                    #     Variant.reference_genome == config['genome_version'],
-                    #     Variant.chr == variant.chr,
-                    #     Variant.pos == variant.pos,
-                    #     Variant.ref == variant.ref,
-                    #     Variant.alt == variant.alt
-                    # ).allow_filtering()
-                    #
-                    # num_matches = match_variants.count()
-                    # ordered_var = match_variants.order_by('sample', 'library_name', 'run_id').limit(num_matches + 1000)
-                    # vafs = list()
-                    # for var in ordered_var:
-                    #     vaf = var.max_som_aaf
-                    #     vafs.append(vaf)
-                    # variant.vaf_median = np.median(vafs)
-                    # variant.vaf_std_dev = np.std(vafs)
-
                     # Putting in to Tier1 based on COSMIC
                     if variant.cosmic_ids:
                         if variant.max_som_aaf < thresholds['min_saf']:
@@ -953,6 +936,7 @@ if __name__ == "__main__":
                   'depth': args.min_depth}
 
     callers = ("mutect", "platypus", "vardict", "scalpel", "freebayes", "pindel")
+    project_variant_data = defaultdict(lambda: defaultdict(int))
 
     sys.stdout.write("Processing samples\n")
     root_job = Job.wrapJobFn(pipeline.spawn_batch_jobs, cores=1)
