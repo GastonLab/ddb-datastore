@@ -158,7 +158,7 @@ def get_variants(config, samples, sample, library, thresholds, report_names):
 
     ordered = variants.order_by('library_name', 'chr', 'pos', 'ref', 'alt').limit(variants.count() + 1000)
 
-    return ordered
+    return ordered, num_var
 
 
 def get_coverage_data(target_amplicons, samples, sample, library, target_amplicon_coverage):
