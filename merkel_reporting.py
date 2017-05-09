@@ -127,8 +127,9 @@ if __name__ == "__main__":
 
     sys.stdout.write("Writing project/run level category data\n")
     with open("Category_Data.txt", 'w') as summary:
-        summary.write("Variant\tNum Pos\tNum Neg\n")
+        summary.write("Variant\tNum Pos\tNum Neg\tDiff\n")
         for variant_id in project_variant_data:
+            diff = abs(project_variant_data[variant_id]['positive'] - project_variant_data[variant_id]['negative'])
             summary.write("{}\t{}\t{}\t{}\n".format(variant_id, project_variant_data[variant_id]['positive'],
-                                                    project_variant_data[variant_id]['negative']))
+                                                    project_variant_data[variant_id]['negative'], diff))
 
