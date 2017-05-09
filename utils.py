@@ -230,14 +230,18 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
     filtered_off_target = list()
     off_target_amplicon_counts = defaultdict(int)
 
-    category = samples[sample][library]['mcpyv']
+    category = samples[sample][library]['category']
+    counted = list()
 
     for variant in ordered_variants:
         iterated += 1
         variant_id = "{}:{}-{}_{}_{}_{}_{}".format(variant.chr, variant.pos, variant.end, variant.ref, variant.alt,
                                                    variant.codon_change, variant.aa_change)
         project_variant_data[variant_id]['variant'] = variant
-        project_variant_data[variant_id][category] += 1
+
+        if variant_id not in counted:
+            project_variant_data[variant_id][category] += 1
+        counted.append(variant_id)
 
         if variant.amplicon_data['amplicon'] is 'None':
             filtered_off_target.append(variant)

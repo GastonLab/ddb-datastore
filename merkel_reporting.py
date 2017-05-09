@@ -21,9 +21,9 @@ if __name__ == "__main__":
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
 
-    parser.add_argument('-d', '--min_depth', help='Minimum depth threshold for variant reporting', default=50.0)
+    parser.add_argument('-d', '--min_depth', help='Minimum depth threshold for variant reporting', default=100.0)
     parser.add_argument('-t', '--min_somatic_var_freq', help='Minimum reportable somatic variant frequency',
-                        default=0.01)
+                        default=0.10)
     parser.add_argument('-p', '--max_pop_freq', help='Maximum allowed population allele frequency', default=0.005)
 
     args = parser.parse_args()
@@ -127,9 +127,8 @@ if __name__ == "__main__":
 
     sys.stdout.write("Writing project/run level category data\n")
     with open("Category_Data.txt", 'w') as summary:
-        summary.write("Variant\tNum Pos\tNum Neg\tNum Combined\n")
+        summary.write("Variant\tNum Pos\tNum Neg\n")
         for variant_id in project_variant_data:
             summary.write("{}\t{}\t{}\t{}\n".format(variant_id, project_variant_data[variant_id]['positive'],
-                                                    project_variant_data[variant_id]['negative'],
-                                                    project_variant_data[variant_id]['combined']))
+                                                    project_variant_data[variant_id]['negative']))
 
