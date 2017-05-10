@@ -251,7 +251,10 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
                         if variant.ref == 'C' and variant.alt == 'T':
                             variant_count_data[sample]['CT_count'] += 1
             else:
-                sys.stderr.write("WARNING: Duplicate variant, skipping: {}\n".format(variant_id))
+                # sys.stderr.write("WARNING: Duplicate variant, skipping: {}\n".format(variant_id))
+                with open("{}_Duplicates.log".format(sample), 'a') as duplicates:
+                    duplicates.write(variant)
+                    duplicates.write("\n")
             counted.append(variant_id)
 
             amplicons = variant.amplicon_data['amplicon'].split(',')
