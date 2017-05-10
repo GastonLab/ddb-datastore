@@ -253,8 +253,7 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
             else:
                 # sys.stderr.write("WARNING: Duplicate variant, skipping: {}\n".format(variant_id))
                 with open("{}_Duplicates.log".format(sample), 'a') as duplicates:
-                    duplicates.write(variant)
-                    duplicates.write("\n")
+                    duplicates.write("{}\n".format(variant_id))
             counted.append(variant_id)
 
             amplicons = variant.amplicon_data['amplicon'].split(',')
