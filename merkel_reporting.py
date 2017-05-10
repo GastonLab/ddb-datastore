@@ -49,6 +49,7 @@ if __name__ == "__main__":
 
     callers = ("mutect", "platypus", "vardict", "scalpel", "freebayes", "pindel")
     project_variant_data = defaultdict(lambda: defaultdict(int))
+    variant_count_data = defaultdict(lambda: defaultdict(int))
 
     sys.stdout.write("Processing samples\n")
     for sample in samples:
@@ -105,8 +106,10 @@ if __name__ == "__main__":
             sys.stdout.write("Filtering and classifying variants\n")
             filtered_var_data = utils.classify_and_filter_variants_proj(samples, sample, library, report_names,
                                                                         target_amplicons, callers, ordered_variants,
-                                                                        config, thresholds, project_variant_data)
-            project_variant_data = filtered_var_data[-1]
+                                                                        config, thresholds, project_variant_data,
+                                                                        variant_count_data)
+            project_variant_data = filtered_var_data[-2]
+            variant_count_data = filtered_var_data[-1]
 
             sys.stdout.write("Writing variant reports\n")
             utils.write_reports(report_names, samples, sample, library, filtered_var_data, ordered_variants,
@@ -132,4 +135,12 @@ if __name__ == "__main__":
             diff = abs(project_variant_data[variant_id]['positive'] - project_variant_data[variant_id]['negative'])
             summary.write("{}\t{}\t{}\t{}\n".format(variant_id, project_variant_data[variant_id]['positive'],
                                                     project_variant_data[variant_id]['negative'], diff))
+
+    sys.stdout.write("Writing Sample-level variant count data\n")
+    with open("Sample_Variant_Counts.txt", 'w') as summary:
+        summary.write("Sample\tGroup\tViral Status\tNumber Passing Variants\tNumber Passing C>T Variants")
+        for sample in variant_count_data:
+            summary.write("{}\t{}\t{}\t{}\t{}\n".format(sample, samples[sample]['category'], samples[sample]['viral'],
+                                                        variant_count_data[sample]['pass_count'],
+                                                        variant_count_data[sample]['CT_count']))
 
