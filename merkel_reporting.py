@@ -48,8 +48,10 @@ if __name__ == "__main__":
                   'depth': args.min_depth}
 
     callers = ("mutect", "platypus", "vardict", "scalpel", "freebayes", "pindel")
+    genes = ("RB1", "TP53", "NOTCH2", "MLL3", "BRCA1", "PIK3CA", "APC", "NOTCH1", "MLL2")
     project_variant_data = defaultdict(lambda: defaultdict(int))
     variant_count_data = defaultdict(lambda: defaultdict(int))
+    gene_count_data = defaultdict(lambda: defaultdict(int))
 
     sys.stdout.write("Processing samples\n")
     for sample in samples:
