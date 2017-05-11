@@ -24,7 +24,7 @@ if __name__ == "__main__":
     sys.stdout.write("Parsing sample data\n")
     samples = configuration.configure_samples(args.samples_file, config)
 
-    with open("merkel_sequenced_bases_passing_depth.txt") as output:
+    with open("merkel_sequenced_bases_passing_depth.txt", 'w') as output:
         for sample in samples:
             num_bases = 0
             with open("{}.recalibrated.sorted.bam.bed".format(sample), 'r') as coverage_file:
