@@ -252,20 +252,6 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
             filtered_off_target.append(variant)
             off_target_amplicon_counts[variant.amplicon_data['amplicon']] += 1
         else:
-            if variant_id not in counted:
-                project_variant_data[variant_id][category] += 1
-                if variant.max_som_aaf > thresholds['min_saf']:
-                    if variant.min_depth > thresholds['depth']:
-                        variant_count_data[sample]['pass_count'] += 1
-                        if variant.ref == 'C' and variant.alt == 'T':
-                            variant_count_data[sample]['CT_count'] += 1
-                        gene_count_data[sample][gene] += 1
-            else:
-                # sys.stderr.write("WARNING: Duplicate variant, skipping: {}\n".format(variant_id))
-                with open("{}_Duplicates.log".format(sample), 'a') as duplicates:
-                    duplicates.write("{}\n".format(variant_id))
-            counted.append(variant_id)
-
             amplicons = variant.amplicon_data['amplicon'].split(',')
             assignable = 0
             for amplicon in amplicons:
@@ -273,6 +259,21 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
                     assignable += 1
                     break
             if assignable:
+                if variant_id not in counted:
+                    project_variant_data[variant_id][category] += 1
+                    if variant.max_som_aaf > thresholds['min_saf']:
+                        if variant.min_depth > thresholds['depth']:
+                            variant_count_data[sample]['pass_count'] += 1
+                            gene_count_data[sample][gene] += 1
+                            if variant.ref == 'C' and variant.alt == 'T':
+                                variant_count_data[sample]['CT_count'] += 1
+                else:
+                    # sys.stderr.write("WARNING: Duplicate variant, skipping: {}\n".format(variant_id))
+                    with open("{}_Duplicates.log".format(sample), 'a') as duplicates:
+                        duplicates.write("{}\n".format(variant_id))
+
+                counted.append(variant_id)
+
                 # Putting in to Tier1 based on COSMIC
                 if variant.cosmic_ids:
                     if variant.max_som_aaf < thresholds['min_saf']:
