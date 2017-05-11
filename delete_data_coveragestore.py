@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
     sys.stdout.write("Processing samples\n")
     for sample in samples:
-        sys.stdout.write("Deleting variants for sample {}\n".format(sample))
+        sys.stdout.write("Deleting coverage for sample {}\n".format(sample))
         report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}" \
                             "".format(samples[sample]['panel'], samples[sample]['report'])
         target_amplicons = utils.get_target_amplicons(report_panel_path)
