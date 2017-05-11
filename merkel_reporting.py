@@ -47,7 +47,6 @@ if __name__ == "__main__":
                   'depth': args.min_depth}
 
     callers = ("mutect", "platypus", "vardict", "scalpel", "freebayes", "pindel")
-    genes = ("RB1", "TP53", "NOTCH2", "MLL3", "BRCA1", "PIK3CA", "APC", "NOTCH1", "MLL2")
     project_variant_data = defaultdict(lambda: defaultdict(int))
     variant_count_data = defaultdict(lambda: defaultdict(int))
     gene_count_data = defaultdict(lambda: defaultdict(int))
@@ -108,9 +107,10 @@ if __name__ == "__main__":
             filtered_var_data = utils.classify_and_filter_variants_proj(samples, sample, library, report_names,
                                                                         target_amplicons, callers, ordered_variants,
                                                                         config, thresholds, project_variant_data,
-                                                                        variant_count_data)
-            project_variant_data = filtered_var_data[-2]
-            variant_count_data = filtered_var_data[-1]
+                                                                        variant_count_data, gene_count_data)
+            project_variant_data = filtered_var_data[-3]
+            variant_count_data = filtered_var_data[-2]
+            gene_count_data = filtered_var_data[-1]
 
             sys.stdout.write("Writing variant reports\n")
             utils.write_reports(report_names, samples, sample, library, filtered_var_data, ordered_variants,
@@ -139,9 +139,23 @@ if __name__ == "__main__":
 
     sys.stdout.write("Writing Sample-level variant count data\n")
     with open("Sample_Variant_Counts.txt", 'w') as summary:
-        summary.write("Sample\tGroup\tViral Status\tNumber Passing Variants\tNumber Passing C>T Variants")
+        summary.write("Sample\tGroup\tViral Status\tNumber Passing Variants\tNumber Passing C>T Variants\n")
         for sample in variant_count_data:
             summary.write("{}\t{}\t{}\t{}\t{}\n".format(sample, samples[sample]['category'], samples[sample]['viral'],
                                                         variant_count_data[sample]['pass_count'],
                                                         variant_count_data[sample]['CT_count']))
+
+    sys.stdout.write("Writing Sample and gene-level variant count data\n")
+    with open("Sample_Gene_Variant_Counts.txt", 'w') as summary:
+        summary.write("Sample\tGroup\tViral Status\tRB1\tTP53\tNOTCH2\tMLL3\tBRCA1\tPIK3CA\tAPC\tNOTCH1\tMLL2\n")
+        for sample in gene_count_data:
+            summary.write("{}\t{}\t{}\t{}\t{}\n".format(sample, samples[sample]['category'], samples[sample]['viral'],
+                                                        gene_count_data[sample]['RB1'], gene_count_data[sample]['TP53'],
+                                                        gene_count_data[sample]['NOTCH2'],
+                                                        gene_count_data[sample]['MLL3'],
+                                                        gene_count_data[sample]['BRCA1'],
+                                                        gene_count_data[sample]['PIK3CA'],
+                                                        gene_count_data[sample]['APC'],
+                                                        gene_count_data[sample]['NOTCH1'],
+                                                        gene_count_data[sample]['MLL2']))
 

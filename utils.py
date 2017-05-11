@@ -209,7 +209,8 @@ def setup_report_header(filename, callers):
 
 
 def classify_and_filter_variants_proj(samples, sample, library, report_names, target_amplicons, callers,
-                                      ordered_variants, config, thresholds, project_variant_data, variant_count_data):
+                                      ordered_variants, config, thresholds, project_variant_data, variant_count_data,
+                                      gene_count_data):
 
     iterated = 0
     passing_variants = 0
@@ -239,6 +240,9 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
                                                    variant.codon_change, variant.aa_change)
         project_variant_data[variant_id]['variant'] = variant
 
+        elements = variant.amplicon_data['amplicon'].split('_')
+        gene = elements[0]
+
         if variant.amplicon_data['amplicon'] is 'None':
             filtered_off_target.append(variant)
             off_target_amplicon_counts[variant.amplicon_data['amplicon']] += 1
@@ -250,6 +254,7 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
                         variant_count_data[sample]['pass_count'] += 1
                         if variant.ref == 'C' and variant.alt == 'T':
                             variant_count_data[sample]['CT_count'] += 1
+                        gene_count_data[sample][gene] += 1
             else:
                 # sys.stderr.write("WARNING: Duplicate variant, skipping: {}\n".format(variant_id))
                 with open("{}_Duplicates.log".format(sample), 'a') as duplicates:
@@ -365,7 +370,7 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
             # sys.stdout.write("{}\t{}\n".format(off_target, off_target_amplicon_counts[off_target]))
 
     return tier1_pass_variants, tier1_fail_variants, vus_pass_variants, vus_fail_variants, tier4_pass_variants, \
-           tier4_fail_variants, filtered_off_target, project_variant_data, variant_count_data
+           tier4_fail_variants, filtered_off_target, project_variant_data, variant_count_data, gene_count_data
 
 
 def write_reports(report_names, samples, sample, library, filtered_var_data, ordered_variants,
