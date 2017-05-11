@@ -26,12 +26,12 @@ if __name__ == "__main__":
 
     with open("merkel_sequenced_bases_passing_depth.txt", 'w') as output:
         for sample in samples:
-            num_bases = 0
+            num_bases = 0.0
             with open("{}.recalibrated.sorted.bam.bed".format(sample), 'r') as coverage_file:
                 sys.stdout.write("Reading base-by-base coverage data for {}\n".format(sample))
                 reader = csv.reader(coverage_file, dialect='excel-tab')
                 reader.next()
                 for row in reader:
                     if int(row[2]) >= args.min_depth:
-                        num_bases += 1
-                output.write("{}\t{}\n".format(sample, num_bases))
+                        num_bases += 1.0
+                output.write("{}\t{}\n".format(sample, num_bases / 1000))
