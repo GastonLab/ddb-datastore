@@ -235,6 +235,11 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
     counted = list()
 
     for variant in ordered_variants:
+        if len(variant.callers) < 2:
+            continue
+        if len(variant.ref) > 2 and len(variant.alt) > 2:
+            continue
+
         iterated += 1
         variant_id = "{}:{}-{}_{}_{}_{}_{}".format(variant.chr, variant.pos, variant.end, variant.ref, variant.alt,
                                                    variant.codon_change, variant.aa_change)
