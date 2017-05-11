@@ -31,7 +31,8 @@ if __name__ == "__main__":
     config = configuration.configure_runtime(args.configuration)
 
     sys.stdout.write("Parsing sample data\n")
-    samples = configuration.configure_samples(args.samples_file, config)
+    libraries = configuration.configure_samples(args.samples_file, config)
+    samples = configuration.merge_library_configs_samples(libraries)
 
     if args.username:
         password = getpass.getpass()
