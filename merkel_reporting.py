@@ -85,39 +85,34 @@ if __name__ == "__main__":
 
         utils.setup_report_header(report_names['all_ordered'], callers)
 
+        for library in samples[sample]:
+            report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}" \
+                                "".format(samples[sample][library]['panel'], samples[sample][library]['report'])
+            target_amplicons = utils.get_target_amplicons(report_panel_path)
 
-        report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}" \
-                            "".format(samples[sample]['panel'], samples[sample]['report'])
-        target_amplicons = utils.get_target_amplicons(report_panel_path)
+            with open(report_names['log'], 'a') as logfile:
+                sys.stdout.write("Processing amplicons for library {} from file {}\n".format(library,
+                                                                                             report_panel_path))
+                logfile.write("Processing amplicons for library {} from file {}\n".format(library, report_panel_path))
 
-        with open(report_names['log'], 'a') as logfile:
-            sys.stdout.write("Processing amplicons for library {} from file {}\n".format(samples[sample]['library_name'],
-                                                                                         report_panel_path))
-            logfile.write("Processing amplicons for library {} from file {}\n".format(samples[sample]['library_name'],
-                                                                                      report_panel_path))
+            ordered_variants, num_var = utils.get_variants(config, samples, sample, library, thresholds, report_names)
 
-        ordered_variants, num_var = utils.get_variants(config, samples, sample, samples[sample]['library_name'],
-                                                       thresholds, report_names)
+            sys.stdout.write("Processing amplicon coverage data\n")
+            reportable_amplicons, target_amplicon_coverage = utils.get_coverage_data(target_amplicons, samples, sample,
+                                                                                     library, target_amplicon_coverage)
 
-        sys.stdout.write("Processing amplicon coverage data\n")
-        reportable_amplicons, target_amplicon_coverage = utils.get_coverage_data(target_amplicons, samples, sample,
-                                                                                 samples[sample]['library_name'],
-                                                                                 target_amplicon_coverage)
+            sys.stdout.write("Filtering and classifying variants\n")
+            filtered_var_data = utils.classify_and_filter_variants_proj(samples, sample, library, report_names,
+                                                                        target_amplicons, callers, ordered_variants,
+                                                                        config, thresholds, project_variant_data,
+                                                                        variant_count_data, gene_count_data)
+            project_variant_data = filtered_var_data[-3]
+            variant_count_data = filtered_var_data[-2]
+            gene_count_data = filtered_var_data[-1]
 
-        sys.stdout.write("Filtering and classifying variants\n")
-        filtered_var_data = utils.classify_and_filter_variants_proj(samples, sample, samples[sample]['library_name'],
-                                                                    report_names,
-                                                                    target_amplicons, callers, ordered_variants,
-                                                                    config, thresholds, project_variant_data,
-                                                                    variant_count_data, gene_count_data)
-        project_variant_data = filtered_var_data[-3]
-        variant_count_data = filtered_var_data[-2]
-        gene_count_data = filtered_var_data[-1]
-
-        sys.stdout.write("Writing variant reports\n")
-        utils.write_reports(report_names, samples, sample, samples[sample]['library_name'],
-                            filtered_var_data, ordered_variants,
-                            target_amplicon_coverage, reportable_amplicons, num_var, thresholds, callers)
+            sys.stdout.write("Writing variant reports\n")
+            utils.write_reports(report_names, samples, sample, library, filtered_var_data, ordered_variants,
+                                target_amplicon_coverage, reportable_amplicons, num_var, thresholds, callers)
 
     sys.stdout.write("Writing project/run level data\n")
     with open("Summary_Data.txt", 'w') as summary:
@@ -144,21 +139,26 @@ if __name__ == "__main__":
     with open("Sample_Variant_Counts.txt", 'w') as summary:
         summary.write("Sample\tGroup\tViral Status\tNumber Passing Variants\tNumber Passing C>T Variants\n")
         for sample in variant_count_data:
-            summary.write("{}\t{}\t{}\t{}\t{}\n".format(sample, samples[sample]['category'], samples[sample]['viral'],
-                                                        variant_count_data[sample]['pass_count'],
-                                                        variant_count_data[sample]['CT_count']))
+            for library in samples[sample]:
+                summary.write("{}\t{}\t{}\t{}\t{}\n".format(sample, samples[sample][library]['category'],
+                                                            samples[sample][library]['viral'],
+                                                            variant_count_data[sample]['pass_count'],
+                                                            variant_count_data[sample]['CT_count']))
 
     sys.stdout.write("Writing Sample and gene-level variant count data\n")
     with open("Sample_Gene_Variant_Counts.txt", 'w') as summary:
         summary.write("Sample\tGroup\tViral Status\tRB1\tTP53\tNOTCH2\tMLL3\tBRCA1\tPIK3CA\tAPC\tNOTCH1\tMLL2\n")
         for sample in gene_count_data:
-            summary.write("{}\t{}\t{}\t{}\t{}\n".format(sample, samples[sample]['category'], samples[sample]['viral'],
-                                                        gene_count_data[sample]['RB1'], gene_count_data[sample]['TP53'],
-                                                        gene_count_data[sample]['NOTCH2'],
-                                                        gene_count_data[sample]['MLL3'],
-                                                        gene_count_data[sample]['BRCA1'],
-                                                        gene_count_data[sample]['PIK3CA'],
-                                                        gene_count_data[sample]['APC'],
-                                                        gene_count_data[sample]['NOTCH1'],
-                                                        gene_count_data[sample]['MLL2']))
+            for library in samples[sample]:
+                summary.write("{}\t{}\t{}\t{}\t{}\n".format(sample, samples[sample][library]['category'],
+                                                            samples[sample][library]['viral'],
+                                                            gene_count_data[sample]['RB1'],
+                                                            gene_count_data[sample]['TP53'],
+                                                            gene_count_data[sample]['NOTCH2'],
+                                                            gene_count_data[sample]['MLL3'],
+                                                            gene_count_data[sample]['BRCA1'],
+                                                            gene_count_data[sample]['PIK3CA'],
+                                                            gene_count_data[sample]['APC'],
+                                                            gene_count_data[sample]['NOTCH1'],
+                                                            gene_count_data[sample]['MLL2']))
 
