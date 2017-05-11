@@ -255,7 +255,7 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
             if variant_id not in counted:
                 project_variant_data[variant_id][category] += 1
                 if variant.max_som_aaf > thresholds['min_saf']:
-                    if variant.max_depth > thresholds['depth']:
+                    if variant.min_depth > thresholds['depth']:
                         variant_count_data[sample]['pass_count'] += 1
                         if variant.ref == 'C' and variant.alt == 'T':
                             variant_count_data[sample]['CT_count'] += 1
@@ -280,7 +280,7 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
                         if variant_id not in counted:
                             project_variant_data[variant_id]['tier1_fail'] += 1
                         filtered_low_freq += 1
-                    elif variant.max_depth < thresholds['depth']:
+                    elif variant.min_depth < thresholds['depth']:
                         tier1_fail_variants.append(variant)
                         if variant_id not in counted:
                             project_variant_data[variant_id]['tier1_fail'] += 1
@@ -301,7 +301,7 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
                                 if variant_id not in counted:
                                     project_variant_data[variant_id]['tier1_fail'] += 1
                                 filtered_low_freq += 1
-                            elif variant.max_depth < thresholds['depth']:
+                            elif variant.min_depth < thresholds['depth']:
                                 tier1_fail_variants.append(variant)
                                 if variant_id not in counted:
                                     project_variant_data[variant_id]['tier1_fail'] += 1
@@ -319,7 +319,7 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
                         if variant_id not in counted:
                             project_variant_data[variant_id]['vus_fail'] += 1
                         filtered_low_freq += 1
-                    elif variant.max_depth < thresholds['depth']:
+                    elif variant.min_depth < thresholds['depth']:
                         vus_fail_variants.append(variant)
                         if variant_id not in counted:
                             project_variant_data[variant_id]['vus_fail'] += 1
@@ -336,7 +336,7 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
                         if variant_id not in counted:
                             project_variant_data[variant_id]['tier4_fail'] += 1
                         filtered_low_freq += 1
-                    elif variant.max_depth < thresholds['depth']:
+                    elif variant.min_depth < thresholds['depth']:
                         tier4_fail_variants.append(variant)
                         if variant_id not in counted:
                             project_variant_data[variant_id]['tier4_fail'] += 1
