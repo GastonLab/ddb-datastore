@@ -8,6 +8,7 @@ import argparse
 from collections import defaultdict
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
+from openpyxl.styles import Font, Fill, NamedStyle
 from toil.job import Job
 from ddb import configuration
 from ddb_ngsflow import pipeline
@@ -213,6 +214,18 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     coverage_sheet.cell(row=8, column=4, value="Num Reads")
     coverage_sheet.cell(row=8, column=5, value="Coverage")
 
+    error = NamedStyle(name="error")
+    warning = NamedStyle(name="warning")
+    good = NamedStyle(name="good")
+
+    error.fill = PatternFill("solid", fgColour="FFC7CE")
+    warning.fill = PatternFill("solid", fgColour="FDC478")
+    good.fill = PatternFill("solid", fgColour="3ED626")
+
+    wb.add_named_style(error)
+    wb.add_named_style(warning)
+    wb.add_named_style(good)
+
     row_num = 9
     for amplicon in report_data['coverage']:
         coverage_sheet.cell(row=row_num, column=1, value="{}".format(report_data['coverage'][amplicon].sample))
@@ -221,12 +234,18 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
         coverage_sheet.cell(row=row_num, column=4, value="{}".format(report_data['coverage'][amplicon].num_reads))
         coverage_sheet.cell(row=row_num, column=5, value="{}".format(report_data['coverage'][amplicon].mean_coverage))
 
+        num_cell = coverage_sheet.cell(row=row_num, column=4)
+        cov_cell = coverage_sheet.cell(row=row_num, column=5)
+
         if report_data['coverage'][amplicon].mean_coverage < 250:
-            coverage_sheet.cell(row=row_num, column=1).fill = PatternFill(bgColor="FFC7CE", fill_type="solid")
+            num_cell.style = error
+            cov_cell.style = error
         elif report_data['coverage'][amplicon].mean_coverage < 500:
-            coverage_sheet.cell(row=row_num, column=1).fill = PatternFill(bgColor="FDC478", fill_type="solid")
+            num_cell.style = warning
+            cov_cell.style = warning
         else:
-            coverage_sheet.cell(row=row_num, column=1).fill = PatternFill(bgColor="3ED626", fill_type="solid")
+            num_cell.style = good
+            cov_cell.style = good
 
         row_num += 1
 
