@@ -171,7 +171,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
 
     error_style = xlwt.easyxf('pattern: pattern solid, fore_colour red;')
     warning_style = xlwt.easyxf('pattern: pattern solid, fore_colour orange;')
-    pass_style = xlwt.easyxf('pattern: pattern solid, fore_colour #70db93;')
+    pass_style = xlwt.easyxf('pattern: pattern solid, fore_colour lime-green;')
 
     coverage_sheet = wb.add_sheet("Coverage")
     tier1_sheet = wb.add_sheet("Tier1 and 2 Pass")
