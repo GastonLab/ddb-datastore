@@ -1,0 +1,407 @@
+#!/usr/bin/env python
+
+import sys
+import xlwt
+import utils
+import getpass
+import argparse
+
+from toil.job import Job
+from ddb import configuration
+from ddb_ngsflow import pipeline
+from variantstore import Variant
+from collections import defaultdict
+from variantstore import SampleVariant
+from coveragestore import SampleCoverage
+from cassandra.cqlengine import connection
+from cassandra.auth import PlainTextAuthProvider
+
+
+def process_sample(job, config, sample, samples, addresses, authenticator, thresholds, callers):
+    job.fileStore.logToMaster("Retrieving data for sample {}\n".format(sample))
+    job.fileStore.logToMaster("Retrieving coverage data from database\n")
+    connection.setup(addresses, "coveragestore", auth_provider=authenticator)
+
+    report_data = dict()
+    filtered_variant_data = defaultdict(list)
+    off_target_amplicon_counts = defaultdict(int)
+    target_amplicon_coverage = dict()
+
+    iterated = 0
+    passing_variants = 0
+    filtered_low_freq = 0
+    filtered_low_depth = 0
+    filtered_off_target = 0
+
+    for library in samples[sample]:
+        report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}" \
+                            "".format(samples[sample][library]['panel'], samples[sample][library]['report'])
+
+        job.fileStore.logToMaster("{}: processing amplicons from file {}".format(library, report_panel_path))
+        target_amplicons = utils.get_target_amplicons(report_panel_path)
+
+        for amplicon in target_amplicons:
+            coverage_data = SampleCoverage.objects.timeout(None).filter(
+                SampleCoverage.sample == samples[sample][library]['sample_name'],
+                SampleCoverage.amplicon == amplicon,
+                SampleCoverage.run_id == samples[sample][library]['run_id'],
+                SampleCoverage.library_name == samples[sample][library]['library_name'],
+                SampleCoverage.program_name == "sambamba"
+            )
+            ordered_amplicons = coverage_data.order_by('amplicon', 'run_id').limit(coverage_data.count() + 1000)
+            for result in ordered_amplicons:
+                target_amplicon_coverage[amplicon] = result
+
+        job.fileStore.logToMaster("{}: retrieving variants".format(library))
+        variants = SampleVariant.objects.timeout(None).filter(
+            SampleVariant.reference_genome == config['genome_version'],
+            SampleVariant.sample == samples[sample][library]['sample_name'],
+            SampleVariant.run_id == samples[sample][library]['run_id'],
+            SampleVariant.library_name == samples[sample][library]['library_name'],
+            SampleVariant.max_maf_all <= thresholds['max_maf']
+        ).allow_filtering()
+
+        num_var = variants.count()
+        ordered = variants.order_by('library_name', 'chr', 'pos', 'ref', 'alt').limit(variants.count() + 1000)
+        job.fileStore.logToMaster("{}: retrieved {} variants from database\n".format(library, num_var))
+        job.fileStore.logToMaster("{}: classifying and filtering variants\n".format(library))
+
+        for variant in ordered:
+            iterated += 1
+            if variant.amplicon_data['amplicon'] is 'None':
+                filtered_off_target += 1
+                off_target_amplicon_counts[variant.amplicon_data['amplicon']] += 1
+            else:
+                amplicons = variant.amplicon_data['amplicon'].split(',')
+                assignable = 0
+                for amplicon in amplicons:
+                    if amplicon in target_amplicons:
+                        assignable += 1
+                        break
+                if assignable:
+                    # match_variants = Variant.objects.timeout(None).filter(
+                    #     Variant.reference_genome == config['genome_version'],
+                    #     Variant.chr == variant.chr,
+                    #     Variant.pos == variant.pos,
+                    #     Variant.ref == variant.ref,
+                    #     Variant.alt == variant.alt
+                    # ).allow_filtering()
+                    #
+                    # num_matches = match_variants.count()
+                    # ordered_var = match_variants.order_by('sample', 'library_name', 'run_id').limit(num_matches + 1000)
+                    # vafs = list()
+                    # for var in ordered_var:
+                    #     vaf = var.max_som_aaf
+                    #     vafs.append(vaf)
+                    # variant.vaf_median = np.median(vafs)
+                    # variant.vaf_std_dev = np.std(vafs)
+
+                    # Putting in to Tier1 based on COSMIC
+                    if variant.cosmic_ids:
+                        if variant.max_som_aaf < thresholds['min_saf']:
+                            filtered_variant_data['tier1_fail_variants'].append(variant)
+                            filtered_low_freq += 1
+                        elif variant.max_depth < thresholds['depth']:
+                            filtered_variant_data['tier1_fail_variants'].append(variant)
+                            filtered_low_depth += 1
+                        else:
+                            filtered_variant_data['tier1_pass_variants'].append(variant)
+                            passing_variants += 1
+                        continue
+
+                    # Putting in to Tier1 based on ClinVar not being None or Benign
+                    if variant.clinvar_data['pathogenic'] != 'None':
+                        if variant.clinvar_data['pathogenic'] != 'benign':
+                            if variant.clinvar_data['pathogenic'] != 'likely-benign':
+                                if variant.max_som_aaf < thresholds['min_saf']:
+                                    filtered_variant_data['tier1_fail_variants'].append(variant)
+                                    filtered_low_freq += 1
+                                elif variant.max_depth < thresholds['depth']:
+                                    filtered_variant_data['tier1_fail_variants'].append(variant)
+                                    filtered_low_depth += 1
+                                else:
+                                    filtered_variant_data['tier1_pass_variants'].append(variant)
+                                    passing_variants += 1
+                                continue
+
+                    if variant.severity == 'MED' or variant.severity == 'HIGH':
+                        if variant.max_som_aaf < thresholds['min_saf']:
+                            filtered_variant_data['tier3_fail_variants'].append(variant)
+                            filtered_low_freq += 1
+                        elif variant.max_depth < thresholds['depth']:
+                            filtered_variant_data['tier3_fail_variants'].append(variant)
+                            filtered_low_depth += 1
+                        else:
+                            filtered_variant_data['tier3_pass_variants'].append(variant)
+                            passing_variants += 1
+                        continue
+                    else:
+                        if variant.max_som_aaf < thresholds['min_saf']:
+                            filtered_variant_data['tier4_fail_variants'].append(variant)
+                            filtered_low_freq += 1
+                        elif variant.max_depth < thresholds['depth']:
+                            filtered_variant_data['tier4_fail_variants'].append(variant)
+                            filtered_low_depth += 1
+                        else:
+                            filtered_variant_data['tier4_pass_variants'].append(variant)
+                            passing_variants += 1
+                        continue
+                else:
+                    filtered_off_target += 1
+                    off_target_amplicon_counts[variant.amplicon_data['amplicon']] += 1
+
+        job.fileStore.logToMaster("{}: iterated through {} variants\n".format(library, iterated))
+        job.fileStore.logToMaster("{}: filtered {} off-target variants\n".format(library, filtered_off_target))
+        job.fileStore.logToMaster("{}: filtered {} low-freq variants\n".format(library, filtered_low_freq))
+        job.fileStore.logToMaster("{}: filtered {} low-depth variants\n".format(library, filtered_low_depth))
+
+        job.fileStore.logToMaster("{}: passing {} tier 1 and 2 variants"
+                                  "\n".format(library, len(filtered_variant_data['tier1_pass_variants'])))
+        job.fileStore.logToMaster("{}: passing {} tier3 variants"
+                                  "\n".format(library, len(filtered_variant_data['tier3_pass_variants'])))
+        job.fileStore.logToMaster("{}: passing {} tier 4 variants"
+                                  "\n".format(library, len(filtered_variant_data['tier4_pass_variants'])))
+
+    report_data['variants'] = filtered_variant_data
+    report_data['coverage'] = target_amplicon_coverage
+
+    report_name = "{}.xlsx".format(sample)
+
+    wb = xlwt.Workbook()
+
+    error_style = xlwt.easyxf('pattern: pattern solid, fore_colour red;')
+    warning_style = xlwt.easyxf('pattern: pattern solid, fore_colour orange;')
+    pass_style = xlwt.easyxf('pattern: pattern solid, fore_colour green;')
+
+    coverage_sheet = wb.add_sheet("Coverage")
+    tier1_sheet = wb.add_sheet("Tier1 and 2 Pass")
+    tier3_sheet = wb.add_sheet("Tier3 Pass")
+    tier4_sheet = wb.add_sheet("Tier4 Pass")
+    tier1_fail_sheet = wb.add_sheet("Tier1 and 2 Fail")
+    tier3_fail_sheet = wb.add_sheet("Tier3 Fail")
+    tier4_fail_sheet = wb.add_sheet("Tier4 Fail")
+    
+    tier_sheets = (tier1_sheet, tier1_fail_sheet, tier3_sheet, tier3_fail_sheet, tier4_sheet, tier4_fail_sheet)
+    tier_key = ("tier1_pass_variants", "tier1_fail_variants",
+                "tier3_pass_variants", "tier3_fail_variants",
+                "tier4_pass_variants", "tier4_fail_variants")
+
+    libraries = list()
+    report_templates = list()
+    run_id = ""
+    for library in samples[sample]:
+        libraries.append(samples[sample][library]['library_name'])
+        report_templates.append(samples[sample][library]['report'])
+        run_id = samples[sample][library]['run_id']
+    lib_string = " | ".join(libraries)
+    reports_string = " | ".join(report_templates)
+
+    coverage_sheet.write(0, 0, "Sample")
+    coverage_sheet.write(0, 1, "{}".format(sample))
+
+    coverage_sheet.write(1, 0, "Libraries")
+    coverage_sheet.write(1, 1, "{}".format(lib_string))
+
+    coverage_sheet.write(2, 0, "Run ID")
+    coverage_sheet.write(2, 1, "{}".format(run_id))
+
+    coverage_sheet.write(3, 0, "Reporting Templates")
+    coverage_sheet.write(3, 1, "{}".format(reports_string))
+
+    coverage_sheet.write(4, 0, "Minimum Reportable Somatic Allele Frequency")
+    coverage_sheet.write(4, 1, "{}".format(thresholds['min_saf']))
+
+    coverage_sheet.write(5, 0, "Minimum Amplicon Depth")
+    coverage_sheet.write(5, 1, "{}".format(thresholds['depth']))
+
+    coverage_sheet.write(6, 0, "Maximum Population Allele Frequency")
+    coverage_sheet.write(6, 1, "{}".format(thresholds['max_maf']))
+
+    coverage_sheet.write(7, 0, "Sample")
+    coverage_sheet.write(7, 1, "Library")
+    coverage_sheet.write(7, 2, "Amplicon")
+    coverage_sheet.write(7, 3, "Num Reads")
+    coverage_sheet.write(7, 4, "Coverage")
+
+    row_num = 8
+    for amplicon in report_data['coverage']:
+        if report_data['coverage'][amplicon].mean_coverage < 250:
+            style = error_style
+        elif report_data['coverage'][amplicon].mean_coverage < 500:
+            style = warning_style
+        else:
+            style = pass_style
+
+        coverage_sheet.cell(row_num, 0, "{}".format(report_data['coverage'][amplicon].sample), style)
+        coverage_sheet.cell(row_num, 1, "{}".format(report_data['coverage'][amplicon].library_name), style)
+        coverage_sheet.cell(row_num, 2, "{}".format(report_data['coverage'][amplicon].amplicon), style)
+        coverage_sheet.cell(row_num, 3, "{}".format(report_data['coverage'][amplicon].num_reads), style)
+        coverage_sheet.cell(row_num, 4, "{}".format(report_data['coverage'][amplicon].mean_coverage), style)
+
+        row_num += 1
+
+    ####################################################################################################################
+
+    sheet_num = 0
+    for sheet in tier_sheets:
+        sheet.cell(0, 1, "Sample")
+        sheet.cell(0, 2, "Library")
+        sheet.cell(0, 3, "Gene")
+        sheet.cell(0, 4, "Amplicon")
+        sheet.cell(0, 5, "Ref")
+        sheet.cell(0, 6, "Alt")
+        sheet.cell(0, 7, "Codon")
+        sheet.cell(0, 8, "AA")
+        sheet.cell(0, 9, "Max Caller Somatic VAF")
+        sheet.cell(0, 10, "Callers")
+        sheet.cell(0, 11, "COSMIC IDs")
+        sheet.cell(0, 12, "Num COSMIC Samples")
+        sheet.cell(0, 13, "COSMIC AA")
+        sheet.cell(0, 14, "Clinvar Significance")
+        sheet.cell(0, 15, "Clinvar HGVS")
+        sheet.cell(0, 16, "Clinvar Disease")
+        sheet.cell(0, 17, "Coverage")
+        sheet.cell(0, 18, "Num Reads")
+        sheet.cell(0, 19, "Impact")
+        sheet.cell(0, 20, "Severity")
+        sheet.cell(0, 21, "Maximum Population AF")
+        sheet.cell(0, 22, "Min Caller Depth")
+        sheet.cell(0, 23, "Max Caller Depth")
+        sheet.cell(0, 24, "Chrom")
+        sheet.cell(0, 25, "Start")
+        sheet.cell(0, 26, "End")
+        sheet.cell(0, 27, "rsIDs")
+    
+        col = 28
+        if 'mutect' in callers:
+            sheet.cell(0, col, "MuTect_AF")
+            col += 1
+    
+        if 'vardict' in callers:
+            sheet.cell(0, col, "VarDict_AF")
+            col += 1
+    
+        if 'freebayes' in callers:
+            sheet.cell(0, col, "FreeBayes_AF")
+            col += 1
+    
+        if 'scalpel' in callers:
+            sheet.cell(0, col, "Scalpel_AF")
+            col += 1
+    
+        if 'platypus' in callers:
+            sheet.cell(0, col, "Platypus_AF")
+            col += 1
+    
+        if 'pindel' in callers:
+            sheet.cell(0, col, "Pindel_AF")
+            col += 1
+    
+        row = 2
+        for variant in report_data['variants'][tier_key[sheet_num]]:
+            sheet.cell(row, 1, "{}".format(variant.sample))
+            sheet.cell(row, 2, "{}".format(variant.library_name))
+            sheet.cell(row, 3, "{}".format(variant.gene))
+            sheet.cell(row, 4, "{}".format(variant.amplicon_data['amplicon']))
+            sheet.cell(row, 5, "{}".format(variant.ref))
+            sheet.cell(row, 6, "{}".format(variant.alt))
+            sheet.cell(row, 7, "{}".format(variant.codon_change))
+            sheet.cell(row, 8, "{}".format(variant.aa_change))
+            sheet.cell(row, 9, "{}".format(variant.max_som_aaf))
+            sheet.cell(row, 10, "{}".format(",".join(variant.callers) or None))
+            sheet.cell(row, 11, "{}".format(",".join(variant.cosmic_ids) or None))
+            sheet.cell(row, 12, "{}".format(variant.cosmic_data['num_samples']))
+            sheet.cell(row, 13, "{}".format(variant.cosmic_data['aa']))
+            sheet.cell(row, 14, "{}".format(variant.clinvar_data['significance']))
+            sheet.cell(row, 15, "{}".format(variant.clinvar_data['hgvs']))
+            sheet.cell(row, 16, "{}".format(variant.clinvar_data['disease']))
+            sheet.cell(row, 17,
+                             "{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['mean_coverage']))
+            sheet.cell(row, 18,
+                             "{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['num_reads']))
+            sheet.cell(row, 19, "{}".format(variant.impact))
+            sheet.cell(row, 20, "{}".format(variant.severity))
+            sheet.cell(row, 21, "{}".format(variant.max_maf_all))
+            sheet.cell(row, 22, "{}".format(variant.min_depth))
+            sheet.cell(row, 23, "{}".format(variant.max_depth))
+            sheet.cell(row, 24, "{}".format(variant.chr))
+            sheet.cell(row, 25, "{}".format(variant.pos))
+            sheet.cell(row, 26, "{}".format(variant.end))
+            sheet.cell(row, 27, "{}".format(",".join(variant.rs_ids)))
+    
+            col = 28
+            if 'mutect' in callers:
+                sheet.cell(row, col, "{}".format(variant.mutect.get('AAF') or None))
+                col += 1
+    
+            if 'vardict' in callers:
+                sheet.cell(row, col, "{}".format(variant.vardict.get('AAF') or None))
+                col += 1
+    
+            if 'freebayes' in callers:
+                sheet.cell(row, col, "{}".format(variant.freebayes.get('AAF') or None))
+                col += 1
+    
+            if 'scalpel' in callers:
+                sheet.cell(row, col, "{}".format(variant.scalpel.get('AAF') or None))
+                col += 1
+    
+            if 'platypus' in callers:
+                sheet.cell(row, col, "{}".format(variant.platypus.get('AAF') or None))
+                col += 1
+    
+            if 'pindel' in callers:
+                sheet.cell(row, col, "{}".format(variant.pindel.get('AAF') or None))
+                col += 1
+    
+            row += 1
+        sheet_num += 1
+    wb.save(report_name)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s', '--samples_file', help="Input configuration file for samples")
+    parser.add_argument('-c', '--configuration', help="Configuration file for various settings")
+    parser.add_argument('-r', '--report', help="Root name for reports (per sample)", default='report')
+    parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
+    parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
+    parser.add_argument('-d', '--min_depth', help='Minimum depth threshold for variant reporting', default=250.0)
+    parser.add_argument('-t', '--min_somatic_var_freq', help='Minimum reportable somatic variant frequency',
+                        default=0.01)
+    parser.add_argument('-p', '--max_pop_freq', help='Maximum allowed population allele frequency', default=0.005)
+    Job.Runner.addToilOptions(parser)
+    args = parser.parse_args()
+    args.logLevel = "INFO"
+
+    sys.stdout.write("Parsing configuration data\n")
+    config = configuration.configure_runtime(args.configuration)
+
+    sys.stdout.write("Parsing sample data\n")
+    libraries = configuration.configure_samples(args.samples_file, config)
+
+    samples = configuration.merge_library_configs_samples(libraries)
+
+    if args.username:
+        password = getpass.getpass()
+        auth_provider = PlainTextAuthProvider(username=args.username, password=password)
+    else:
+        auth_provider = None
+
+    thresholds = {'min_saf': args.min_somatic_var_freq,
+                  'max_maf': args.max_pop_freq,
+                  'depth': args.min_depth}
+
+    callers = ("mutect", "platypus", "vardict", "scalpel", "freebayes", "pindel")
+
+    sys.stdout.write("Processing samples\n")
+    root_job = Job.wrapJobFn(pipeline.spawn_batch_jobs, cores=1)
+
+    for sample in samples:
+        sample_job = Job.wrapJobFn(process_sample, config, sample, samples, [args.address], auth_provider,
+                                   thresholds, callers, cores=1)
+
+        root_job.addChild(sample_job)
+
+    # Start workflow execution
+    Job.Runner.startToil(root_job, args)
