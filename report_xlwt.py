@@ -232,11 +232,11 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
         else:
             style = pass_style
 
-        coverage_sheet.cell(row_num, 0, "{}".format(report_data['coverage'][amplicon].sample), style)
-        coverage_sheet.cell(row_num, 1, "{}".format(report_data['coverage'][amplicon].library_name), style)
-        coverage_sheet.cell(row_num, 2, "{}".format(report_data['coverage'][amplicon].amplicon), style)
-        coverage_sheet.cell(row_num, 3, "{}".format(report_data['coverage'][amplicon].num_reads), style)
-        coverage_sheet.cell(row_num, 4, "{}".format(report_data['coverage'][amplicon].mean_coverage), style)
+        coverage_sheet.write(row_num, 0, "{}".format(report_data['coverage'][amplicon].sample), style)
+        coverage_sheet.write(row_num, 1, "{}".format(report_data['coverage'][amplicon].library_name), style)
+        coverage_sheet.write(row_num, 2, "{}".format(report_data['coverage'][amplicon].amplicon), style)
+        coverage_sheet.write(row_num, 3, "{}".format(report_data['coverage'][amplicon].num_reads), style)
+        coverage_sheet.write(row_num, 4, "{}".format(report_data['coverage'][amplicon].mean_coverage), style)
 
         row_num += 1
 
@@ -244,114 +244,114 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
 
     sheet_num = 0
     for sheet in tier_sheets:
-        sheet.cell(0, 1, "Sample")
-        sheet.cell(0, 2, "Library")
-        sheet.cell(0, 3, "Gene")
-        sheet.cell(0, 4, "Amplicon")
-        sheet.cell(0, 5, "Ref")
-        sheet.cell(0, 6, "Alt")
-        sheet.cell(0, 7, "Codon")
-        sheet.cell(0, 8, "AA")
-        sheet.cell(0, 9, "Max Caller Somatic VAF")
-        sheet.cell(0, 10, "Callers")
-        sheet.cell(0, 11, "COSMIC IDs")
-        sheet.cell(0, 12, "Num COSMIC Samples")
-        sheet.cell(0, 13, "COSMIC AA")
-        sheet.cell(0, 14, "Clinvar Significance")
-        sheet.cell(0, 15, "Clinvar HGVS")
-        sheet.cell(0, 16, "Clinvar Disease")
-        sheet.cell(0, 17, "Coverage")
-        sheet.cell(0, 18, "Num Reads")
-        sheet.cell(0, 19, "Impact")
-        sheet.cell(0, 20, "Severity")
-        sheet.cell(0, 21, "Maximum Population AF")
-        sheet.cell(0, 22, "Min Caller Depth")
-        sheet.cell(0, 23, "Max Caller Depth")
-        sheet.cell(0, 24, "Chrom")
-        sheet.cell(0, 25, "Start")
-        sheet.cell(0, 26, "End")
-        sheet.cell(0, 27, "rsIDs")
+        sheet.write(0, 1, "Sample")
+        sheet.write(0, 2, "Library")
+        sheet.write(0, 3, "Gene")
+        sheet.write(0, 4, "Amplicon")
+        sheet.write(0, 5, "Ref")
+        sheet.write(0, 6, "Alt")
+        sheet.write(0, 7, "Codon")
+        sheet.write(0, 8, "AA")
+        sheet.write(0, 9, "Max Caller Somatic VAF")
+        sheet.write(0, 10, "Callers")
+        sheet.write(0, 11, "COSMIC IDs")
+        sheet.write(0, 12, "Num COSMIC Samples")
+        sheet.write(0, 13, "COSMIC AA")
+        sheet.write(0, 14, "Clinvar Significance")
+        sheet.write(0, 15, "Clinvar HGVS")
+        sheet.write(0, 16, "Clinvar Disease")
+        sheet.write(0, 17, "Coverage")
+        sheet.write(0, 18, "Num Reads")
+        sheet.write(0, 19, "Impact")
+        sheet.write(0, 20, "Severity")
+        sheet.write(0, 21, "Maximum Population AF")
+        sheet.write(0, 22, "Min Caller Depth")
+        sheet.write(0, 23, "Max Caller Depth")
+        sheet.write(0, 24, "Chrom")
+        sheet.write(0, 25, "Start")
+        sheet.write(0, 26, "End")
+        sheet.write(0, 27, "rsIDs")
     
         col = 28
         if 'mutect' in callers:
-            sheet.cell(0, col, "MuTect_AF")
+            sheet.write(0, col, "MuTect_AF")
             col += 1
     
         if 'vardict' in callers:
-            sheet.cell(0, col, "VarDict_AF")
+            sheet.write(0, col, "VarDict_AF")
             col += 1
     
         if 'freebayes' in callers:
-            sheet.cell(0, col, "FreeBayes_AF")
+            sheet.write(0, col, "FreeBayes_AF")
             col += 1
     
         if 'scalpel' in callers:
-            sheet.cell(0, col, "Scalpel_AF")
+            sheet.write(0, col, "Scalpel_AF")
             col += 1
     
         if 'platypus' in callers:
-            sheet.cell(0, col, "Platypus_AF")
+            sheet.write(0, col, "Platypus_AF")
             col += 1
     
         if 'pindel' in callers:
-            sheet.cell(0, col, "Pindel_AF")
+            sheet.write(0, col, "Pindel_AF")
             col += 1
     
         row = 2
         for variant in report_data['variants'][tier_key[sheet_num]]:
-            sheet.cell(row, 1, "{}".format(variant.sample))
-            sheet.cell(row, 2, "{}".format(variant.library_name))
-            sheet.cell(row, 3, "{}".format(variant.gene))
-            sheet.cell(row, 4, "{}".format(variant.amplicon_data['amplicon']))
-            sheet.cell(row, 5, "{}".format(variant.ref))
-            sheet.cell(row, 6, "{}".format(variant.alt))
-            sheet.cell(row, 7, "{}".format(variant.codon_change))
-            sheet.cell(row, 8, "{}".format(variant.aa_change))
-            sheet.cell(row, 9, "{}".format(variant.max_som_aaf))
-            sheet.cell(row, 10, "{}".format(",".join(variant.callers) or None))
-            sheet.cell(row, 11, "{}".format(",".join(variant.cosmic_ids) or None))
-            sheet.cell(row, 12, "{}".format(variant.cosmic_data['num_samples']))
-            sheet.cell(row, 13, "{}".format(variant.cosmic_data['aa']))
-            sheet.cell(row, 14, "{}".format(variant.clinvar_data['significance']))
-            sheet.cell(row, 15, "{}".format(variant.clinvar_data['hgvs']))
-            sheet.cell(row, 16, "{}".format(variant.clinvar_data['disease']))
-            sheet.cell(row, 17,
+            sheet.write(row, 1, "{}".format(variant.sample))
+            sheet.write(row, 2, "{}".format(variant.library_name))
+            sheet.write(row, 3, "{}".format(variant.gene))
+            sheet.write(row, 4, "{}".format(variant.amplicon_data['amplicon']))
+            sheet.write(row, 5, "{}".format(variant.ref))
+            sheet.write(row, 6, "{}".format(variant.alt))
+            sheet.write(row, 7, "{}".format(variant.codon_change))
+            sheet.write(row, 8, "{}".format(variant.aa_change))
+            sheet.write(row, 9, "{}".format(variant.max_som_aaf))
+            sheet.write(row, 10, "{}".format(",".join(variant.callers) or None))
+            sheet.write(row, 11, "{}".format(",".join(variant.cosmic_ids) or None))
+            sheet.write(row, 12, "{}".format(variant.cosmic_data['num_samples']))
+            sheet.write(row, 13, "{}".format(variant.cosmic_data['aa']))
+            sheet.write(row, 14, "{}".format(variant.clinvar_data['significance']))
+            sheet.write(row, 15, "{}".format(variant.clinvar_data['hgvs']))
+            sheet.write(row, 16, "{}".format(variant.clinvar_data['disease']))
+            sheet.write(row, 17,
                              "{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['mean_coverage']))
-            sheet.cell(row, 18,
+            sheet.write(row, 18,
                              "{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['num_reads']))
-            sheet.cell(row, 19, "{}".format(variant.impact))
-            sheet.cell(row, 20, "{}".format(variant.severity))
-            sheet.cell(row, 21, "{}".format(variant.max_maf_all))
-            sheet.cell(row, 22, "{}".format(variant.min_depth))
-            sheet.cell(row, 23, "{}".format(variant.max_depth))
-            sheet.cell(row, 24, "{}".format(variant.chr))
-            sheet.cell(row, 25, "{}".format(variant.pos))
-            sheet.cell(row, 26, "{}".format(variant.end))
-            sheet.cell(row, 27, "{}".format(",".join(variant.rs_ids)))
+            sheet.write(row, 19, "{}".format(variant.impact))
+            sheet.write(row, 20, "{}".format(variant.severity))
+            sheet.write(row, 21, "{}".format(variant.max_maf_all))
+            sheet.write(row, 22, "{}".format(variant.min_depth))
+            sheet.write(row, 23, "{}".format(variant.max_depth))
+            sheet.write(row, 24, "{}".format(variant.chr))
+            sheet.write(row, 25, "{}".format(variant.pos))
+            sheet.write(row, 26, "{}".format(variant.end))
+            sheet.write(row, 27, "{}".format(",".join(variant.rs_ids)))
     
             col = 28
             if 'mutect' in callers:
-                sheet.cell(row, col, "{}".format(variant.mutect.get('AAF') or None))
+                sheet.write(row, col, "{}".format(variant.mutect.get('AAF') or None))
                 col += 1
     
             if 'vardict' in callers:
-                sheet.cell(row, col, "{}".format(variant.vardict.get('AAF') or None))
+                sheet.write(row, col, "{}".format(variant.vardict.get('AAF') or None))
                 col += 1
     
             if 'freebayes' in callers:
-                sheet.cell(row, col, "{}".format(variant.freebayes.get('AAF') or None))
+                sheet.write(row, col, "{}".format(variant.freebayes.get('AAF') or None))
                 col += 1
     
             if 'scalpel' in callers:
-                sheet.cell(row, col, "{}".format(variant.scalpel.get('AAF') or None))
+                sheet.write(row, col, "{}".format(variant.scalpel.get('AAF') or None))
                 col += 1
     
             if 'platypus' in callers:
-                sheet.cell(row, col, "{}".format(variant.platypus.get('AAF') or None))
+                sheet.write(row, col, "{}".format(variant.platypus.get('AAF') or None))
                 col += 1
     
             if 'pindel' in callers:
-                sheet.cell(row, col, "{}".format(variant.pindel.get('AAF') or None))
+                sheet.write(row, col, "{}".format(variant.pindel.get('AAF') or None))
                 col += 1
     
             row += 1
