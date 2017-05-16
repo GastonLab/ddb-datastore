@@ -357,7 +357,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
             sheet.write(row, 25, "{}".format(variant.min_depth))
             sheet.write(row, 26, "{}".format(variant.max_depth))
             sheet.write(row, 27, "{}".format(variant.chr))
-            sheet.write(row, 28, "{}".format(variant.start))
+            sheet.write(row, 28, "{}".format(variant.pos))
             sheet.write(row, 29, "{}".format(variant.end))
             sheet.write(row, 30, "{}".format(",".join(variant.rs_ids)))
     
