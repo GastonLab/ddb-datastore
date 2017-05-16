@@ -26,6 +26,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     filtered_variant_data = defaultdict(list)
     off_target_amplicon_counts = defaultdict(int)
     target_amplicon_coverage = dict()
+    ordered_amplicon_coverage = list()
 
     iterated = 0
     passing_variants = 0
@@ -51,6 +52,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
             ordered_amplicons = coverage_data.order_by('amplicon', 'run_id').limit(coverage_data.count() + 1000)
             for result in ordered_amplicons:
                 target_amplicon_coverage[amplicon] = result
+                ordered_amplicon_coverage.append(result)
 
         job.fileStore.logToMaster("{}: retrieving variants".format(library))
         variants = SampleVariant.objects.timeout(None).filter(
@@ -224,19 +226,19 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     coverage_sheet.write(7, 4, "Coverage")
 
     row_num = 8
-    for amplicon in report_data['coverage']:
-        if report_data['coverage'][amplicon].mean_coverage < 250:
+    for amplicon in ordered_amplicon_coverage:
+        if amplicon.mean_coverage < 250:
             style = error_style
-        elif report_data['coverage'][amplicon].mean_coverage < 500:
+        elif amplicon.mean_coverage < 500:
             style = warning_style
         else:
             style = pass_style
 
-        coverage_sheet.write(row_num, 0, "{}".format(report_data['coverage'][amplicon].sample), style)
-        coverage_sheet.write(row_num, 1, "{}".format(report_data['coverage'][amplicon].library_name), style)
-        coverage_sheet.write(row_num, 2, "{}".format(report_data['coverage'][amplicon].amplicon), style)
-        coverage_sheet.write(row_num, 3, "{}".format(report_data['coverage'][amplicon].num_reads), style)
-        coverage_sheet.write(row_num, 4, "{}".format(report_data['coverage'][amplicon].mean_coverage), style)
+        coverage_sheet.write(row_num, 0, "{}".format(amplicon.sample), style)
+        coverage_sheet.write(row_num, 1, "{}".format(amplicon.library_name), style)
+        coverage_sheet.write(row_num, 2, "{}".format(amplicon.amplicon), style)
+        coverage_sheet.write(row_num, 3, "{}".format(amplicon.num_reads), style)
+        coverage_sheet.write(row_num, 4, "{}".format(amplicon.mean_coverage), style)
 
         row_num += 1
 
@@ -316,9 +318,9 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
             sheet.write(row, 14, "{}".format(variant.clinvar_data['hgvs']))
             sheet.write(row, 15, "{}".format(variant.clinvar_data['disease']))
             sheet.write(row, 16,
-                             "{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['mean_coverage']))
+                        "{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['mean_coverage']))
             sheet.write(row, 17,
-                             "{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['num_reads']))
+                        "{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['num_reads']))
             sheet.write(row, 18, "{}".format(variant.impact))
             sheet.write(row, 19, "{}".format(variant.severity))
             sheet.write(row, 20, "{}".format(variant.max_maf_all))
