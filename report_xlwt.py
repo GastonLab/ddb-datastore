@@ -305,8 +305,8 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
             coverage_values = list()
             reads_values = list()
             for amplicon in amplicons:
-                coverage_values.append(report_data['coverage'][amplicon]['mean_coverage'])
-                reads_values.append(report_data['coverage'][amplicon]['num_reads'])
+                coverage_values.append(str(report_data['coverage'][amplicon]['mean_coverage']))
+                reads_values.append(str(report_data['coverage'][amplicon]['num_reads']))
             coverage_string = ",".join(coverage_values)
             reads_string = ",".join(reads_values)
 
