@@ -301,6 +301,15 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     
         row = 2
         for variant in report_data['variants'][tier_key[sheet_num]]:
+            amplicons = variant.amplicon_data['amplicon'].split(',')/
+            coverage_values = list()
+            reads_values = list()
+            for amplicon in amplicons:
+                coverage_values.append(report_data['coverage'][amplicon]['mean_coverage'])
+                reads_values.append(report_data['coverage'][amplicon]['num_reads'])
+            coverage_string = ",".join(coverage_values)
+            reads_string = ",".join(reads_values)
+
             sheet.write(row, 0, "{}".format(variant.sample))
             sheet.write(row, 1, "{}".format(variant.library_name))
             sheet.write(row, 2, "{}".format(variant.gene))
@@ -317,10 +326,8 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
             sheet.write(row, 13, "{}".format(variant.clinvar_data['significance']))
             sheet.write(row, 14, "{}".format(variant.clinvar_data['hgvs']))
             sheet.write(row, 15, "{}".format(variant.clinvar_data['disease']))
-            sheet.write(row, 16,
-                        "{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['mean_coverage']))
-            sheet.write(row, 17,
-                        "{}".format(report_data['coverage'][variant.amplicon_data['amplicon']]['num_reads']))
+            sheet.write(row, 16, "{}".format(coverage_string))
+            sheet.write(row, 17, "{}".format(reads_string))
             sheet.write(row, 18, "{}".format(variant.impact))
             sheet.write(row, 19, "{}".format(variant.severity))
             sheet.write(row, 20, "{}".format(variant.max_maf_all))
