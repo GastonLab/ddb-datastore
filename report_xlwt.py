@@ -301,7 +301,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     
         row = 2
         for variant in report_data['variants'][tier_key[sheet_num]]:
-            amplicons = variant.amplicon_data['amplicon'].split(',')/
+            amplicons = variant.amplicon_data['amplicon'].split(',')
             coverage_values = list()
             reads_values = list()
             for amplicon in amplicons:
