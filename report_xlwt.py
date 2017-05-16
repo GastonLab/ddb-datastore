@@ -225,7 +225,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     coverage_sheet.write(7, 3, "Num Reads")
     coverage_sheet.write(7, 4, "Coverage")
 
-    row_num = 8
+    row_num = 9
     for amplicon in ordered_amplicon_coverage:
         if amplicon.mean_coverage < 250:
             style = error_style
@@ -299,7 +299,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
             sheet.write(0, col, "Pindel_AF")
             col += 1
     
-        row = 2
+        row = 1
         for variant in report_data['variants'][tier_key[sheet_num]]:
             amplicons = variant.amplicon_data['amplicon'].split(',')
             coverage_values = list()
