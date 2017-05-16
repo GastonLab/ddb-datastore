@@ -92,7 +92,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
                     ).allow_filtering()
 
                     num_matches = match_variants.count()
-                    ordered_var = match_variants.order_by('pos', 'ref', 'alt', 'sample', 'library_name',
+                    ordered_var = match_variants.order_by('ref', 'alt', 'sample', 'library_name',
                                                           'run_id').limit(num_matches + 1000)
                     vafs = list()
                     for var in ordered_var:
