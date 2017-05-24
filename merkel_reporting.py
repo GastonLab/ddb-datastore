@@ -106,7 +106,8 @@ if __name__ == "__main__":
             filtered_var_data = utils.classify_and_filter_variants_proj(samples, sample, library, report_names,
                                                                         target_amplicons, callers, ordered_variants,
                                                                         config, thresholds, project_variant_data,
-                                                                        variant_count_data, gene_count_data)
+                                                                        variant_count_data, gene_count_data,
+                                                                        args.address, auth_provider)
             project_variant_data = filtered_var_data[-3]
             variant_count_data = filtered_var_data[-2]
             gene_count_data = filtered_var_data[-1]
