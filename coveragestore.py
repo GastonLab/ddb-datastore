@@ -3,7 +3,7 @@ from cassandra.cqlengine.models import Model
 
 
 class SampleCoverage(Model):
-    __keyspace__ = 'coveragestore'
+    __keyspace__ = 'coveragestore_dev'
     sample = columns.Text(primary_key=True, partition_key=True)
 
     amplicon = columns.Text(primary_key=True)
@@ -24,7 +24,7 @@ class SampleCoverage(Model):
 
 
 class AmpliconCoverage(Model):
-    __keyspace__ = 'coveragestore'
+    __keyspace__ = 'coveragestore_dev'
     amplicon = columns.Text(primary_key=True, partition_key=True)
 
     sample = columns.Text(primary_key=True)

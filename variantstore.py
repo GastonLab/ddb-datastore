@@ -3,14 +3,14 @@ from cassandra.cqlengine.models import Model
 
 
 class Variant(Model):
-    __keyspace__ = 'variantstore'
+    __keyspace__ = 'variantstore_dev'
     reference_genome = columns.Text(primary_key=True, partition_key=True)
     chr = columns.Text(primary_key=True, partition_key=True)
+    pos = columns.Integer(primary_key=True, partition_key=True)
+    ref = columns.Text(primary_key=True, partition_key=True)
+    alt = columns.Text(primary_key=True, partition_key=True)
 
     # Cluster Keys
-    pos = columns.Integer(primary_key=True)
-    ref = columns.Text(primary_key=True)
-    alt = columns.Text(primary_key=True)
     sample = columns.Text(index=True, primary_key=True)
     library_name = columns.Text(index=True, primary_key=True)
     run_id = columns.Text(index=True, primary_key=True)
@@ -87,11 +87,11 @@ class Variant(Model):
 
 
 class SampleVariant(Model):
-    __keyspace__ = 'variantstore'
+    __keyspace__ = 'variantstore_dev'
     sample = columns.Text(primary_key=True, partition_key=True)
     run_id = columns.Text(primary_key=True, partition_key=True)
     reference_genome = columns.Text(primary_key=True, partition_key=True)
-    library_name = columns.Text(primary_key=True)
+    library_name = columns.Text(primary_key=True, partition_key=True)
 
     chr = columns.Text(primary_key=True)
     pos = columns.Integer(primary_key=True)
@@ -172,7 +172,7 @@ class SampleVariant(Model):
 
 
 class TargetVariant(Model):
-    __keyspace__ = 'variantstore'
+    __keyspace__ = 'variantstore_dev'
     target = columns.Text(primary_key=True, partition_key=True)
     reference_genome = columns.Text(primary_key=True, partition_key=True)
     sample = columns.Text(primary_key=True)

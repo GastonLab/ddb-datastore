@@ -8,6 +8,9 @@ from cassandra.cqlengine.management import create_keyspace_simple
 from cassandra.cluster import Cluster
 from cassandra.cqlengine import connection
 from cassandra.auth import PlainTextAuthProvider
+from variantstore import Variant
+from variantstore import SampleVariant
+from variantstore import TargetVariant
 from coveragestore import SampleCoverage
 from coveragestore import AmpliconCoverage
 
@@ -30,7 +33,11 @@ if __name__ == "__main__":
         session.row_factory = query.dict_factory
 
     connection.set_session(session)
-    create_keyspace_simple("coveragestore", args.replication_factor)
+    create_keyspace_simple("variantstore_dev", args.replication_factor)
+    create_keyspace_simple("coveragestore_dev", args.replication_factor)
 
+    sync_table(Variant)
+    sync_table(SampleVariant)
+    sync_table(TargetVariant)
     sync_table(SampleCoverage)
     sync_table(AmpliconCoverage)
