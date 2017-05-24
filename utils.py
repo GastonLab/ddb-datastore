@@ -272,7 +272,7 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
                             ).allow_filtering()
 
                             num_matches = match_variants.count()
-                            ordered_var = match_variants.order_by('pos', 'ref', 'alt', 'sample', 'library_name',
+                            ordered_var = match_variants.order_by('ref', 'alt', 'sample', 'library_name',
                                                                   'run_id').limit(num_matches + 1000)
                             cohort_count = 0.0
                             counted_samples = list()
