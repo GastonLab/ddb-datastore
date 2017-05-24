@@ -272,7 +272,8 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
                             ).allow_filtering()
 
                             num_matches = match_variants.count()
-                            ordered_var = match_variants.order_by('sample', 'library_name', 'run_id').limit(num_matches + 1000)
+                            ordered_var = match_variants.order_by('pos', 'ref', 'alt', 'sample', 'library_name',
+                                                                  'run_id').limit(num_matches + 1000)
                             cohort_count = 0.0
                             counted_samples = list()
                             for var in ordered_var:
@@ -288,7 +289,7 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
                                 gene_count_data[sample][gene] += 1
                                 if variant.ref == 'C' and variant.alt == 'T':
                                     variant_count_data[sample]['CT_count'] += 1
-    
+
                                 # Putting in to Tier1 based on COSMIC
                                 if variant.cosmic_ids:
                                     if variant.max_som_aaf < thresholds['min_saf']:
