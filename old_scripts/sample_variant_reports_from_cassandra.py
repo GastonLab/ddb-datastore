@@ -8,8 +8,8 @@ from cassandra.auth import PlainTextAuthProvider
 from cassandra.cqlengine import connection
 from ddb import configuration
 
-import utils
-from variantstore import SampleVariant
+from ddb_data import utils
+from ddb_data.variantstore import SampleVariant
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

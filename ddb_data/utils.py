@@ -1,13 +1,11 @@
-import sys
 import csv
-import numpy as np
-import geneimpacts
-
+import sys
 from collections import defaultdict
 
-from variantstore import Variant
+import geneimpacts
 from variantstore import SampleVariant
-from coveragestore import SampleCoverage
+
+from ddb_data.coveragestore import SampleCoverage
 
 
 def get_target_amplicons(filename):

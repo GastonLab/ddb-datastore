@@ -6,7 +6,7 @@ Install
 Download and Install the DDB-Core library
 
 ```
-git clone https://github.com/dgaston/ddb-core
+git clone https://github.com/dgaston/ddb-data
 cd ddb-core
 python setup.py install
 

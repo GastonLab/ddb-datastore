@@ -1,20 +1,19 @@
 #!/usr/bin/env python
 
-import sys
+import argparse
 import csv
 import getpass
-import argparse
-
+import sys
 from collections import defaultdict
-from cassandra.cqlengine import connection
-from cassandra.auth import PlainTextAuthProvider
 
-from coveragestore import AmpliconCoverage
-from coveragestore import SampleCoverage
+from cassandra.auth import PlainTextAuthProvider
+from cassandra.cqlengine import connection
 from ddb import configuration
 from ddb_ngsflow import pipeline
-
 from toil.job import Job
+
+from ddb_data.coveragestore import AmpliconCoverage
+from ddb_data.coveragestore import SampleCoverage
 
 
 def process_sample_coverage(job, addresses, keyspace, auth, sample, program, samples):

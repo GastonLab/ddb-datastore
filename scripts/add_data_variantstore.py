@@ -8,19 +8,19 @@ from collections import defaultdict
 from datetime import datetime
 
 import cyvcf2
+from cassandra import InvalidRequest
+from cassandra import WriteFailure
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cqlengine import connection
-from cassandra import WriteFailure
-from cassandra import InvalidRequest
 from cyvcf2 import VCF
 from ddb import configuration
 from ddb import vcf_parsing
 from ddb_ngsflow import pipeline
 from toil.job import Job
 
-import utils
-from variantstore import SampleVariant
-from variantstore import Variant
+from ddb_data import utils
+from ddb_data.variantstore import SampleVariant
+from ddb_data.variantstore import Variant
 
 
 def process_sample(job, addresses, keyspace, authenticator, parse_functions, sample, samples, config):

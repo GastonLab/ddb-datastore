@@ -2,13 +2,15 @@
 
 import argparse
 import getpass
+
 from cassandra import query
-from cassandra.cqlengine.management import sync_table
-from cassandra.cqlengine.management import create_keyspace_simple
+from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
 from cassandra.cqlengine import connection
-from cassandra.auth import PlainTextAuthProvider
-from qcstore import QC
+from cassandra.cqlengine.management import create_keyspace_simple
+from cassandra.cqlengine.management import sync_table
+
+from ddb_data.qcstore import QC
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

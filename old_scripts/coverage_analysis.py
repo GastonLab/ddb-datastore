@@ -1,18 +1,17 @@
 #!/usr/bin/env python
 
-import sys
-import csv
 import argparse
+import csv
 import getpass
-import plotly
-import plotly.graph_objs as go
-
-
+import sys
 from collections import defaultdict
 
-from coveragestore import AmpliconCoverage
-from cassandra.cqlengine import connection
+import plotly
+import plotly.graph_objs as go
 from cassandra.auth import PlainTextAuthProvider
+from cassandra.cqlengine import connection
+
+from ddb_data.coveragestore import AmpliconCoverage
 
 
 def get_regions(infile):

@@ -1,19 +1,15 @@
 #!/usr/bin/env python
 
 import argparse
-import getpass
-import xlsxwriter
-import sys
 import csv
+import getpass
+import sys
 
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cqlengine import connection
 from ddb import configuration
 
-import utils
-from coveragestore import SampleCoverage
-
-from collections import defaultdict
+from ddb_data.coveragestore import SampleCoverage
 
 
 def get_target_amplicons(filename):

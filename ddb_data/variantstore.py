@@ -15,11 +15,11 @@ class Variant(Model):
     library_name = columns.Text(index=True, primary_key=True)
     run_id = columns.Text(index=True, primary_key=True)
 
-    sequencer = columns.Text(index=True)
-    target_pool = columns.Text(index=True)
-    panel_name = columns.Text(index=True)
-    initial_report_panel = columns.Text(index=True)
-    extraction = columns.Text(index=True)
+    sequencer = columns.Text()
+    target_pool = columns.Text()
+    panel_name = columns.Text()
+    initial_report_panel = columns.Text()
+    extraction = columns.Text()
     date_annotated = columns.DateTime()
 
     # Simple Annotation Data
@@ -36,12 +36,12 @@ class Variant(Model):
     rs_ids = columns.List(columns.Text)
     cosmic_ids = columns.List(columns.Text)
 
-    gene = columns.Text(index=True)
+    gene = columns.Text()
     transcript = columns.Text()
     exon = columns.Text()
     codon_change = columns.Text()
     aa_change = columns.Text()
-    biotype = columns.Text(index=True)
+    biotype = columns.Text()
     severity = columns.Text()
     impact = columns.Text()
     impact_so = columns.Text()

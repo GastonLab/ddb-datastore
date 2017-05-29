@@ -1,22 +1,22 @@
 #!/usr/bin/env python
 
-import sys
-import xlwt
-import utils
-import getpass
 import argparse
+import getpass
+import sys
+from collections import defaultdict
 
 import numpy as np
-
-from toil.job import Job
+import xlwt
+from cassandra.auth import PlainTextAuthProvider
+from cassandra.cqlengine import connection
 from ddb import configuration
 from ddb_ngsflow import pipeline
-from variantstore import Variant
-from collections import defaultdict
+from toil.job import Job
 from variantstore import SampleVariant
-from coveragestore import SampleCoverage
-from cassandra.cqlengine import connection
-from cassandra.auth import PlainTextAuthProvider
+from variantstore import Variant
+
+from ddb_data import utils
+from ddb_data.coveragestore import SampleCoverage
 
 
 def process_sample(job, config, sample, samples, addresses, authenticator, thresholds, callers):
@@ -195,7 +195,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     tier1_fail_sheet = wb.add_sheet("Tier1 and 2 Fail")
     tier3_fail_sheet = wb.add_sheet("Tier3 Fail")
     tier4_fail_sheet = wb.add_sheet("Tier4 Fail")
-    
+
     tier_sheets = (tier1_sheet, tier1_fail_sheet, tier3_sheet, tier3_fail_sheet, tier4_sheet, tier4_fail_sheet)
     tier_key = ("tier1_pass_variants", "tier1_fail_variants",
                 "tier3_pass_variants", "tier3_fail_variants",
@@ -290,32 +290,32 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
         sheet.write(0, 28, "Start")
         sheet.write(0, 29, "End")
         sheet.write(0, 30, "rsIDs")
-    
+
         col = 31
         if 'mutect' in callers:
             sheet.write(0, col, "MuTect_AF")
             col += 1
-    
+
         if 'vardict' in callers:
             sheet.write(0, col, "VarDict_AF")
             col += 1
-    
+
         if 'freebayes' in callers:
             sheet.write(0, col, "FreeBayes_AF")
             col += 1
-    
+
         if 'scalpel' in callers:
             sheet.write(0, col, "Scalpel_AF")
             col += 1
-    
+
         if 'platypus' in callers:
             sheet.write(0, col, "Platypus_AF")
             col += 1
-    
+
         if 'pindel' in callers:
             sheet.write(0, col, "Pindel_AF")
             col += 1
-    
+
         row = 1
         for variant in report_data['variants'][tier_key[sheet_num]]:
             amplicons = variant.amplicon_data['amplicon'].split(',')
@@ -360,32 +360,32 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
             sheet.write(row, 28, "{}".format(variant.pos))
             sheet.write(row, 29, "{}".format(variant.end))
             sheet.write(row, 30, "{}".format(",".join(variant.rs_ids)))
-    
+
             col = 31
             if 'mutect' in callers:
                 sheet.write(row, col, "{}".format(variant.mutect.get('AAF') or None))
                 col += 1
-    
+
             if 'vardict' in callers:
                 sheet.write(row, col, "{}".format(variant.vardict.get('AAF') or None))
                 col += 1
-    
+
             if 'freebayes' in callers:
                 sheet.write(row, col, "{}".format(variant.freebayes.get('AAF') or None))
                 col += 1
-    
+
             if 'scalpel' in callers:
                 sheet.write(row, col, "{}".format(variant.scalpel.get('AAF') or None))
                 col += 1
-    
+
             if 'platypus' in callers:
                 sheet.write(row, col, "{}".format(variant.platypus.get('AAF') or None))
                 col += 1
-    
+
             if 'pindel' in callers:
                 sheet.write(row, col, "{}".format(variant.pindel.get('AAF') or None))
                 col += 1
-    
+
             row += 1
         sheet_num += 1
     wb.save(report_name)

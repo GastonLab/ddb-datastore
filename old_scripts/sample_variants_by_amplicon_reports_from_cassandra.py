@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 
 import argparse
+import csv
 import getpass
 import sys
-import csv
+from collections import defaultdict
 
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cqlengine import connection
 from ddb import configuration
 
-import utils
-from variantstore import TargetVariant
-from collections import defaultdict
+from ddb_data import utils
+from ddb_data.variantstore import TargetVariant
 
 
 def get_amplicons_list(infile):
