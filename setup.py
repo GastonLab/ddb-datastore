@@ -29,7 +29,7 @@ setup(
     name='ddb-data',
     version='0.1.0',
     license='BSD',
-    description='A toil based NGS workflow manager',
+    description='Interface to Cassandra database',
     long_description='%s\n%s' % (
         re.compile('^.. start-badges.*^.. end-badges', re.M | re.S).sub('', read('README.rst')),
         re.sub(':[a-z]+:`~?(.*?)`', r'``\1``', read('CHANGELOG.rst'))
