@@ -37,4 +37,4 @@ if __name__ == "__main__":
                     total_bases += 1
                     if int(row[2]) >= args.min_depth:
                         num_bases += 1.0
-                output.write("{}\t{}\t{}\n".format(sample, num_bases / 1000, total_bases, num_bases / total_bases))
+                output.write("{}\t{}\t{}\t{}\n".format(sample, num_bases / 1000, total_bases / 1000, num_bases / total_bases))
