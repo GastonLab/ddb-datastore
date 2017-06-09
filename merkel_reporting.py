@@ -74,14 +74,8 @@ if __name__ == "__main__":
             coverage_report.write("---------------------------------------------\n")
 
         utils.setup_report_header(report_names['tier1_pass'], callers)
-        utils.setup_report_header(report_names['tier1_fail'], callers)
-
         utils.setup_report_header(report_names['vus_pass'], callers)
-        utils.setup_report_header(report_names['vus_fail'], callers)
-
         utils.setup_report_header(report_names['tier4_pass'], callers)
-        utils.setup_report_header(report_names['tier4_fail'], callers)
-
         utils.setup_report_header(report_names['all_ordered'], callers)
 
         for library in samples[sample]:
@@ -119,13 +113,10 @@ if __name__ == "__main__":
         summary.write("Variant\tNum Tier1 Pass\tNum Tier1 Fail\tNum VUS Pass\tNum VUS Fail\tNum Tier4 Pass\t"
                       "Num Tier4 Fail\n")
         for variant_id in project_variant_data:
-            summary.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(variant_id,
-                                                                project_variant_data[variant_id]['tier1_pass'],
-                                                                project_variant_data[variant_id]['tier1_fail'],
-                                                                project_variant_data[variant_id]['vus_pass'],
-                                                                project_variant_data[variant_id]['vus_fail'],
-                                                                project_variant_data[variant_id]['tier4_pass'],
-                                                                project_variant_data[variant_id]['tier4_fail']))
+            summary.write("{}\t{}\t{}\t{}\n".format(variant_id,
+                                                    project_variant_data[variant_id]['tier1_pass'],
+                                                    project_variant_data[variant_id]['vus_pass'],
+                                                    project_variant_data[variant_id]['tier4_pass']))
 
     sys.stdout.write("Writing project/run level category data\n")
     with open("Category_Data.txt", 'w') as summary:

@@ -218,14 +218,8 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
     filtered_low_freq = 0
 
     tier1_pass_variants = list()
-    tier1_fail_variants = list()
-
     vus_pass_variants = list()
-    vus_fail_variants = list()
-
     tier4_pass_variants = list()
-    tier4_fail_variants = list()
-
     filtered_off_target = list()
     off_target_amplicon_counts = defaultdict(int)
 
@@ -356,16 +350,15 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
             logfile.write("{}\t{}\n".format(off_target, off_target_amplicon_counts[off_target]))
             # sys.stdout.write("{}\t{}\n".format(off_target, off_target_amplicon_counts[off_target]))
 
-    return tier1_pass_variants, tier1_fail_variants, vus_pass_variants, vus_fail_variants, tier4_pass_variants, \
-           tier4_fail_variants, filtered_off_target, project_variant_data, variant_count_data, gene_count_data
+    return tier1_pass_variants, vus_pass_variants, tier4_pass_variants, filtered_off_target, project_variant_data, \
+           variant_count_data, gene_count_data
 
 
 def write_reports(report_names, samples, sample, library, filtered_var_data, ordered_variants,
                   target_amplicon_coverage, reportable_amplicons, num_var, thresholds, callers):
 
-    tier1_pass_variants, tier1_fail_variants, vus_pass_variants, vus_fail_variants, tier4_pass_variants, \
-    tier4_fail_variants, filtered_off_target, project_variant_data, variant_count_data, \
-    gene_count_data = filtered_var_data
+    tier1_pass_variants, vus_pass_variants, tier4_pass_variants, filtered_off_target, project_variant_data, \
+    variant_count_data, gene_count_data = filtered_var_data
 
     with open(report_names['coverage'], "a") as coverage_report:
         coverage_report.write("Library:\t{}\n".format(samples[sample][library]['library_name']))
@@ -376,14 +369,8 @@ def write_reports(report_names, samples, sample, library, filtered_var_data, ord
         coverage_report.write("---------------------------------------------\n")
         coverage_report.write("Number query return variants\t{}\n".format(num_var))
         coverage_report.write("Tier1 Pass Variants\t{}\n".format(len(tier1_pass_variants)))
-        coverage_report.write("Tier1 Fail Variants\t{}\n".format(len(tier1_fail_variants)))
-
         coverage_report.write("VUS Pass Variants\t{}\n".format(len(vus_pass_variants)))
-        coverage_report.write("VUS Fail Variants\t{}\n".format(len(vus_fail_variants)))
-
         coverage_report.write("Tier4 Pass Variants\t{}\n".format(len(tier4_pass_variants)))
-        coverage_report.write("Tier4 Fail Variants\t{}\n".format(len(tier4_fail_variants)))
-
         coverage_report.write("Off Target/Non-Reportable Amplicon Variants\t{}\n".format(len(filtered_off_target)))
         coverage_report.write("---------------------------------------------\n")
         coverage_report.write("Sample\tLibrary\tAmplicon\tNum Reads\tCoverage\n")
@@ -395,15 +382,9 @@ def write_reports(report_names, samples, sample, library, filtered_var_data, ord
                                                                 amplicon.mean_coverage))
 
         write_report(report_names['tier1_pass'], tier1_pass_variants, target_amplicon_coverage, callers)
-        write_report(report_names['tier1_fail'], tier1_fail_variants, target_amplicon_coverage, callers)
-
         write_report(report_names['vus_pass'], vus_pass_variants, target_amplicon_coverage, callers)
-        write_report(report_names['vus_fail'], vus_fail_variants, target_amplicon_coverage, callers)
-
         write_report(report_names['tier4_pass'], tier4_pass_variants, target_amplicon_coverage, callers)
-        write_report(report_names['tier4_fail'], tier4_fail_variants, target_amplicon_coverage, callers)
-
-        write_report(report_names['all_ordered'], tier4_fail_variants, target_amplicon_coverage, callers)
+        write_report(report_names['all_ordered'], ordered_variants, target_amplicon_coverage, callers)
 
 
 def write_report(filename, variants, target_amplicon_coverage, callers):
