@@ -5,6 +5,7 @@ import utils
 import argparse
 import getpass
 
+from toil.job import Job
 from ddb import configuration
 from collections import defaultdict
 
@@ -25,7 +26,9 @@ if __name__ == "__main__":
                         default=0.10)
     parser.add_argument('-p', '--max_pop_freq', help='Maximum allowed population allele frequency', default=0.005)
 
+    Job.Runner.addToilOptions(parser)
     args = parser.parse_args()
+    args.logLevel = "INFO"
 
     sys.stdout.write("Parsing configuration data\n")
     config = configuration.configure_runtime(args.configuration)
@@ -58,11 +61,8 @@ if __name__ == "__main__":
         report_names = {'log': "{}.{}.log".format(sample, args.report),
                         'coverage': "{}_coverage_{}.txt".format(sample, args.report),
                         'tier1_pass': "{}_tier1_pass_variants_{}.txt".format(sample, args.report),
-                        'tier1_fail': "{}_tier1_fail_variants_{}.txt".format(sample, args.report),
                         'vus_pass': "{}_vus_pass_variants_{}.txt".format(sample, args.report),
-                        'vus_fail': "{}_vus_fail_variants_{}.txt".format(sample, args.report),
                         'tier4_pass': "{}_tier4_pass_variants_{}.txt".format(sample, args.report),
-                        'tier4_fail': "{}_tier4_fail_variants_{}.txt".format(sample, args.report),
                         'all_ordered': "{}_all_ordered_variants_{}.txt".format(sample, args.report),
                         'categories': "{}_variants_by_category{}.txt".format(sample, args.report)
                         }
