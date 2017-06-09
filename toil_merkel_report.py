@@ -37,6 +37,8 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     filtered_off_target = 0
 
     for library in samples[sample]:
+        counted = list()
+        category = samples[sample][library]['category']
         report_panel_path = "/mnt/shared-data/ddb-configs/disease_panels/{}/{}" \
                             "".format(samples[sample][library]['panel'], samples[sample][library]['report'])
 
@@ -72,6 +74,16 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
 
         for variant in ordered:
             iterated += 1
+            if len(variant.callers) < 2:
+                continue
+            if len(variant.ref) > 2 and len(variant.alt) > 2:
+                continue
+
+            elements = variant.amplicon_data['amplicon'].split('_')
+            gene = elements[0]
+            variant_id = "{}:{}-{}_{}_{}_{}_{}".format(variant.chr, variant.pos, variant.end, variant.ref, variant.alt,
+                                                       variant.codon_change, variant.aa_change)
+
             if variant.amplicon_data['amplicon'] is 'None':
                 filtered_off_target += 1
                 off_target_amplicon_counts[variant.amplicon_data['amplicon']] += 1
@@ -83,84 +95,91 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
                         assignable += 1
                         break
                 if assignable:
-                    match_variants = Variant.objects.timeout(None).filter(
-                        Variant.reference_genome == config['genome_version'],
-                        Variant.chr == variant.chr,
-                        Variant.pos == variant.pos,
-                        Variant.ref == variant.ref,
-                        Variant.alt == variant.alt
-                    ).allow_filtering()
+                    if variant.max_som_aaf > thresholds['min_saf']:
+                        if variant.min_depth > thresholds['depth']:
+                            if variant_id not in counted:
 
-                    num_matches = match_variants.count()
-                    ordered_var = match_variants.order_by('ref', 'alt', 'sample', 'library_name',
-                                                          'run_id').limit(num_matches + 1000)
-                    vafs = list()
-                    num_times_callers = defaultdict(int)
-                    for var in ordered_var:
-                        vaf = var.max_som_aaf
-                        vafs.append(vaf)
-                        for caller in var.callers:
-                            num_times_callers[caller] += 1
+                                match_variants = Variant.objects.timeout(None).filter(
+                                    Variant.reference_genome == config['genome_version'],
+                                    Variant.chr == variant.chr,
+                                    Variant.pos == variant.pos,
+                                    Variant.ref == variant.ref,
+                                    Variant.alt == variant.alt
+                                ).allow_filtering()
 
-                    variant.vaf_median = np.median(vafs)
-                    variant.vaf_std_dev = np.std(vafs)
-                    variant.num_times_called = num_matches
+                                num_matches = match_variants.count()
+                                ordered_var = match_variants.order_by('ref', 'alt', 'sample', 'library_name',
+                                                                      'run_id').limit(num_matches + 1000)
+                                vafs = list()
+                                num_times_callers = defaultdict(int)
+                                for var in ordered_var:
+                                    vaf = var.max_som_aaf
+                                    vafs.append(vaf)
+                                    for caller in var.callers:
+                                        num_times_callers[caller] += 1
 
-                    caller_counts_elements = list()
-                    for caller in num_times_callers:
-                        caller_counts_elements.append("{}: {}".format(caller, num_times_callers[caller]))
-                    variant.num_times_callers = ",".join(caller_counts_elements)
+                                variant.vaf_median = np.median(vafs)
+                                variant.vaf_std_dev = np.std(vafs)
+                                variant.num_times_called = num_matches
+                                
 
-                    # Putting in to Tier1 based on COSMIC
-                    if variant.cosmic_ids:
-                        if variant.max_som_aaf < thresholds['min_saf']:
-                            filtered_variant_data['tier1_fail_variants'].append(variant)
-                            filtered_low_freq += 1
-                        elif variant.max_depth < thresholds['depth']:
-                            filtered_variant_data['tier1_fail_variants'].append(variant)
-                            filtered_low_depth += 1
-                        else:
-                            filtered_variant_data['tier1_pass_variants'].append(variant)
-                            passing_variants += 1
-                        continue
+                                counted.append(variant_id)
 
-                    # Putting in to Tier1 based on ClinVar not being None or Benign
-                    if variant.clinvar_data['pathogenic'] != 'None':
-                        if variant.clinvar_data['pathogenic'] != 'benign':
-                            if variant.clinvar_data['pathogenic'] != 'likely-benign':
-                                if variant.max_som_aaf < thresholds['min_saf']:
-                                    filtered_variant_data['tier1_fail_variants'].append(variant)
-                                    filtered_low_freq += 1
-                                elif variant.max_depth < thresholds['depth']:
-                                    filtered_variant_data['tier1_fail_variants'].append(variant)
-                                    filtered_low_depth += 1
+                                caller_counts_elements = list()
+                                for caller in num_times_callers:
+                                    caller_counts_elements.append("{}: {}".format(caller, num_times_callers[caller]))
+                                variant.num_times_callers = ",".join(caller_counts_elements)
+
+                                # Putting in to Tier1 based on COSMIC
+                                if variant.cosmic_ids:
+                                    if variant.max_som_aaf < thresholds['min_saf']:
+                                        filtered_variant_data['tier1_fail_variants'].append(variant)
+                                        filtered_low_freq += 1
+                                    elif variant.max_depth < thresholds['depth']:
+                                        filtered_variant_data['tier1_fail_variants'].append(variant)
+                                        filtered_low_depth += 1
+                                    else:
+                                        filtered_variant_data['tier1_pass_variants'].append(variant)
+                                        passing_variants += 1
+                                    continue
+
+                                # Putting in to Tier1 based on ClinVar not being None or Benign
+                                if variant.clinvar_data['pathogenic'] != 'None':
+                                    if variant.clinvar_data['pathogenic'] != 'benign':
+                                        if variant.clinvar_data['pathogenic'] != 'likely-benign':
+                                            if variant.max_som_aaf < thresholds['min_saf']:
+                                                filtered_variant_data['tier1_fail_variants'].append(variant)
+                                                filtered_low_freq += 1
+                                            elif variant.max_depth < thresholds['depth']:
+                                                filtered_variant_data['tier1_fail_variants'].append(variant)
+                                                filtered_low_depth += 1
+                                            else:
+                                                filtered_variant_data['tier1_pass_variants'].append(variant)
+                                                passing_variants += 1
+                                            continue
+
+                                if variant.severity == 'MED' or variant.severity == 'HIGH':
+                                    if variant.max_som_aaf < thresholds['min_saf']:
+                                        filtered_variant_data['tier3_fail_variants'].append(variant)
+                                        filtered_low_freq += 1
+                                    elif variant.max_depth < thresholds['depth']:
+                                        filtered_variant_data['tier3_fail_variants'].append(variant)
+                                        filtered_low_depth += 1
+                                    else:
+                                        filtered_variant_data['tier3_pass_variants'].append(variant)
+                                        passing_variants += 1
+                                    continue
                                 else:
-                                    filtered_variant_data['tier1_pass_variants'].append(variant)
-                                    passing_variants += 1
-                                continue
-
-                    if variant.severity == 'MED' or variant.severity == 'HIGH':
-                        if variant.max_som_aaf < thresholds['min_saf']:
-                            filtered_variant_data['tier3_fail_variants'].append(variant)
-                            filtered_low_freq += 1
-                        elif variant.max_depth < thresholds['depth']:
-                            filtered_variant_data['tier3_fail_variants'].append(variant)
-                            filtered_low_depth += 1
-                        else:
-                            filtered_variant_data['tier3_pass_variants'].append(variant)
-                            passing_variants += 1
-                        continue
-                    else:
-                        if variant.max_som_aaf < thresholds['min_saf']:
-                            filtered_variant_data['tier4_fail_variants'].append(variant)
-                            filtered_low_freq += 1
-                        elif variant.max_depth < thresholds['depth']:
-                            filtered_variant_data['tier4_fail_variants'].append(variant)
-                            filtered_low_depth += 1
-                        else:
-                            filtered_variant_data['tier4_pass_variants'].append(variant)
-                            passing_variants += 1
-                        continue
+                                    if variant.max_som_aaf < thresholds['min_saf']:
+                                        filtered_variant_data['tier4_fail_variants'].append(variant)
+                                        filtered_low_freq += 1
+                                    elif variant.max_depth < thresholds['depth']:
+                                        filtered_variant_data['tier4_fail_variants'].append(variant)
+                                        filtered_low_depth += 1
+                                    else:
+                                        filtered_variant_data['tier4_pass_variants'].append(variant)
+                                        passing_variants += 1
+                                    continue
                 else:
                     filtered_off_target += 1
                     off_target_amplicon_counts[variant.amplicon_data['amplicon']] += 1
