@@ -29,7 +29,7 @@ if __name__ == "__main__":
         for sample in samples:
             num_bases = 0.0
             total_bases = 0.0
-            with open("{}.sambamba_coverage.bed".format(sample), 'r') as coverage_file:
+            with open("{}.recalibrated.sorted.bam.bed".format(sample), 'r') as coverage_file:
                 sys.stdout.write("Reading base-by-base coverage data for {}\n".format(sample))
                 reader = csv.reader(coverage_file, dialect='excel-tab')
                 reader.next()
