@@ -290,6 +290,15 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
                                 if variant.ref == 'C' and variant.alt == 'T':
                                     variant_count_data[sample]['CT_count'] += 1
 
+                                if variant.severity == 'HIGH' or 'pathogenic' in variant.clinvar_data['pathogenic']:
+                                    variant_count_data[sample]['high_impact_pathogenic'] += 1
+                                elif variant.severity == 'MED':
+                                    variant_count_data[sample]['med'] += 1
+                                elif variant.severity == 'LOW':
+                                    variant_count_data[sample]['low'] += 1
+                                else:
+                                    sys.stderr.write("ERROR: Cannot classify variant {}\n".format(variant_id))
+
                                 # Putting in to Tier1 based on COSMIC
                                 if variant.cosmic_ids:
                                     tier1_pass_variants.append(variant)

@@ -139,13 +139,14 @@ if __name__ == "__main__":
 
     sys.stdout.write("Writing Sample-level variant count data\n")
     with open("Sample_Variant_Counts.txt", 'w') as summary:
-        summary.write("Sample\tGroup\tViral Status\tNumber Passing Variants\tNumber Passing C>T Variants\n")
+        summary.write("sample\tgroup\tviral_status\tnum_pass\tnum_ct\tnum_high_pathogenic\n")
         for sample in variant_count_data:
             for library in samples[sample]:
-                summary.write("{}\t{}\t{}\t{}\t{}\n".format(sample, samples[sample][library]['category'],
-                                                            samples[sample][library]['viral'],
-                                                            variant_count_data[sample]['pass_count'],
-                                                            variant_count_data[sample]['CT_count']))
+                summary.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(sample, samples[sample][library]['category'],
+                                                                samples[sample][library]['viral'],
+                                                                variant_count_data[sample]['pass_count'],
+                                                                variant_count_data[sample]['CT_count'],
+                                                                variant_count_data[sample]['high_impact_pathogenic']))
 
     sys.stdout.write("Writing Sample and gene-level variant count data\n")
     with open("Sample_Gene_Variant_Counts.txt", 'w') as summary:
