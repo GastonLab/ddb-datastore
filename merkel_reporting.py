@@ -5,7 +5,6 @@ import utils
 import argparse
 import getpass
 
-from toil.job import Job
 from ddb import configuration
 from collections import defaultdict
 
@@ -26,7 +25,6 @@ if __name__ == "__main__":
                         default=0.10)
     parser.add_argument('-p', '--max_pop_freq', help='Maximum allowed population allele frequency', default=0.005)
 
-    Job.Runner.addToilOptions(parser)
     args = parser.parse_args()
     args.logLevel = "INFO"
 
