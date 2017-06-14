@@ -361,8 +361,8 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
 def write_reports(report_names, samples, sample, library, filtered_var_data, ordered_variants,
                   target_amplicon_coverage, reportable_amplicons, num_var, thresholds, callers):
 
-    tier1_pass_variants, vus_pass_variants, tier4_pass_variants, filtered_off_target, project_variant_data, \
-    variant_count_data, gene_count_data = filtered_var_data
+    tier1_pass_variants, vus_pass_variants, tier4_pass_variants, filtered_off_target, variants_list, \
+    project_variant_data, variant_count_data, gene_count_data = filtered_var_data
 
     with open(report_names['coverage'], "a") as coverage_report:
         coverage_report.write("Library:\t{}\n".format(samples[sample][library]['library_name']))
