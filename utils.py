@@ -282,7 +282,7 @@ def classify_and_filter_variants_proj(samples, sample, library, report_names, ta
                                 variant_count_data[sample]['pass_count'] += 1
                                 gene_count_data[sample][gene] += 1
 
-                                variants_list.fraction = fraction
+                                variant.fraction = fraction
                                 variants_list.append(variant)
 
                                 if variant.ref == 'C' and variant.alt == 'T':
