@@ -42,14 +42,15 @@ if __name__ == "__main__":
     else:
         connection.setup([args.address], "variantstore")
 
-    thresholds = {'min_saf': args.min_somatic_var_freq,
-                  'max_maf': args.max_pop_freq,
-                  'depth': args.min_depth}
+    thresholds = {'min_saf': float(args.min_somatic_var_freq),
+                  'max_maf': float(args.max_pop_freq),
+                  'depth': float(args.min_depth)}
 
     callers = ("mutect", "platypus", "vardict", "scalpel", "freebayes", "pindel")
     project_variant_data = defaultdict(lambda: defaultdict(int))
     variant_count_data = defaultdict(lambda: defaultdict(int))
     gene_count_data = defaultdict(lambda: defaultdict(int))
+    variants_list = list()
 
     sys.stdout.write("Processing samples\n")
     for sample in samples:
@@ -99,7 +100,8 @@ if __name__ == "__main__":
                                                                         target_amplicons, callers, ordered_variants,
                                                                         config, thresholds, project_variant_data,
                                                                         variant_count_data, gene_count_data,
-                                                                        args.address, auth_provider)
+                                                                        variants_list, args.address, auth_provider)
+            variants_list = filtered_var_data[-4]
             project_variant_data = filtered_var_data[-3]
             variant_count_data = filtered_var_data[-2]
             gene_count_data = filtered_var_data[-1]
@@ -155,4 +157,44 @@ if __name__ == "__main__":
                                                             gene_count_data[sample]['APC'],
                                                             gene_count_data[sample]['NOTCH1'],
                                                             gene_count_data[sample]['MLL2']))
+
+    sys.stdout.write("Writing variant data\n")
+    with open("Variant_Data.txt", 'w') as summary:
+        summary.write("Sample\tGene\tAmplicon\tRef\tAlt\tCodon\tAA\tImpact\tSeverity\tFraction\tMax AF\tCallers\t"
+                      "COSMIC IDs\tCOSMIC Num Samples\tCOSMIC AA\tClinVar Sig\tHGVS\tCOSMIC Disease\tMean Cov\t"
+                      "Num Reads\tMax MAF\tMin Depth\tMax Depth\tChr\tStart\tEnd\trsIDs\n"
+                      "\n".format())
+        for variant in variants_list:
+            summary.write("{sample}\t{gene}\t{amp}\t{ref}\t{alt}\t{codon}\t{aa}\t{impact}\t{severity}\t{frac}\t"
+                          "{max_som_aaf}\t{callers}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t{csig}\t{hgvs}\t"
+                          "{cdis}\t{cov}\t{reads}\t{max_maf_all}\t"
+                          "{min_depth}\t{max_depth}\t{chr}\t{start}\t{end}\t{rsids}\n"
+                          "".format(sample=variant.sample,
+                                    chr=variant.chr,
+                                    start=variant.pos,
+                                    end=variant.end,
+                                    gene=variant.gene,
+                                    ref=variant.ref,
+                                    alt=variant.alt,
+                                    codon=variant.codon_change,
+                                    aa=variant.aa_change,
+                                    rsids=",".join(variant.rs_ids),
+                                    cosmic=",".join(variant.cosmic_ids) or None,
+                                    cosmic_nsamples=variant.cosmic_data['num_samples'],
+                                    cosmic_aa=variant.cosmic_data['aa'],
+                                    amp=variant.amplicon_data['amplicon'],
+                                    csig=variant.clinvar_data['significance'],
+                                    hgvs=variant.clinvar_data['hgvs'],
+                                    cdis=variant.clinvar_data['disease'],
+                                    cov=target_amplicon_coverage[variant.amplicon_data['amplicon']]['mean_coverage'],
+                                    reads=target_amplicon_coverage[variant.amplicon_data['amplicon']]['num_reads'],
+                                    impact=variant.impact,
+                                    frac=variant.fraction,
+                                    severity=variant.severity,
+                                    max_maf_all=variant.max_maf_all,
+                                    max_som_aaf=variant.max_som_aaf,
+                                    min_depth=variant.min_depth,
+                                    max_depth=variant.max_depth,
+                                    callers=",".join(variant.callers) or None))
+
 
