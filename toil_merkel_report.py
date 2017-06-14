@@ -121,7 +121,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
                                 variant.vaf_median = np.median(vafs)
                                 variant.vaf_std_dev = np.std(vafs)
                                 variant.num_times_called = num_matches
-                                
+
 
                                 counted.append(variant_id)
 

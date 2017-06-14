@@ -14,7 +14,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--samples_file', help="Input configuration file for samples")
     parser.add_argument('-c', '--configuration', help="Configuration file for various settings")
-    parser.add_argument('-d', '--min_depth', help='Minimum depth threshold for variant reporting', default=250.0)
+    parser.add_argument('-d', '--min_depth', help='Minimum depth threshold for variant reporting', default=250)
 
     args = parser.parse_args()
 
@@ -35,6 +35,6 @@ if __name__ == "__main__":
                 reader.next()
                 for row in reader:
                     total_bases += 1
-                    if int(row[2]) >= args.min_depth:
+                    if int(row[2]) >= int(args.min_depth):
                         num_bases += 1.0
                 output.write("{}\t{}\t{}\t{}\n".format(sample, num_bases / 1000, total_bases / 1000, num_bases / total_bases))
