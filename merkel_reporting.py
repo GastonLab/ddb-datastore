@@ -160,16 +160,18 @@ if __name__ == "__main__":
 
     sys.stdout.write("Writing variant data\n")
     with open("Variant_Data.txt", 'w') as summary:
-        summary.write("Sample\tGene\tAmplicon\tRef\tAlt\tCodon\tAA\tImpact\tSeverity\tFraction\tMax AF\tCallers\t"
-                      "COSMIC IDs\tCOSMIC Num Samples\tCOSMIC AA\tClinVar Sig\tHGVS\tCOSMIC Disease\tMean Cov\t"
-                      "Num Reads\tMax MAF\tMin Depth\tMax Depth\tChr\tStart\tEnd\trsIDs\n"
+        summary.write("Sample\tCategory\tViral Status\tGene\tAmplicon\tRef\tAlt\tCodon\tAA\tImpact\tSeverity\t"
+                      "Fraction\tMax AF\tCallers\tCOSMIC IDs\tCOSMIC Num Samples\tCOSMIC AA\tClinVar Sig\tHGVS\t"
+                      "COSMIC Disease\tMean Cov\tNum Reads\tMax MAF\tMin Depth\tMax Depth\tChr\tStart\tEnd\trsIDs\n"
                       "\n".format())
         for variant in variants_list:
-            summary.write("{sample}\t{gene}\t{amp}\t{ref}\t{alt}\t{codon}\t{aa}\t{impact}\t{severity}\t{frac}\t"
-                          "{max_som_aaf}\t{callers}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t{csig}\t{hgvs}\t"
-                          "{cdis}\t{cov}\t{reads}\t{max_maf_all}\t"
-                          "{min_depth}\t{max_depth}\t{chr}\t{start}\t{end}\t{rsids}\n"
+            summary.write("{sample}\t{cat}\t{status}\t{gene}\t{amp}\t{ref}\t{alt}\t{codon}\t{aa}\t{impact}\t"
+                          "{severity}\t{frac}\t{max_som_aaf}\t{callers}\t{cosmic}\t{cosmic_nsamples}\t{cosmic_aa}\t"
+                          "{csig}\t{hgvs}\t{cdis}\t{cov}\t{reads}\t{max_maf_all}\t{min_depth}\t{max_depth}\t{chr}\t"
+                          "{start}\t{end}\t{rsids}\n"
                           "".format(sample=variant.sample,
+                                    cat=samples[variant.sample][variant.library]['category'],
+                                    status=samples[variant.sample][variant.library]['viral'],
                                     chr=variant.chr,
                                     start=variant.pos,
                                     end=variant.end,
