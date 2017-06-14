@@ -170,8 +170,8 @@ if __name__ == "__main__":
                           "{csig}\t{hgvs}\t{cdis}\t{cov}\t{reads}\t{max_maf_all}\t{min_depth}\t{max_depth}\t{chr}\t"
                           "{start}\t{end}\t{rsids}\n"
                           "".format(sample=variant.sample,
-                                    cat=samples[variant.sample][variant.library]['category'],
-                                    status=samples[variant.sample][variant.library]['viral'],
+                                    cat=samples[variant.sample][variant.library_name]['category'],
+                                    status=samples[variant.sample][variant.library_name]['viral'],
                                     chr=variant.chr,
                                     start=variant.pos,
                                     end=variant.end,
