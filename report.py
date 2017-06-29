@@ -36,7 +36,7 @@ def get_all_amplicons(job, samples):
 
 
 def get_coverage_data_all_amplicons(job, amplicons_list, addresses, authenticator):
-    job.fileStore.logToMaster("Retrieving coverage data from database\n")
+    job.fileStore.logToMaster("Retrieving coverage data for all libraries in database for all amplicons\n")
     connection.setup(addresses, "coveragestore", auth_provider=authenticator)
 
     amplicon_coverage_stats = defaultdict(dict)
