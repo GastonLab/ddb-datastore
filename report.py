@@ -290,7 +290,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     coverage_sheet.write(7, 3, "Num Reads")
     coverage_sheet.write(7, 4, "Coverage")
 
-    row_num = 9
+    row_num = 8
     for amplicon in reportable_amplicons:
         if amplicon.mean_coverage < 250:
             style = error_style
