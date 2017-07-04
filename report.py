@@ -70,6 +70,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     off_target_amplicon_counts = defaultdict(int)
     target_amplicon_coverage = dict()
     ordered_amplicon_coverage = list()
+    reportable_amplicons = list()
 
     iterated = 0
     passing_variants = 0
@@ -94,6 +95,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
             )
             ordered_amplicons = coverage_data.order_by('amplicon', 'run_id').limit(coverage_data.count() + 1000)
             for result in ordered_amplicons:
+                reportable_amplicons.append(result)
                 target_amplicon_coverage[amplicon] = result
                 ordered_amplicon_coverage.append(result)
 
@@ -289,7 +291,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     coverage_sheet.write(7, 4, "Coverage")
 
     row_num = 9
-    for amplicon in ordered_amplicon_coverage:
+    for amplicon in reportable_amplicons:
         if amplicon.mean_coverage < 250:
             style = error_style
         elif amplicon.mean_coverage < 500:
