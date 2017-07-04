@@ -218,10 +218,6 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
                     off_target_amplicon_counts[variant.amplicon_data['amplicon']] += 1
 
         job.fileStore.logToMaster("{}: iterated through {} variants\n".format(library, iterated))
-        # job.fileStore.logToMaster("{}: filtered {} off-target variants\n".format(library, filtered_off_target))
-        # job.fileStore.logToMaster("{}: filtered {} low-freq variants\n".format(library, filtered_low_freq))
-        # job.fileStore.logToMaster("{}: filtered {} low-depth variants\n".format(library, filtered_low_depth))
-
         job.fileStore.logToMaster("{}: passing {} tier 1 and 2 variants"
                                   "\n".format(library, len(filtered_variant_data['tier1_pass_variants'])))
         job.fileStore.logToMaster("{}: passing {} tier3 variants"
@@ -239,6 +235,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     error_style = xlwt.easyxf('pattern: pattern solid, fore_colour red;')
     warning_style = xlwt.easyxf('pattern: pattern solid, fore_colour light_orange;')
     pass_style = xlwt.easyxf('pattern: pattern solid, fore_colour light_green;')
+    default_style = xlwt.easyxf('pattern: pattern solid, fore_colour white;')
 
     coverage_sheet = wb.add_sheet("Coverage")
     tier1_sheet = wb.add_sheet("Tier1 and 2 Pass")
@@ -373,6 +370,11 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     
         row = 1
         for variant in report_data['variants'][tier_key[sheet_num]]:
+            if variant.clinvar_data['significance'].contains("pathogenic"):
+                style = pass_style
+            else:
+                style = default_style
+
             amplicons = variant.amplicon_data['amplicon'].split(',')
 
             coverage_values = list()
@@ -384,64 +386,64 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
             coverage_string = ",".join(coverage_values)
             reads_string = ",".join(reads_values)
 
-            sheet.write(row, 0, "{}".format(variant.sample))
-            sheet.write(row, 1, "{}".format(variant.library_name))
-            sheet.write(row, 2, "{}".format(variant.gene))
-            sheet.write(row, 3, "{}".format(variant.amplicon_data['amplicon']))
-            sheet.write(row, 4, "{}".format(variant.ref))
-            sheet.write(row, 5, "{}".format(variant.alt))
-            sheet.write(row, 6, "{}".format(variant.codon_change))
-            sheet.write(row, 7, "{}".format(variant.aa_change))
-            sheet.write(row, 8, "{}".format(variant.max_som_aaf))
-            sheet.write(row, 9, "{}".format(variant.num_times_called))
-            sheet.write(row, 10, "{}".format(variant.num_times_run))
-            sheet.write(row, 11, "{}".format(variant.vaf_median))
-            sheet.write(row, 12, "{}".format(variant.run_median))
-            sheet.write(row, 13, "{}".format(variant.vaf_std_dev))
-            sheet.write(row, 14, "{}".format(variant.vaf_perc_rank))
-            sheet.write(row, 15, "{}".format(",".join(variant.callers) or None))
-            sheet.write(row, 16, "{}".format(variant.num_times_callers))
-            sheet.write(row, 17, "{}".format(",".join(variant.cosmic_ids) or None))
-            sheet.write(row, 18, "{}".format(variant.cosmic_data['num_samples']))
-            sheet.write(row, 19, "{}".format(variant.cosmic_data['aa']))
-            sheet.write(row, 20, "{}".format(variant.clinvar_data['significance']))
-            sheet.write(row, 21, "{}".format(variant.clinvar_data['hgvs']))
-            sheet.write(row, 22, "{}".format(variant.clinvar_data['disease']))
-            sheet.write(row, 23, "{}".format(coverage_string))
-            sheet.write(row, 24, "{}".format(reads_string))
-            sheet.write(row, 25, "{}".format(variant.impact))
-            sheet.write(row, 26, "{}".format(variant.severity))
-            sheet.write(row, 27, "{}".format(variant.max_maf_all))
-            sheet.write(row, 28, "{}".format(variant.min_depth))
-            sheet.write(row, 29, "{}".format(variant.max_depth))
-            sheet.write(row, 30, "{}".format(variant.chr))
-            sheet.write(row, 31, "{}".format(variant.pos))
-            sheet.write(row, 32, "{}".format(variant.end))
-            sheet.write(row, 33, "{}".format(",".join(variant.rs_ids)))
+            sheet.write(row, 0, "{}".format(variant.sample), style)
+            sheet.write(row, 1, "{}".format(variant.library_name), style)
+            sheet.write(row, 2, "{}".format(variant.gene), style)
+            sheet.write(row, 3, "{}".format(variant.amplicon_data['amplicon']), style)
+            sheet.write(row, 4, "{}".format(variant.ref), style)
+            sheet.write(row, 5, "{}".format(variant.alt), style)
+            sheet.write(row, 6, "{}".format(variant.codon_change), style)
+            sheet.write(row, 7, "{}".format(variant.aa_change), style)
+            sheet.write(row, 8, "{}".format(variant.max_som_aaf), style)
+            sheet.write(row, 9, "{}".format(variant.num_times_called), style)
+            sheet.write(row, 10, "{}".format(variant.num_times_run), style)
+            sheet.write(row, 11, "{}".format(variant.vaf_median), style)
+            sheet.write(row, 12, "{}".format(variant.run_median), style)
+            sheet.write(row, 13, "{}".format(variant.vaf_std_dev), style)
+            sheet.write(row, 14, "{}".format(variant.vaf_perc_rank), style)
+            sheet.write(row, 15, "{}".format(",".join(variant.callers) or None), style)
+            sheet.write(row, 16, "{}".format(variant.num_times_callers), style)
+            sheet.write(row, 17, "{}".format(",".join(variant.cosmic_ids) or None), style)
+            sheet.write(row, 18, "{}".format(variant.cosmic_data['num_samples']), style)
+            sheet.write(row, 19, "{}".format(variant.cosmic_data['aa']), style)
+            sheet.write(row, 20, "{}".format(variant.clinvar_data['significance']), style)
+            sheet.write(row, 21, "{}".format(variant.clinvar_data['hgvs']), style)
+            sheet.write(row, 22, "{}".format(variant.clinvar_data['disease']), style)
+            sheet.write(row, 23, "{}".format(coverage_string), style)
+            sheet.write(row, 24, "{}".format(reads_string), style)
+            sheet.write(row, 25, "{}".format(variant.impact), style)
+            sheet.write(row, 26, "{}".format(variant.severity), style)
+            sheet.write(row, 27, "{}".format(variant.max_maf_all), style)
+            sheet.write(row, 28, "{}".format(variant.min_depth), style)
+            sheet.write(row, 29, "{}".format(variant.max_depth), style)
+            sheet.write(row, 30, "{}".format(variant.chr), style)
+            sheet.write(row, 31, "{}".format(variant.pos), style)
+            sheet.write(row, 32, "{}".format(variant.end), style)
+            sheet.write(row, 33, "{}".format(",".join(variant.rs_ids)), style)
     
             col = 34
             if 'mutect' in callers:
-                sheet.write(row, col, "{}".format(variant.mutect.get('AAF') or None))
+                sheet.write(row, col, "{}".format(variant.mutect.get('AAF') or None), style)
                 col += 1
     
             if 'vardict' in callers:
-                sheet.write(row, col, "{}".format(variant.vardict.get('AAF') or None))
+                sheet.write(row, col, "{}".format(variant.vardict.get('AAF') or None), style)
                 col += 1
     
             if 'freebayes' in callers:
-                sheet.write(row, col, "{}".format(variant.freebayes.get('AAF') or None))
+                sheet.write(row, col, "{}".format(variant.freebayes.get('AAF') or None), style)
                 col += 1
     
             if 'scalpel' in callers:
-                sheet.write(row, col, "{}".format(variant.scalpel.get('AAF') or None))
+                sheet.write(row, col, "{}".format(variant.scalpel.get('AAF') or None), style)
                 col += 1
     
             if 'platypus' in callers:
-                sheet.write(row, col, "{}".format(variant.platypus.get('AAF') or None))
+                sheet.write(row, col, "{}".format(variant.platypus.get('AAF') or None), style)
                 col += 1
     
             if 'pindel' in callers:
-                sheet.write(row, col, "{}".format(variant.pindel.get('AAF') or None))
+                sheet.write(row, col, "{}".format(variant.pindel.get('AAF') or None), style)
                 col += 1
     
             row += 1
