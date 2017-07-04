@@ -177,19 +177,17 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
                         continue
 
                     # Putting in to Tier1 based on ClinVar not being None or Benign
-                    if variant.clinvar_data['pathogenic'] != 'None':
-                        if variant.clinvar_data['pathogenic'] != 'benign':
-                            if variant.clinvar_data['pathogenic'] != 'likely-benign':
-                                if variant.max_som_aaf < thresholds['min_saf']:
-                                    filtered_variant_data['tier1_fail_variants'].append(variant)
-                                    filtered_low_freq += 1
-                                elif variant.max_depth < thresholds['depth']:
-                                    filtered_variant_data['tier1_fail_variants'].append(variant)
-                                    filtered_low_depth += 1
-                                else:
-                                    filtered_variant_data['tier1_pass_variants'].append(variant)
-                                    passing_variants += 1
-                                continue
+                    if "pathogenic" in variant.clinvar_data['significance']:
+                        if variant.max_som_aaf < thresholds['min_saf']:
+                            filtered_variant_data['tier1_fail_variants'].append(variant)
+                            filtered_low_freq += 1
+                        elif variant.max_depth < thresholds['depth']:
+                            filtered_variant_data['tier1_fail_variants'].append(variant)
+                            filtered_low_depth += 1
+                        else:
+                            filtered_variant_data['tier1_pass_variants'].append(variant)
+                            passing_variants += 1
+                        continue
 
                     if variant.severity == 'MED' or variant.severity == 'HIGH':
                         if variant.max_som_aaf < thresholds['min_saf']:
@@ -370,7 +368,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     
         row = 1
         for variant in report_data['variants'][tier_key[sheet_num]]:
-            if variant.clinvar_data['significance'].contains("pathogenic"):
+            if "pathogenic" in variant.clinvar_data['significance']:
                 style = pass_style
             else:
                 style = default_style
