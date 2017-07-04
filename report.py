@@ -136,17 +136,25 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
                     ordered_var = match_variants.order_by('ref', 'alt', 'sample', 'library_name',
                                                           'run_id').limit(num_matches + 1000)
                     vafs = list()
+                    run_vafs = list()
                     num_times_callers = defaultdict(int)
+                    num_times_in_run = 0
+
                     for var in ordered_var:
                         vaf = var.max_som_aaf
                         vafs.append(vaf)
+                        if var.run_id == variant.run_id:
+                            num_times_in_run += 1
+                            run_vafs.append(vaf)
                         for caller in var.callers:
                             num_times_callers[caller] += 1
 
                     variant.vaf_median = np.median(vafs)
                     variant.vaf_std_dev = np.std(vafs)
+                    variant.run_median = np.median(run_vafs)
                     variant.vaf_perc_rank = stats.percentileofscore(vafs, variant.max_som_aaf, kind="mean")
                     variant.num_times_called = num_matches
+                    variant.num_times_run = num_times_in_run
 
                     caller_counts_elements = list()
                     for caller in num_times_callers:
@@ -311,30 +319,32 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
         sheet.write(0, 7, "AA")
         sheet.write(0, 8, "Max Caller Somatic VAF")
         sheet.write(0, 9, "Num Times in Database")
-        sheet.write(0, 10, "Median VAF")
-        sheet.write(0, 11, "StdDev VAF")
-        sheet.write(0, 12, "VAF Percentile Rank")
-        sheet.write(0, 13, "Callers")
-        sheet.write(0, 14, "Caller Counts")
-        sheet.write(0, 15, "COSMIC IDs")
-        sheet.write(0, 16, "Num COSMIC Samples")
-        sheet.write(0, 17, "COSMIC AA")
-        sheet.write(0, 18, "Clinvar Significance")
-        sheet.write(0, 19, "Clinvar HGVS")
-        sheet.write(0, 20, "Clinvar Disease")
-        sheet.write(0, 21, "Coverage")
-        sheet.write(0, 22, "Num Reads")
-        sheet.write(0, 23, "Impact")
-        sheet.write(0, 24, "Severity")
-        sheet.write(0, 25, "Maximum Population AF")
-        sheet.write(0, 26, "Min Caller Depth")
-        sheet.write(0, 27, "Max Caller Depth")
-        sheet.write(0, 28, "Chrom")
-        sheet.write(0, 29, "Start")
-        sheet.write(0, 30, "End")
-        sheet.write(0, 31, "rsIDs")
+        sheet.write(0, 10, "Num Times in Run")
+        sheet.write(0, 11, "Median VAF in DB")
+        sheet.write(0, 12, "Median VAF in Run")
+        sheet.write(0, 13, "StdDev VAF")
+        sheet.write(0, 14, "VAF Percentile Rank")
+        sheet.write(0, 15, "Callers")
+        sheet.write(0, 16, "Caller Counts")
+        sheet.write(0, 17, "COSMIC IDs")
+        sheet.write(0, 18, "Num COSMIC Samples")
+        sheet.write(0, 19, "COSMIC AA")
+        sheet.write(0, 20, "Clinvar Significance")
+        sheet.write(0, 21, "Clinvar HGVS")
+        sheet.write(0, 22, "Clinvar Disease")
+        sheet.write(0, 23, "Coverage")
+        sheet.write(0, 24, "Num Reads")
+        sheet.write(0, 25, "Impact")
+        sheet.write(0, 26, "Severity")
+        sheet.write(0, 27, "Maximum Population AF")
+        sheet.write(0, 28, "Min Caller Depth")
+        sheet.write(0, 29, "Max Caller Depth")
+        sheet.write(0, 30, "Chrom")
+        sheet.write(0, 31, "Start")
+        sheet.write(0, 32, "End")
+        sheet.write(0, 33, "rsIDs")
     
-        col = 32
+        col = 34
         if 'mutect' in callers:
             sheet.write(0, col, "MuTect_AF")
             col += 1
@@ -382,30 +392,32 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
             sheet.write(row, 7, "{}".format(variant.aa_change))
             sheet.write(row, 8, "{}".format(variant.max_som_aaf))
             sheet.write(row, 9, "{}".format(variant.num_times_called))
-            sheet.write(row, 10, "{}".format(variant.vaf_median))
-            sheet.write(row, 11, "{}".format(variant.vaf_std_dev))
-            sheet.write(row, 12, "{}".format(variant.vaf_perc_rank))
-            sheet.write(row, 13, "{}".format(",".join(variant.callers) or None))
-            sheet.write(row, 14, "{}".format(variant.num_times_callers))
-            sheet.write(row, 15, "{}".format(",".join(variant.cosmic_ids) or None))
-            sheet.write(row, 16, "{}".format(variant.cosmic_data['num_samples']))
-            sheet.write(row, 17, "{}".format(variant.cosmic_data['aa']))
-            sheet.write(row, 18, "{}".format(variant.clinvar_data['significance']))
-            sheet.write(row, 19, "{}".format(variant.clinvar_data['hgvs']))
-            sheet.write(row, 20, "{}".format(variant.clinvar_data['disease']))
-            sheet.write(row, 21, "{}".format(coverage_string))
-            sheet.write(row, 22, "{}".format(reads_string))
-            sheet.write(row, 23, "{}".format(variant.impact))
-            sheet.write(row, 24, "{}".format(variant.severity))
-            sheet.write(row, 25, "{}".format(variant.max_maf_all))
-            sheet.write(row, 26, "{}".format(variant.min_depth))
-            sheet.write(row, 27, "{}".format(variant.max_depth))
-            sheet.write(row, 28, "{}".format(variant.chr))
-            sheet.write(row, 29, "{}".format(variant.pos))
-            sheet.write(row, 30, "{}".format(variant.end))
-            sheet.write(row, 31, "{}".format(",".join(variant.rs_ids)))
+            sheet.write(row, 10, "{}".format(variant.num_times_run))
+            sheet.write(row, 11, "{}".format(variant.vaf_median))
+            sheet.write(row, 12, "{}".format(variant.run_median))
+            sheet.write(row, 13, "{}".format(variant.vaf_std_dev))
+            sheet.write(row, 14, "{}".format(variant.vaf_perc_rank))
+            sheet.write(row, 15, "{}".format(",".join(variant.callers) or None))
+            sheet.write(row, 16, "{}".format(variant.num_times_callers))
+            sheet.write(row, 17, "{}".format(",".join(variant.cosmic_ids) or None))
+            sheet.write(row, 18, "{}".format(variant.cosmic_data['num_samples']))
+            sheet.write(row, 19, "{}".format(variant.cosmic_data['aa']))
+            sheet.write(row, 20, "{}".format(variant.clinvar_data['significance']))
+            sheet.write(row, 21, "{}".format(variant.clinvar_data['hgvs']))
+            sheet.write(row, 22, "{}".format(variant.clinvar_data['disease']))
+            sheet.write(row, 23, "{}".format(coverage_string))
+            sheet.write(row, 24, "{}".format(reads_string))
+            sheet.write(row, 25, "{}".format(variant.impact))
+            sheet.write(row, 26, "{}".format(variant.severity))
+            sheet.write(row, 27, "{}".format(variant.max_maf_all))
+            sheet.write(row, 28, "{}".format(variant.min_depth))
+            sheet.write(row, 29, "{}".format(variant.max_depth))
+            sheet.write(row, 30, "{}".format(variant.chr))
+            sheet.write(row, 31, "{}".format(variant.pos))
+            sheet.write(row, 32, "{}".format(variant.end))
+            sheet.write(row, 33, "{}".format(",".join(variant.rs_ids)))
     
-            col = 32
+            col = 34
             if 'mutect' in callers:
                 sheet.write(row, col, "{}".format(variant.mutect.get('AAF') or None))
                 col += 1
