@@ -237,10 +237,10 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
 
     coverage_sheet = wb.add_sheet("Coverage")
     tier1_sheet = wb.add_sheet("Tier1 and 2 Pass")
-    tier3_sheet = wb.add_sheet("Tier3 Pass")
-    tier4_sheet = wb.add_sheet("Tier4 Pass")
     tier1_fail_sheet = wb.add_sheet("Tier1 and 2 Fail")
+    tier3_sheet = wb.add_sheet("Tier3 Pass")
     tier3_fail_sheet = wb.add_sheet("Tier3 Fail")
+    tier4_sheet = wb.add_sheet("Tier4 Pass")
     tier4_fail_sheet = wb.add_sheet("Tier4 Fail")
     
     tier_sheets = (tier1_sheet, tier1_fail_sheet, tier3_sheet, tier3_fail_sheet, tier4_sheet, tier4_fail_sheet)
@@ -284,6 +284,8 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     coverage_sheet.write(7, 2, "Amplicon")
     coverage_sheet.write(7, 3, "Num Reads")
     coverage_sheet.write(7, 4, "Coverage")
+    coverage_sheet.write(7, 5, "Database Median")
+    coverage_sheet.write(7, 6, "Database Std Dev")
 
     row_num = 8
     for amplicon in reportable_amplicons:
@@ -299,6 +301,8 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
         coverage_sheet.write(row_num, 2, "{}".format(amplicon.amplicon), style)
         coverage_sheet.write(row_num, 3, "{}".format(amplicon.num_reads), style)
         coverage_sheet.write(row_num, 4, "{}".format(amplicon.mean_coverage), style)
+        coverage_sheet.write(row_num, 5, "{}".format(amplicon_stats[amplicon.amplicon]['median']), style)
+        coverage_sheet.write(row_num, 6, "{}".format(amplicon_stats[amplicon.amplicon]['std_dev']), style)
 
         row_num += 1
 
