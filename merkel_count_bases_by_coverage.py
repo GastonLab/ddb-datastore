@@ -2,12 +2,9 @@
 
 import sys
 import csv
-import utils
 import argparse
-import getpass
 
 from ddb import configuration
-from collections import defaultdict
 
 
 if __name__ == "__main__":
