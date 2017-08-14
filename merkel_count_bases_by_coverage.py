@@ -22,7 +22,7 @@ if __name__ == "__main__":
     samples = configuration.configure_samples(args.samples_file, config)
 
     with open("merkel_sequenced_bases_passing_depth.txt", 'w') as output:
-        output.write("Sample\tMean Coverage\tKB passing\tTotal KB\tFraction")
+        output.write("Sample\tMean Coverage\tKB passing\tTotal KB\tFraction\n")
         for sample in samples:
             num_bases = 0.0
             total_bases = 0.0
