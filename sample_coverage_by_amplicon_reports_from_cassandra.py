@@ -58,9 +58,9 @@ if __name__ == "__main__":
     if args.username:
         password = getpass.getpass()
         auth_provider = PlainTextAuthProvider(username=args.username, password=password)
-        connection.setup([args.address], "variantstore", auth_provider=auth_provider)
+        connection.setup([args.address], "coveragestore", auth_provider=auth_provider)
     else:
-        connection.setup([args.address], "variantstore")
+        connection.setup([args.address], "coveragestore")
 
     sys.stdout.write("Processing amplicons\n")
 
