@@ -32,12 +32,15 @@ if __name__ == "__main__":
     amplicon_coverage_stats = defaultdict(dict)
     amplicon_stats_by_month = defaultdict(lambda: defaultdict(dict))
 
+    sys.stdout.write("Parsing Amplicon List\n")
     target_amplicons = utils.get_target_amplicons(args.list)
     for amplicon in target_amplicons:
         if amplicon not in amplicons_list:
             amplicons_list.append(amplicon)
 
+    sys.stdout.write("Processing Amplicon Data\n")
     for amplicon in target_amplicons:
+        sys.stdout.write("Retrieving Coverage Data for {}\n".format(amplicon))
         coverage_values = list()
         coverage_values_by_month = defaultdict(list)
         coverage_data = AmpliconCoverage.objects.timeout(None).filter(
@@ -55,12 +58,13 @@ if __name__ == "__main__":
         amplicon_coverage_stats[amplicon]['max'] = np.amax(coverage_values)
 
         for yr_month_id in coverage_values_by_month:
-            amplicon_stats_by_month[amplicon][yr_month_id]['median'] = np.median(coverage_values)
-            amplicon_stats_by_month[amplicon][yr_month_id]['std_dev'] = np.std(coverage_values)
-            amplicon_stats_by_month[amplicon][yr_month_id]['min'] = np.amin(coverage_values)
-            amplicon_stats_by_month[amplicon][yr_month_id]['max'] = np.amax(coverage_values)
+            amplicon_stats_by_month[amplicon][yr_month_id]['median'] = np.median(coverage_values_by_month[yr_month_id])
+            amplicon_stats_by_month[amplicon][yr_month_id]['std_dev'] = np.std(coverage_values_by_month[yr_month_id])
+            amplicon_stats_by_month[amplicon][yr_month_id]['min'] = np.amin(coverage_values_by_month[yr_month_id])
+            amplicon_stats_by_month[amplicon][yr_month_id]['max'] = np.amax(coverage_values_by_month[yr_month_id])
 
-    with open("coverage_analysis.txt", "w") as coverage_report:
+    sys.stdout.write("Printing Results\n")
+    with open("coverage_analysis_{}.txt".format(args.report), "w") as coverage_report:
         coverage_report.write("Amplicon\tMedian\Std\tmin\tmax\n")
         for amplicon in amplicon_coverage_stats:
             coverage_report.write("{}\t{}\t{}\t{}\t{}\n".format(amplicon, amplicon_coverage_stats[amplicon]['median'],
@@ -68,7 +72,7 @@ if __name__ == "__main__":
                                                                 amplicon_coverage_stats[amplicon]['min'],
                                                                 amplicon_coverage_stats[amplicon]['max']))
 
-    with open("coverage_analysis_by_month.txt", "w") as coverage_report:
+    with open("coverage_analysis_by_month-{}.txt".format(args.report), "w") as coverage_report:
         coverage_report.write("Amplicon\tMonth\tMedian\Std\tmin\tmax\n")
         for amplicon in amplicon_stats_by_month:
             for yr_month_id in amplicon_stats_by_month[amplicon]:
