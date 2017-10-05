@@ -6,11 +6,6 @@ import getpass
 import argparse
 
 import numpy as np
-
-from scipy import stats
-from toil.job import Job
-from ddb import configuration
-from ddb_ngsflow import pipeline
 from collections import defaultdict
 from coveragestore import AmpliconCoverage
 from cassandra.cqlengine import connection
@@ -23,7 +18,6 @@ if __name__ == "__main__":
     parser.add_argument('-r', '--report', help="Root name for reports (per sample)", default='report')
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
-    Job.Runner.addToilOptions(parser)
     args = parser.parse_args()
     args.logLevel = "INFO"
 
