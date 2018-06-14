@@ -388,14 +388,29 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
             coverage_string = ",".join(coverage_values)
             reads_string = ",".join(reads_values)
 
+            if len(variant.ref) < 200:
+                ref = variant.ref
+            else:
+                ref = "Length > 200bp"
+
+            if len(variant.alt) < 200:
+                alt = variant.alt
+            else:
+                alt = "Length > 200bp"
+
+            if len(variant.aa_change) < 200:
+                aa_change = variant.aa_change
+            else:
+                aa_change = "Length > 200aa"
+
             sheet.write(row, 0, "{}".format(variant.sample), style)
             sheet.write(row, 1, "{}".format(variant.library_name), style)
             sheet.write(row, 2, "{}".format(variant.gene), style)
             sheet.write(row, 3, "{}".format(variant.amplicon_data['amplicon']), style)
-            sheet.write(row, 4, "{}".format(variant.ref), style)
-            sheet.write(row, 5, "{}".format(variant.alt), style)
+            sheet.write(row, 4, "{}".format(ref), style)
+            sheet.write(row, 5, "{}".format(alt), style)
             sheet.write(row, 6, "{}".format(variant.codon_change), style)
-            sheet.write(row, 7, "{}".format(variant.aa_change), style)
+            sheet.write(row, 7, "{}".format(aa_change), style)
             sheet.write(row, 8, "{}".format(variant.max_som_aaf), style)
             sheet.write(row, 9, "{}".format(variant.num_times_called), style)
             sheet.write(row, 10, "{}".format(variant.num_times_run), style)
