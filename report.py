@@ -398,6 +398,11 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
             else:
                 alt = "Length > 200bp"
 
+            if len(variant.codon_change) < 200:
+                codon_change = variant.codon_change
+            else:
+                codon_change = "Length > 200aa"
+
             if len(variant.aa_change) < 200:
                 aa_change = variant.aa_change
             else:
@@ -409,7 +414,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
             sheet.write(row, 3, "{}".format(variant.amplicon_data['amplicon']), style)
             sheet.write(row, 4, "{}".format(ref), style)
             sheet.write(row, 5, "{}".format(alt), style)
-            sheet.write(row, 6, "{}".format(variant.codon_change), style)
+            sheet.write(row, 6, "{}".format(codon_change), style)
             sheet.write(row, 7, "{}".format(aa_change), style)
             sheet.write(row, 8, "{}".format(variant.max_som_aaf), style)
             sheet.write(row, 9, "{}".format(variant.num_times_called), style)
