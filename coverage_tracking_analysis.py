@@ -15,7 +15,7 @@ from cassandra.auth import PlainTextAuthProvider
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', '--list', help="File containing list of amplicon names to check")
-    parser.add_argument('-r', '--report', help="Root name for reports (per sample)", default='report')
+    parser.add_argument('-r', '--report', help="Root name for reports", default='report')
     parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
     parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
     args = parser.parse_args()

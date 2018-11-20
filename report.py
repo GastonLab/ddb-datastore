@@ -177,7 +177,9 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
                         continue
 
                     # Putting in to Tier1 based on ClinVar not being None or Benign
-                    if "pathogenic" in variant.clinvar_data['significance']:
+                    if "pathogenic" in variant.clinvar_data['significance'] or
+                    "drug-response" in variant.clinvar_data['significance'] or
+                    "likely-pathogenic" in variant.clinvar_data['significance']:
                         if variant.max_som_aaf < thresholds['min_saf']:
                             filtered_variant_data['tier1_fail_variants'].append(variant)
                             filtered_low_freq += 1
@@ -242,7 +244,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
     tier3_fail_sheet = wb.add_sheet("Tier3 Fail")
     tier4_sheet = wb.add_sheet("Tier4 Pass")
     tier4_fail_sheet = wb.add_sheet("Tier4 Fail")
-    
+
     tier_sheets = (tier1_sheet, tier1_fail_sheet, tier3_sheet, tier3_fail_sheet, tier4_sheet, tier4_fail_sheet)
     tier_key = ("tier1_pass_variants", "tier1_fail_variants",
                 "tier3_pass_variants", "tier3_fail_variants",
@@ -344,35 +346,37 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
         sheet.write(0, 31, "Start")
         sheet.write(0, 32, "End")
         sheet.write(0, 33, "rsIDs")
-    
+
         col = 34
         if 'mutect' in callers:
             sheet.write(0, col, "MuTect_AF")
             col += 1
-    
+
         if 'vardict' in callers:
             sheet.write(0, col, "VarDict_AF")
             col += 1
-    
+
         if 'freebayes' in callers:
             sheet.write(0, col, "FreeBayes_AF")
             col += 1
-    
+
         if 'scalpel' in callers:
             sheet.write(0, col, "Scalpel_AF")
             col += 1
-    
+
         if 'platypus' in callers:
             sheet.write(0, col, "Platypus_AF")
             col += 1
-    
+
         if 'pindel' in callers:
             sheet.write(0, col, "Pindel_AF")
             col += 1
-    
+
         row = 1
         for variant in report_data['variants'][tier_key[sheet_num]]:
-            if "pathogenic" in variant.clinvar_data['significance']:
+            if "pathogenic" in variant.clinvar_data['significance'] or
+            "drug-response" in variant.clinvar_data['significance'] or
+            "likely-pathogenic" in variant.clinvar_data['significance']:
                 style = pass_style
             else:
                 style = default_style
@@ -442,32 +446,32 @@ def process_sample(job, config, sample, samples, addresses, authenticator, thres
             sheet.write(row, 31, "{}".format(variant.pos), style)
             sheet.write(row, 32, "{}".format(variant.end), style)
             sheet.write(row, 33, "{}".format(",".join(variant.rs_ids)), style)
-    
+
             col = 34
             if 'mutect' in callers:
                 sheet.write(row, col, "{}".format(variant.mutect.get('AAF') or None), style)
                 col += 1
-    
+
             if 'vardict' in callers:
                 sheet.write(row, col, "{}".format(variant.vardict.get('AAF') or None), style)
                 col += 1
-    
+
             if 'freebayes' in callers:
                 sheet.write(row, col, "{}".format(variant.freebayes.get('AAF') or None), style)
                 col += 1
-    
+
             if 'scalpel' in callers:
                 sheet.write(row, col, "{}".format(variant.scalpel.get('AAF') or None), style)
                 col += 1
-    
+
             if 'platypus' in callers:
                 sheet.write(row, col, "{}".format(variant.platypus.get('AAF') or None), style)
                 col += 1
-    
+
             if 'pindel' in callers:
                 sheet.write(row, col, "{}".format(variant.pindel.get('AAF') or None), style)
                 col += 1
-    
+
             row += 1
         sheet_num += 1
     wb.save(report_name)
