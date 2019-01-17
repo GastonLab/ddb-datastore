@@ -28,10 +28,11 @@ def get_sample_coverage_data(sample, samples, thresholds, authenticator):
                        '142.239.155.184'], auth_provider=authenticator)
     session = cluster.connect('coveragestore')
     for library in samples[sample]:
-        rows = session.execute("SELECT sample, amplicon, run_id, library_name,\
-                                program_name, panel, num_reads, mean_coverage\
-                                FROM sample_coverage WHERE\
-                                sample == {}".format(samples[sample][library]['sample_name']))
+        rows = session.execute("""SELECT sample, amplicon, run_id,
+                               library_name, program_name, panel, num_reads,
+                               mean_coverage FROM sample_coverage WHERE
+                               sample=%s""",
+                               (samples[sample][library]['sample_name']))
         for amplicon_row in rows:
             print amplicon_row.sample, amplicon_row.amplicon, amplicon_row.num_reads
 
