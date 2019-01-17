@@ -87,6 +87,8 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
     filtered_low_depth = 0
     filtered_off_target = 0
 
+    tier1_clinvar_terms = ("pathogenic", "likely-pathogenic", "drug-response")
+
     for library in samples[sample]:
         report_panel_path = (
             "/mnt/shared-data/ddb-configs/disease_panels/{}/{}".format(
@@ -164,6 +166,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
                         'run_id').limit(num_matches + 1000)
                     vafs = list()
                     run_vafs = list()
+                    run_match_samples = list()
                     num_times_callers = defaultdict(int)
                     num_times_in_run = 0
 
@@ -173,6 +176,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
                         if var.run_id == variant.run_id:
                             num_times_in_run += 1
                             run_vafs.append(vaf)
+                            run_match_samples.append(var.library_name)
                         for caller in var.callers:
                             num_times_callers[caller] += 1
 
@@ -183,6 +187,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
                         vafs, variant.max_som_aaf, kind="mean")
                     variant.num_times_called = num_matches
                     variant.num_times_run = num_times_in_run
+                    variant.matching_samples = run_match_samples
 
                     caller_counts_elements = list()
                     for caller in num_times_callers:
@@ -208,39 +213,9 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
                         continue
 
                     # Putting in to Tier1 based on ClinVar
-                    if "pathogenic" in variant.clinvar_data['significance']:
-                        if variant.max_som_aaf < thresholds['min_saf']:
-                            filtered_variant_data[
-                                'tier1_fail_variants'].append(variant)
-                            filtered_low_freq += 1
-                        elif variant.max_depth < thresholds['depth']:
-                            filtered_variant_data[
-                                'tier1_fail_variants'].append(variant)
-                            filtered_low_depth += 1
-                        else:
-                            filtered_variant_data[
-                                'tier1_pass_variants'].append(variant)
-                            passing_variants += 1
-                        continue
-
-                    if "drug-response" in variant.clinvar_data['significance']:
-                        if variant.max_som_aaf < thresholds['min_saf']:
-                            filtered_variant_data[
-                                'tier1_fail_variants'].append(variant)
-                            filtered_low_freq += 1
-                        elif variant.max_depth < thresholds['depth']:
-                            filtered_variant_data[
-                                'tier1_fail_variants'].append(variant)
-                            filtered_low_depth += 1
-                        else:
-                            filtered_variant_data[
-                                'tier1_pass_variants'].append(variant)
-                            passing_variants += 1
-                        continue
-
-                    if "likely-pathogenic" in (
-                      variant.clinvar_data['significance']):
-
+                    if any(
+                        i in tier1_clinvar_terms for i in variant.clinvar_data[
+                            'significance']):
                         if variant.max_som_aaf < thresholds['min_saf']:
                             filtered_variant_data[
                                 'tier1_fail_variants'].append(variant)
@@ -433,8 +408,9 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
         sheet.write(0, 31, "Start")
         sheet.write(0, 32, "End")
         sheet.write(0, 33, "rsIDs")
+        sheet.write(0, 34, "Matching Samples in Run")
 
-        col = 34
+        col = 35
         if 'mutect' in callers:
             sheet.write(0, col, "MuTect_AF")
             col += 1
@@ -461,12 +437,15 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
 
         row = 1
         for variant in report_data['variants'][tier_key[sheet_num]]:
-            if "pathogenic" in variant.clinvar_data['significance']:
-                style = pass_style
-            elif "drug-response" in variant.clinvar_data['significance']:
-                style = pass_style
-            elif "likely-pathogenic" in variant.clinvar_data['significance']:
-                style = pass_style
+            if any(
+                i in tier1_clinvar_terms for i in variant.clinvar_data[
+                    'significance']):
+                if variant.max_som_aaf < thresholds['min_saf']:
+                    style = warning_style
+                elif variant.max_depth < thresholds['depth']:
+                    style = warning_style
+                else:
+                    style = pass_style
             else:
                 style = default_style
 
@@ -545,8 +524,10 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
             sheet.write(row, 31, "{}".format(variant.pos), style)
             sheet.write(row, 32, "{}".format(variant.end), style)
             sheet.write(row, 33, "{}".format(",".join(variant.rs_ids)), style)
+            sheet.write(row, 34,
+                        "{}".format(",".join(variant.matching_samples)), style)
 
-            col = 34
+            col = 35
             if 'mutect' in callers:
                 sheet.write(row, col, "{}".format(variant.mutect.get('AAF')
                                                   or None), style)
@@ -600,6 +581,9 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--min_depth',
                         help='Minimum depth threshold for variant reporting',
                         default=200.0)
+    parser.add_argument('-g', '--good_depth',
+                        help='Floor for good depth of coverage',
+                        default=500.0)
     parser.add_argument('-t', '--min_somatic_var_freq',
                         help='Minimum reportable somatic variant frequency',
                         default=0.01)
