@@ -90,7 +90,7 @@ if __name__ == "__main__":
     # root_job.addChild(amplicons_list_job)
 
     for sample in samples:
-        get_sample_coverage_data(sample, thresholds)
+        get_sample_coverage_data(sample, thresholds, auth_provider)
 
     # Start workflow execution
     # Job.Runner.startToil(root_job, args)
