@@ -1,25 +1,11 @@
 #!/usr/bin/env python
 
 import sys
-import xlwt
-import utils
 import getpass
 import argparse
-
-import numpy as np
-
-from scipy import stats
-from toil.job import Job
 from ddb import configuration
-from ddb_ngsflow import pipeline
-from variantstore import Variant
-from collections import defaultdict
-from variantstore import SampleVariant
-from coveragestore import SampleCoverage
-from coveragestore import AmpliconCoverage
 
 from cassandra.cluster import Cluster
-from cassandra.cqlengine import connection
 from cassandra.auth import PlainTextAuthProvider
 
 
@@ -28,6 +14,7 @@ def get_sample_coverage_data(sample, samples, thresholds, authenticator):
                        '142.239.155.184'], auth_provider=authenticator)
     session = cluster.connect('coveragestore')
     for library in samples[sample]:
+        print samples[sample][library]['sample_name']
         rows = session.execute("""SELECT sample, amplicon, run_id,
                                library_name, program_name, panel, num_reads,
                                mean_coverage FROM sample_coverage WHERE
@@ -65,9 +52,7 @@ if __name__ == "__main__":
                         help='Maximum allowed population allele frequency',
                         default=0.005)
 
-    # Job.Runner.addToilOptions(parser)
     args = parser.parse_args()
-    # args.logLevel = "INFO"
 
     config = configuration.configure_runtime(args.configuration)
     libraries = configuration.configure_samples(args.samples_file, config)
@@ -88,14 +73,5 @@ if __name__ == "__main__":
                "pindel")
 
     sys.stdout.write("Processing samples\n")
-    # root_job = Job.wrapJobFn(pipeline.spawn_batch_jobs, cores=1)
-    # amplicons_list_job = Job.wrapJobFn(get_all_amplicons, samples)
-    # spawn_samples_job = Job.wrapJobFn(pipeline.spawn_variant_jobs)
-
-    # root_job.addChild(amplicons_list_job)
-
     for sample in samples:
         get_sample_coverage_data(sample, samples, thresholds, auth_provider)
-
-    # Start workflow execution
-    # Job.Runner.startToil(root_job, args)
