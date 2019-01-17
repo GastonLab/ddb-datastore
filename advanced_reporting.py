@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import sys
 import getpass
 import argparse
@@ -22,6 +21,40 @@ def get_sample_coverage_data(sample, samples, thresholds, authenticator):
                                ([samples[sample][library]['sample_name']]))
         for amplicon_row in rows:
             print amplicon_row.sample, amplicon_row.amplicon, amplicon_row.num_reads
+        print "Finished Coverage Sample"
+    print "Finished Coverage Samples"
+
+
+def get_sample_variant_data(sample, samples, thresholds, authenticator):
+    cluster = Cluster(['142.239.155.181', '142.239.155.182', '142.239.155.183',
+                       '142.239.155.184'], auth_provider=authenticator)
+    session = cluster.connect('variantstore')
+    for library in samples[sample]:
+        print samples[sample][library]['sample_name']
+        rows = session.execute("""SELECT sample, run_id, reference_genome,
+                               library_name, chr, pos, ref, alt, target_pool,
+                               panel_name, sequencer, end, callers, type,
+                               subtype, rs_id, rs_ids, cosmic_ids, gene,
+                               transcript, exon, codon_change, aa_change,
+                               biotype, severity, impact, impact_so, genes,
+                               transcripts_data, in_cosmic, in_clinvar,
+                               is_pathogenic, is_coding, is_lof, is_splicing,
+                               population_freqs, clinvar_data, cosmic_data,
+                               amplicon_data, max_maf_all, max_maf_no_fin,
+                               min_depth, max_depth, min_som_aaf, max_som_aaf,
+                               variant_filters, variant_categorization,
+                               freebayes, mutect, scalpel, vardict, pindel,
+                               platypus FROM sample_variant WHERE
+                               sample=%s AND run_id=%s AND
+                               reference_genome=%s AND library_name=%s AND
+                               max_maf_all <=%s""",
+                               ([samples[sample][library]['sample_name'],
+                                 samples[sample][library]['run_id'],
+                                 config['genome_version'],
+                                 samples[sample][library]['library_name'],
+                                 thresholds['max_maf']]))
+        for variant_row in rows:
+            print variant_row.sample, variant_row.chr, variant_row.pos, variant_row.ref, variant_row.alt
         print "Finished Coverage Sample"
     print "Finished Coverage Samples"
 
@@ -77,4 +110,5 @@ if __name__ == "__main__":
     sys.stdout.write("Processing samples\n")
     for sample in samples:
         get_sample_coverage_data(sample, samples, thresholds, auth_provider)
+        get_sample_variants(sample, samples, thresholds, auth_provider)
     print "Finished Samples"
