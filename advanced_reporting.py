@@ -27,7 +27,7 @@ def get_sample_coverage_data(sample, thresholds, authenticator):
     cluster = Cluster(['142.239.155.181', '142.239.155.182', '142.239.155.183',
                        '142.239.155.184'], auth_provider=authenticator)
     session = cluster.connect('coveragestore')
-    rows = session.execute('SELECT sample, amplicon, run_id, library_name, program_name, panel, num_reads, mean_coverage FROM SampleCoverage')
+    rows = session.execute('SELECT sample, amplicon, run_id, library_name, program_name, panel, num_reads, mean_coverage FROM sample_coverage')
     for amplicon_row in rows:
         print amplicon_row.sample, amplicon_row.amplicon, amplicon_row.num_reads
 
