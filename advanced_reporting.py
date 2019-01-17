@@ -23,13 +23,17 @@ from cassandra.cqlengine import connection
 from cassandra.auth import PlainTextAuthProvider
 
 
-def get_sample_coverage_data(sample, thresholds, authenticator):
+def get_sample_coverage_data(sample, samples, thresholds, authenticator):
     cluster = Cluster(['142.239.155.181', '142.239.155.182', '142.239.155.183',
                        '142.239.155.184'], auth_provider=authenticator)
     session = cluster.connect('coveragestore')
-    rows = session.execute('SELECT sample, amplicon, run_id, library_name, program_name, panel, num_reads, mean_coverage FROM sample_coverage')
-    for amplicon_row in rows:
-        print amplicon_row.sample, amplicon_row.amplicon, amplicon_row.num_reads
+    for library in samples[sample]:
+        rows = session.execute("SELECT sample, amplicon, run_id, library_name,\
+                                program_name, panel, num_reads, mean_coverage\
+                                FROM sample_coverage WHERE\
+                                sample == {}".format(samples[sample][library]['sample_name']))
+        for amplicon_row in rows:
+            print amplicon_row.sample, amplicon_row.amplicon, amplicon_row.num_reads
 
 
 if __name__ == "__main__":
@@ -90,7 +94,7 @@ if __name__ == "__main__":
     # root_job.addChild(amplicons_list_job)
 
     for sample in samples:
-        get_sample_coverage_data(sample, thresholds, auth_provider)
+        get_sample_coverage_data(sample, samples, thresholds, auth_provider)
 
     # Start workflow execution
     # Job.Runner.startToil(root_job, args)
