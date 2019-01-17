@@ -61,7 +61,7 @@ if __name__ == "__main__":
                         default=0.005)
 
     # Job.Runner.addToilOptions(parser)
-    # args = parser.parse_args()
+    args = parser.parse_args()
     # args.logLevel = "INFO"
 
     config = configuration.configure_runtime(args.configuration)
