@@ -23,7 +23,7 @@ from cassandra.cqlengine import connection
 from cassandra.auth import PlainTextAuthProvider
 
 
-def get_sample_coverage_data(sample, thresholds, authenticator){
+def get_sample_coverage_data(sample, thresholds, authenticator):
     cluster = Cluster(['142.239.155.181', '142.239.155.182', '142.239.155.183',
                        '142.239.155.184'], auth_provider=authenticator)
     session = cluster.connect('coveragestore')
@@ -32,7 +32,6 @@ def get_sample_coverage_data(sample, thresholds, authenticator){
                            FROM SampleCoverage')
     for amplicon_row in rows:
         print amplicon_row.sample, amplicon_row.amplicon, amplicon_row.num_reads
-}
 
 
 if __name__ == "__main__":
