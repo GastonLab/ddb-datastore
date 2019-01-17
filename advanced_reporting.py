@@ -110,5 +110,5 @@ if __name__ == "__main__":
     sys.stdout.write("Processing samples\n")
     for sample in samples:
         get_sample_coverage_data(sample, samples, thresholds, auth_provider)
-        get_sample_variants(sample, samples, thresholds, auth_provider)
+        get_sample_variant_data(sample, samples, thresholds, auth_provider)
     print "Finished Samples"
