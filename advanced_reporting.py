@@ -19,7 +19,7 @@ def get_sample_coverage_data(sample, samples, thresholds, authenticator):
                                library_name, program_name, panel, num_reads,
                                mean_coverage FROM sample_coverage WHERE
                                sample=%s""",
-                               (samples[sample][library]['sample_name']))
+                               ([samples[sample][library]['sample_name']]))
         for amplicon_row in rows:
             print amplicon_row.sample, amplicon_row.amplicon, amplicon_row.num_reads
 
