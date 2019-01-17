@@ -46,13 +46,11 @@ def get_sample_variant_data(sample, samples, thresholds, authenticator):
                                freebayes, mutect, scalpel, vardict, pindel,
                                platypus FROM sample_variant WHERE
                                sample=%s AND run_id=%s AND
-                               reference_genome=%s AND library_name=%s AND
-                               max_maf_all <=%s""",
+                               reference_genome=%s AND library_name""",
                                ([samples[sample][library]['sample_name'],
                                  samples[sample][library]['run_id'],
                                  config['genome_version'],
-                                 samples[sample][library]['library_name'],
-                                 thresholds['max_maf']]))
+                                 samples[sample][library]['library_name']]))
         for variant_row in rows:
             print variant_row.sample, variant_row.chr, variant_row.pos, variant_row.ref, variant_row.alt
         print "Finished Coverage Sample"
