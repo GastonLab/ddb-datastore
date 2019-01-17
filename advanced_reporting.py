@@ -22,6 +22,8 @@ def get_sample_coverage_data(sample, samples, thresholds, authenticator):
                                ([samples[sample][library]['sample_name']]))
         for amplicon_row in rows:
             print amplicon_row.sample, amplicon_row.amplicon, amplicon_row.num_reads
+        print "Finished Sample"
+    print "Finished Samples"
 
 
 if __name__ == "__main__":
