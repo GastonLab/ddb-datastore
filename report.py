@@ -437,15 +437,12 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
 
         row = 1
         for variant in report_data['variants'][tier_key[sheet_num]]:
-            if any(
-                i in tier1_clinvar_terms for i in variant.clinvar_data[
-                    'significance']):
-                if variant.max_som_aaf < thresholds['min_saf']:
-                    style = warning_style
-                elif variant.max_depth < thresholds['depth']:
-                    style = warning_style
-                else:
-                    style = pass_style
+            if "pathogenic" in variant.clinvar_data['significance']:
+                style = pass_style
+            elif "drug-response" in variant.clinvar_data['significance']:
+                style = pass_style
+            elif "likely-pathogenic" in variant.clinvar_data['significance']:
+                style = pass_style
             else:
                 style = default_style
 
