@@ -46,7 +46,7 @@ def get_sample_variant_data(sample, samples, thresholds, authenticator):
                                freebayes, mutect, scalpel, vardict, pindel,
                                platypus FROM sample_variant WHERE
                                sample=%s AND run_id=%s AND
-                               reference_genome=%s AND library_name""",
+                               reference_genome=%s AND library_name=%s""",
                                ([samples[sample][library]['sample_name'],
                                  samples[sample][library]['run_id'],
                                  config['genome_version'],
