@@ -51,12 +51,17 @@ def get_sample_variant_data(sample, samples, thresholds, authenticator):
                                  samples[sample][library]['run_id'],
                                  config['genome_version'],
                                  samples[sample][library]['library_name']]))
+        no_amplicon = 0
         for variant_row in rows:
             amplicons = variant_row.amplicon_data['amplicon'].split(',')
-            if variant_row.amplicon_data['amplicon'] is not 'None':
+            if variant_row.amplicon_data['amplicon'] is 'None':
+                # Off Target
+                no_amplicon += 1
+            else:
                 print variant_row.sample, variant_row.amplicon_data['amplicon'], variant_row.chr, variant_row.pos, variant_row.ref, variant_row.alt
-        print "Finished Coverage Sample"
-    print "Finished Coverage Samples"
+        print no_amplicon
+        print "Finished Variant Sample"
+    print "Finished Variant Samples"
 
 
 if __name__ == "__main__":
