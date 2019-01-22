@@ -52,14 +52,25 @@ def get_sample_variant_data(sample, samples, thresholds, authenticator):
                                  config['genome_version'],
                                  samples[sample][library]['library_name']]))
         no_amplicon = 0
+        rows = 0
         for variant_row in rows:
-            amplicons = variant_row.amplicon_data['amplicon'].split(',')
+            rows += 1
             if variant_row.amplicon_data['amplicon'] == 'None':
                 # Off Target
                 no_amplicon += 1
             else:
-                print variant_row.sample, variant_row.amplicon_data['amplicon'] , variant_row.chr, variant_row.pos, variant_row.ref, variant_row.alt
-        print no_amplicon
+                match_rows = session.execute("""SELECT * FROM variant WHERE
+                                             reference_genome=%s AND chr=%s AND
+                                             pos=%s AND ref=%s AND alt=%s""",
+                                             ([config['genome_version'],
+                                               variant_row.chr,
+                                               variant_row.pos,
+                                               variant_row.ref,
+                                               variant_row.alt]))
+                num_matches = len(match_rows)
+                print variant_row.sample, variant_row.amplicon_data['amplicon'], variant_row.chr, variant_row.pos, variant_row.ref, variant_row.alt
+                print num_matches
+        print no_amplicon, rows
         print "Finished Variant Sample"
     print "Finished Variant Samples"
 
