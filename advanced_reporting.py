@@ -58,18 +58,8 @@ def get_sample_variant_data(sample, samples, thresholds, authenticator):
             if variant_row.amplicon_data['amplicon'] == 'None':
                 # Off Target
                 no_amplicon += 1
+                print variant_row.sample, variant_row.amplicon_data['amplicon'], variant_row.chr, variant_row.pos, variant_row.ref, variant_row.alt
             else:
-                # match_rows = session.execute("""SELECT * FROM variant WHERE
-                #                              reference_genome=%s AND chr=%s AND
-                #                              pos=%s AND ref=%s AND alt=%s""",
-                #                              ([config['genome_version'],
-                #                                variant_row.chr,
-                #                                variant_row.pos,
-                #                                variant_row.ref,
-                #                                variant_row.alt]))
-                # num_matches = 0
-                # for match_row in match_rows:
-                #     num_matches += 1
                 print variant_row.sample, variant_row.amplicon_data['amplicon'], variant_row.chr, variant_row.pos, variant_row.ref, variant_row.alt
                 # print num_matches
         print no_amplicon, num_rows
