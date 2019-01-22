@@ -54,11 +54,11 @@ def get_sample_variant_data(sample, samples, thresholds, authenticator):
         no_amplicon = 0
         for variant_row in rows:
             amplicons = variant_row.amplicon_data['amplicon'].split(',')
-            if variant_row.amplicon_data['amplicon'] is 'None':
+            if variant_row.amplicon_data['amplicon'] is None:
                 # Off Target
                 no_amplicon += 1
             else:
-                print variant_row.sample, variant_row.amplicon_data['amplicon'], variant_row.chr, variant_row.pos, variant_row.ref, variant_row.alt
+                print variant_row.sample, variant_row.amplicon_data['amplicon'] , variant_row.chr, variant_row.pos, variant_row.ref, variant_row.alt
         print no_amplicon
         print "Finished Variant Sample"
     print "Finished Variant Samples"
