@@ -54,7 +54,7 @@ def get_sample_variant_data(sample, samples, thresholds, authenticator):
         no_amplicon = 0
         for variant_row in rows:
             amplicons = variant_row.amplicon_data['amplicon'].split(',')
-            if variant_row.amplicon_data['amplicon'] is None:
+            if variant_row.amplicon_data['amplicon'] == 'None':
                 # Off Target
                 no_amplicon += 1
             else:
