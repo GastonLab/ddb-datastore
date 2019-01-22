@@ -52,7 +52,8 @@ def get_sample_variant_data(sample, samples, thresholds, authenticator):
                                  config['genome_version'],
                                  samples[sample][library]['library_name']]))
         for variant_row in rows:
-            print variant_row.sample, variant_row.amplicon_data, variant_row.chr, variant_row.pos, variant_row.ref, variant_row.alt
+            amplicons = variant_row.amplicon_data['amplicon'].split(',')
+            print variant_row.sample, variant_row.amplicon_data['amplicon'], variant_row.chr, variant_row.pos, variant_row.ref, variant_row.alt
         print "Finished Coverage Sample"
     print "Finished Coverage Samples"
 
