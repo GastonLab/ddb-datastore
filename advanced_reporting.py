@@ -20,7 +20,9 @@ def get_sample_coverage_data(sample, samples, thresholds, authenticator):
                                sample=%s""",
                                ([samples[sample][library]['sample_name']]))
         for amplicon_row in rows:
-            print amplicon_row.sample, amplicon_row.amplicon, amplicon_row.num_reads
+            print amplicon_row.sample,
+            amplicon_row.amplicon,
+            amplicon_row.num_reads
         print "Finished Coverage Sample"
     print "Finished Coverage Samples"
 
@@ -56,12 +58,14 @@ def get_sample_variant_data(sample, samples, thresholds, authenticator):
         for variant_row in rows:
             num_rows += 1
             if variant_row.amplicon_data['amplicon'] == 'None':
-                # Off Target
                 no_amplicon += 1
-                print variant_row.sample, variant_row.amplicon_data['amplicon'], variant_row.chr, variant_row.pos, variant_row.ref, variant_row.alt
             else:
-                print variant_row.sample, variant_row.amplicon_data['amplicon'], variant_row.chr, variant_row.pos, variant_row.ref, variant_row.alt
-                # print num_matches
+                print variant_row.sample,
+                variant_row.amplicon_data['amplicon'],
+                variant_row.chr,
+                variant_row.pos,
+                variant_row.ref,
+                variant_row.alt
         print no_amplicon, num_rows
         print "Finished Variant Sample"
     print "Finished Variant Samples"
