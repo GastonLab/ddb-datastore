@@ -21,6 +21,8 @@ from collections import defaultdict
 def process_sample_coverage(sample, samples, config):
     sample_coverage = defaultdict(lambda: dict())
     for library in samples[sample]:
+        print sample
+        print library
         report_panel_path = (
             "/mnt/shared-data/ddb-configs/disease_panels/{}/{}".format(
                 samples[sample][library]['panel'],
