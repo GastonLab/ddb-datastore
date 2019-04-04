@@ -15,17 +15,23 @@ from cassandra.auth import PlainTextAuthProvider
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-l', '--list', help="File containing list of variants to check")
-    parser.add_argument('-r', '--report', help="Root name for reports (per sample)", default='report')
-    parser.add_argument('-a', '--address', help="IP Address for Cassandra connection", default='127.0.0.1')
-    parser.add_argument('-u', '--username', help='Cassandra username for login', default=None)
+    parser.add_argument('-l', '--list', help="File containing list of variants\
+                        to check")
+    parser.add_argument('-r', '--report', help="Root name for reports\
+                        (per sample)", default='report')
+    parser.add_argument('-a', '--address', help="IP Address for Cassandra\
+                        connection", default='127.0.0.1')
+    parser.add_argument('-u', '--username', help='Cassandra username for\
+                        login', default=None)
     args = parser.parse_args()
     args.logLevel = "INFO"
 
     if args.username:
         password = getpass.getpass()
-        auth_provider = PlainTextAuthProvider(username=args.username, password=password)
-        connection.setup([args.address], "variantstore", auth_provider=auth_provider)
+        auth_provider = PlainTextAuthProvider(username=args.username,
+                                              password=password)
+        connection.setup([args.address], "variantstore",
+                         auth_provider=auth_provider)
     else:
         connection.setup([args.address], "variantstore")
 
@@ -52,8 +58,7 @@ if __name__ == "__main__":
                 seen_libraries = list()
 
                 for var in ordered_var:
-                    output.write("{chr}\t{pos}\t{ref}\t{alt}\t{codon}\t{aa}\t{sample}\t{lib}\t{run}\t{vaf}\t{call}"
+                    output.write("{chr}\t{pos}\t{ref}\t{alt}\t{codon}\t{aa}\t{amplicon}\t{sample}\t{lib}\t{run}\t{vaf}\t{call}"
                                  "\n".format(chr=var.chr, pos=var.pos, ref=var.ref, alt=var.alt, codon=var.codon_change,
-                                             aa=var.aa_change, sample=var.sample, lib=var.library_name,
+                                             aa=var.aa_change, amplicon=var.amplicon, sample=var.sample, lib=var.library_name,
                                              run=var.run_id, vaf=var.max_som_aaf, call=",".join(var.callers) or None))
-
