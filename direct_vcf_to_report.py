@@ -468,7 +468,9 @@ if __name__ == "__main__":
     config = configuration.configure_runtime(args.configuration)
 
     sys.stdout.write("Parsing sample data\n")
-    samples = configuration.configure_samples(args.samples_file, config)
+    libraries = configuration.configure_samples(args.samples_file, config)
+
+    samples = configuration.merge_library_configs_samples(libraries)
 
     parse_functions = {'mutect': vcf_parsing.parse_mutect_vcf_record,
                        'freebayes': vcf_parsing.parse_freebayes_vcf_record,
