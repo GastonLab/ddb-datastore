@@ -123,9 +123,9 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
                     if min_depth == 100000000:
                         min_depth = -1
 
-                    variant.max_som_aaf = max_som_aaf
-                    variant.min_depth = min_depth
-                    variant.max_depth = max_depth
+                    variant['max_som_aaf'] = max_som_aaf
+                    variant['min_depth'] = min_depth
+                    variant['max_depth'] = max_depth
 
                     # Putting in to Tier1 based on COSMIC
                     if vcf_parsing.var_is_in_cosmic(variant):
