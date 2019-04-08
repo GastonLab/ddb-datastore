@@ -55,20 +55,20 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
                 samples[sample][library]['report']))
         target_amplicons = utils.get_target_amplicons(report_panel_path)
         sys.stdout.write("Parsing Caller VCF Files\n")
-        vcf_parsing.parse_vcf("{}.mutect.normalized.vcf".format(sample),
+        vcf_parsing.parse_vcf("{}.mutect.normalized.vcf".format(samples[sample][library]['library_name']),
                               "mutect", caller_records)
-        vcf_parsing.parse_vcf("{}.vardict.normalized.vcf".format(sample),
+        vcf_parsing.parse_vcf("{}.vardict.normalized.vcf".format(samples[sample][library]['library_name']),
                               "vardict", caller_records)
-        vcf_parsing.parse_vcf("{}.freebayes.normalized.vcf".format(sample),
+        vcf_parsing.parse_vcf("{}.freebayes.normalized.vcf".format(samples[sample][library]['library_name']),
                               "freebayes", caller_records)
-        vcf_parsing.parse_vcf("{}.scalpel.normalized.vcf".format(sample),
+        vcf_parsing.parse_vcf("{}.scalpel.normalized.vcf".format(samples[sample][library]['library_name']),
                               "scalpel", caller_records)
-        vcf_parsing.parse_vcf("{}.platypus.normalized.vcf".format(sample),
+        vcf_parsing.parse_vcf("{}.platypus.normalized.vcf".format(samples[sample][library]['library_name']),
                               "platypus", caller_records)
-        vcf_parsing.parse_vcf("{}.pindel.normalized.vcf".format(sample),
+        vcf_parsing.parse_vcf("{}.pindel.normalized.vcf".format(samples[sample][library]['library_name']),
                               "pindel", caller_records)
 
-        annotated_vcf = "{}.vcfanno.snpEff.GRCh37.75.vcf".format(sample)
+        annotated_vcf = "{}.vcfanno.snpEff.GRCh37.75.vcf".format(samples[sample][library]['library_name'])
 
         sys.stdout.write("Parsing VCFAnno VCF\n")
         vcf = VCF(annotated_vcf)
