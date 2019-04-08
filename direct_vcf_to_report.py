@@ -28,8 +28,7 @@ def process_sample_coverage(sample, samples, config):
                 samples[sample][library]['panel'],
                 samples[sample][library]['report']))
         target_amplicons = utils.get_target_amplicons(report_panel_path)
-        covf = "{}.sambamba_coverage.bed".format(samples[sample][
-            'library_name'])
+        covf = "{}.sambamba_coverage.bed".format(samples[sample][library])
         with open(covf, 'rb') as coverage:
             reader = csv.reader(coverage, delimiter='\t')
             reader.next()
