@@ -36,8 +36,8 @@ def process_sample_coverage(sample, samples, config):
             for row in reader:
                 if row[3] in target_amplicons:
                     sample_coverage[row[3]] = {
-                        "num_reads": row[4],
-                        "mean_coverage": row[5]
+                        "num_reads": int(row[4]),
+                        "mean_coverage": float(row[5])
                     }
     return sample_coverage
 
