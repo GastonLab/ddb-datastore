@@ -172,6 +172,7 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
                                 'tier4_pass_variants'].append(variant)
                         continue
 
+    sys.stdout.write("Writing filtered and sorted variants to report file\n")
     report_name = "{}.xlsx".format(sample)
 
     wb = xlwt.Workbook()
@@ -197,6 +198,7 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
                 "tier3_pass_variants", "tier3_fail_variants",
                 "tier4_pass_variants", "tier4_fail_variants")
 
+    sys.stdout.write("Writing coverage data\n")
     libraries = list()
     report_templates = list()
     run_id = ""
@@ -254,8 +256,10 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
 
     ###########################################################################
 
+    sys.stdout.write("Writing variant data\n")
     sheet_num = 0
     for sheet in tier_sheets:
+        print sheet
         sheet.write(0, 0, "Gene")
         sheet.write(0, 1, "Amplicon")
         sheet.write(0, 2, "Ref")
@@ -310,6 +314,7 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
 
         row = 1
         for variant in filtered_variant_data[tier_key[sheet_num]]:
+            print variant
             callers = variant.INFO.get('CALLERS').split(',')
             num_times_callers = len(callers)
             effects = utils.get_effects(variant, annotation_keys)
