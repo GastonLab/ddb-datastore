@@ -311,6 +311,7 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
         row = 1
         for variant in filtered_variant_data[tier_key[sheet_num]]:
             callers = variant.INFO.get('CALLERS').split(',')
+            num_times_callers = len(callers)
             effects = utils.get_effects(variant, annotation_keys)
             top_impact = utils.get_top_impact(effects)
             severity = top_impact.effect_severity
@@ -387,7 +388,7 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
             sheet.write(row, 6, "{}".format(max_som_aaf), style)
             sheet.write(row, 7, "{}".format(variant.INFO.get('CALLERS')
                                             or None), style)
-            sheet.write(row, 8, "{}".format(variant.num_times_callers), style)
+            sheet.write(row, 8, "{}".format(num_times_callers), style)
             sheet.write(row, 9, "{}".format(",".join(vcf_parsing.parse_cosmic_ids(variant))
                                              or None), style)
             sheet.write(row, 10,
