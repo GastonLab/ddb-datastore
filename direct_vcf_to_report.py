@@ -123,10 +123,6 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
                     if min_depth == 100000000:
                         min_depth = -1
 
-                    variant['max_som_aaf'] = max_som_aaf
-                    variant['min_depth'] = min_depth
-                    variant['max_depth'] = max_depth
-
                     # Putting in to Tier1 based on COSMIC
                     if vcf_parsing.var_is_in_cosmic(variant):
                         if max_som_aaf < thresholds['min_saf']:
@@ -368,6 +364,23 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
             else:
                 aa_change = "Length > 200aa"
 
+            max_som_aaf = -1.00
+            max_depth = -1
+            min_depth = 100000000
+
+            for caller in callers:
+                caller_var_dicts[
+                    caller] = parse_functions[caller](caller_records[caller][key])
+                if float(caller_var_dicts[caller]['AAF']) > max_som_aaf:
+                    max_som_aaf = float(caller_var_dicts[caller]['AAF'])
+                if int(caller_var_dicts[caller]['DP']) < min_depth:
+                    min_depth = int(caller_var_dicts[caller]['DP'])
+                if int(caller_var_dicts[caller]['DP']) > max_depth:
+                    max_depth = int(caller_var_dicts[caller]['DP'])
+
+            if min_depth == 100000000:
+                min_depth = -1
+
             sheet.write(row, 0, "{}".format(top_impact.gene), style)
             sheet.write(row, 1, "{}".format(amplicon_data['amplicon']),
                         style)
@@ -375,7 +388,7 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
             sheet.write(row, 3, "{}".format(alt), style)
             sheet.write(row, 4, "{}".format(codon_change), style)
             sheet.write(row, 5, "{}".format(aa_change), style)
-            sheet.write(row, 6, "{}".format(variant.max_som_aaf), style)
+            sheet.write(row, 6, "{}".format(max_som_aaf), style)
             sheet.write(row, 7, "{}".format(variant.INFO.get('CALLERS')
                                             or None), style)
             sheet.write(row, 8, "{}".format(variant.num_times_callers), style)
@@ -398,8 +411,8 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
             sheet.write(row, 18, "{}".format(top_impact.effect_severity),
                         style)
             sheet.write(row, 19, "{}".format(max_aaf_all), style)
-            sheet.write(row, 20, "{}".format(variant.min_depth), style)
-            sheet.write(row, 21, "{}".format(variant.max_depth), style)
+            sheet.write(row, 20, "{}".format(min_depth), style)
+            sheet.write(row, 21, "{}".format(max_depth), style)
             sheet.write(row, 22, "{}".format(variant.CHROM), style)
             sheet.write(row, 23, "{}".format(variant.start), style)
             sheet.write(row, 24, "{}".format(variant.end), style)
