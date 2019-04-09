@@ -418,32 +418,32 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
 
             col = 26
             if 'mutect' in callers:
-                sheet.write(row, col, "{}".format(variant.mutect.get('AAF')
+                sheet.write(row, col, "{}".format(caller_var_dicts['mutect']['AAF']
                                                   or None), style)
                 col += 1
 
             if 'vardict' in callers:
-                sheet.write(row, col, "{}".format(variant.vardict.get('AAF')
+                sheet.write(row, col, "{}".format(caller_var_dicts['vardict']['AAF']
                                                   or None), style)
                 col += 1
 
             if 'freebayes' in callers:
-                sheet.write(row, col, "{}".format(variant.freebayes.get('AAF')
+                sheet.write(row, col, "{}".format(caller_var_dicts['freebayes']['AAF']
                                                   or None), style)
                 col += 1
 
             if 'scalpel' in callers:
-                sheet.write(row, col, "{}".format(variant.scalpel.get('AAF')
+                sheet.write(row, col, "{}".format(caller_var_dicts['scalpel']['AAF']
                                                   or None), style)
                 col += 1
 
             if 'platypus' in callers:
-                sheet.write(row, col, "{}".format(variant.platypus.get('AAF')
+                sheet.write(row, col, "{}".format(caller_var_dicts['platypus']['AAF']
                                                   or None), style)
                 col += 1
 
             if 'pindel' in callers:
-                sheet.write(row, col, "{}".format(variant.pindel.get('AAF')
+                sheet.write(row, col, "{}".format(caller_var_dicts['pindel']['AAF']
                                                   or None), style)
                 col += 1
 
