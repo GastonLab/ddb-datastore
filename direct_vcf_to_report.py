@@ -368,7 +368,10 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
             max_depth = -1
             min_depth = 100000000
 
-            print key
+            key = (unicode("chr{}".format(variant.CHROM)),
+                   int(variant.start), int(variant.end),
+                   unicode(variant.REF), unicode(variant.ALT[0]))
+
             for caller in callers:
                 caller_var_dicts[
                     caller] = parse_functions[caller](caller_records[caller][key])
