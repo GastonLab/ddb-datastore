@@ -46,7 +46,6 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
     caller_records = defaultdict(lambda: dict())
     tier1_clinvar_terms = ("pathogenic", "likely-pathogenic", "drug-response")
     filtered_variant_data = defaultdict(list)
-    report_data = dict()
 
     for library in samples[sample]:
         report_panel_path = (
@@ -173,9 +172,6 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
                                 'tier4_pass_variants'].append(variant)
                         continue
 
-    report_data['variants'] = filtered_variant_data
-    report_data['coverage'] = coverage
-
     report_name = "{}.xlsx".format(sample)
 
     wb = xlwt.Workbook()
@@ -238,6 +234,7 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
 
     row_num = 8
     for amplicon in target_amplicons:
+        print coverage[amplicon]
         if coverage[amplicon]['mean_coverage'] < 200:
             style = error_style
         elif coverage[amplicon]['mean_coverage'] < 500:
@@ -313,7 +310,7 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
             col += 1
 
         row = 1
-        for variant in report_data['variants'][tier_key[sheet_num]]:
+        for variant in filtered_variant_data[tier_key[sheet_num]]:
             callers = variant.INFO.get('CALLERS').split(',')
             effects = utils.get_effects(variant, annotation_keys)
             top_impact = utils.get_top_impact(effects)
@@ -337,9 +334,9 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
             reads_values = list()
             for amplicon in amplicons:
                 coverage_values.append(
-                    str(report_data['coverage'][amplicon]['mean_coverage']))
+                    str(coverage[amplicon]['mean_coverage']))
                 reads_values.append(
-                    str(report_data['coverage'][amplicon]['num_reads']))
+                    str(coverage[amplicon]['num_reads']))
 
             coverage_string = ",".join(coverage_values)
             reads_string = ",".join(reads_values)
