@@ -234,7 +234,6 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
 
     row_num = 8
     for amplicon in target_amplicons:
-        print amplicon
         if coverage[amplicon]['mean_coverage'] < 200:
             style = error_style
         elif coverage[amplicon]['mean_coverage'] < 500:
@@ -341,12 +340,12 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
             coverage_string = ",".join(coverage_values)
             reads_string = ",".join(reads_values)
 
-            if len(variant.ref) < 200:
+            if len(variant.REF) < 200:
                 ref = variant.REF
             else:
                 ref = "Length > 200bp"
 
-            if len(variant.alt) < 200:
+            if len(variant.ALT[0]) < 200:
                 alt = variant.ALT[0]
             else:
                 alt = "Length > 200bp"
