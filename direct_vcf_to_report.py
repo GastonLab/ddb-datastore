@@ -39,7 +39,7 @@ def process_sample_coverage(sample, samples, config):
                         "num_reads": row[4],
                         "mean_coverage": row[5]
                     }
-        return sample_coverage
+    return sample_coverage
 
 
 def process_sample_variants(coverage, sample, samples, config, thresholds):
