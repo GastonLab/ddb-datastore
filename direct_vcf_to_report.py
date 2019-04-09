@@ -259,7 +259,6 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
     sys.stdout.write("Writing variant data\n")
     sheet_num = 0
     for sheet in tier_sheets:
-        print sheet
         sheet.write(0, 0, "Gene")
         sheet.write(0, 1, "Amplicon")
         sheet.write(0, 2, "Ref")
@@ -314,7 +313,6 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
 
         row = 1
         for variant in filtered_variant_data[tier_key[sheet_num]]:
-            print variant
             callers = variant.INFO.get('CALLERS').split(',')
             num_times_callers = len(callers)
             effects = utils.get_effects(variant, annotation_keys)
@@ -370,6 +368,7 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
             max_depth = -1
             min_depth = 100000000
 
+            print key
             for caller in callers:
                 caller_var_dicts[
                     caller] = parse_functions[caller](caller_records[caller][key])
