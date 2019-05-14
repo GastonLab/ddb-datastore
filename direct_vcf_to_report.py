@@ -103,8 +103,6 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
                            unicode(variant.REF), unicode(variant.ALT[0]))
 
                     caller_var_dicts = defaultdict(dict)
-
-                    print samples[sample], library
                     clinvar_data = utils.get_clinvar_info(variant, samples[sample],
                                                           library)
                     max_som_aaf = -1.00
@@ -322,7 +320,8 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
             severity = top_impact.effect_severity
             amplicon_data = utils.get_amplicon_data(variant)
             amplicons = amplicon_data['amplicon'].split(',')
-            clinvar_data = utils.get_clinvar_info(variant, samples, sample)
+            clinvar_data = utils.get_clinvar_info(variant, samples[sample],
+                                                  library)
             cosmic_data = utils.get_cosmic_info(variant)
             max_aaf_all = variant.INFO.get('max_aaf_all') or -1
 
