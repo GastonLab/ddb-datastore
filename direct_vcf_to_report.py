@@ -103,6 +103,8 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
                            unicode(variant.REF), unicode(variant.ALT[0]))
 
                     caller_var_dicts = defaultdict(dict)
+
+                    print samples[sample], library
                     clinvar_data = utils.get_clinvar_info(variant, samples[sample],
                                                           library)
                     max_som_aaf = -1.00
