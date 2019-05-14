@@ -488,6 +488,8 @@ if __name__ == "__main__":
 
     samples = configuration.merge_library_configs_samples(libraries)
 
+    print samples
+
     parse_functions = {'mutect': vcf_parsing.parse_mutect_vcf_record,
                        'freebayes': vcf_parsing.parse_freebayes_vcf_record,
                        'vardict': vcf_parsing.parse_vardict_vcf_record,
