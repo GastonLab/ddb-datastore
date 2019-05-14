@@ -69,10 +69,10 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
 
         annotated_vcf = "{}.vcfanno.snpEff.GRCh37.75.vcf".format(samples[sample][library]['library_name'])
 
-        sys.stdout.write("Parsing VCFAnno VCF\n")
+        sys.stdout.write("Parsing VCFAnno VCF {}\n".format(annotated_vcf))
         vcf = VCF(annotated_vcf)
 
-        sys.stdout.write("Parsing VCFAnno VCF with CyVCF2\n")
+        sys.stdout.write("Parsing VCFAnno VCF {} with CyVCF2\n".format(annotated_vcf))
         reader = cyvcf2.VCFReader(annotated_vcf)
         desc = reader["ANN"]["Description"]
         annotation_keys = [x.strip("\"'")
@@ -103,8 +103,8 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
                            unicode(variant.REF), unicode(variant.ALT[0]))
 
                     caller_var_dicts = defaultdict(dict)
-                    clinvar_data = utils.get_clinvar_info(variant, samples,
-                                                          sample)
+                    clinvar_data = utils.get_clinvar_info(variant, samples[sample],
+                                                          library)
                     max_som_aaf = -1.00
                     max_depth = -1
                     min_depth = 100000000
@@ -485,10 +485,7 @@ if __name__ == "__main__":
 
     sys.stdout.write("Parsing sample data\n")
     libraries = configuration.configure_samples(args.samples_file, config)
-
     samples = configuration.merge_library_configs_samples(libraries)
-
-    print samples
 
     parse_functions = {'mutect': vcf_parsing.parse_mutect_vcf_record,
                        'freebayes': vcf_parsing.parse_freebayes_vcf_record,
