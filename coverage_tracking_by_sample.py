@@ -49,9 +49,12 @@ if __name__ == "__main__":
         ordered_samples = coverage_data.order_by('sample', 'run_id').limit(coverage_data.count() + 1000)
         sys.stderr.write("There are {} samples retrieved\n".format(coverage_data.count()))
         sys.stdout.write("Sample\tLibrary\tRunID\tCov\n")
+        num = 0
         for result in ordered_samples:
+            num += 1
             coverage_values.append(result.mean_coverage)
             sys.stdout.write("{}\t{}\t{}\t{}\n".format(result.sample,
                                                        result.library_name,
                                                        result.run_id,
                                                        result.mean_coverage))
+        sys.stderr.write("Iterated {} times\n".format(num))
