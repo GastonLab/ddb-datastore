@@ -443,8 +443,8 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
         cosmic_nums = bare_string2.split(",")
         high_cosmic = 1
         for num in cosmic_nums:
-            if num > high_cosmic:
-                high_cosmic = num
+            if int(num) > high_cosmic:
+                high_cosmic = int(num)
 
         for variant in report_data['variants'][tier_key[sheet_num]]:
             if "pathogenic" in variant.clinvar_data['significance']:
