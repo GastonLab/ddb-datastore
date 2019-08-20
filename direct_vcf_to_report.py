@@ -236,6 +236,7 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
 
     row_num = 8
     for amplicon in target_amplicons:
+        print amplicon
         if coverage[amplicon]['mean_coverage'] < 200:
             style = error_style
         elif coverage[amplicon]['mean_coverage'] < 500:
