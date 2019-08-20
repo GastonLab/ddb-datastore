@@ -445,8 +445,6 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
                 style = pass_style
             elif variant.max_som_aaf > 0.02:
                 style = pass_style
-            elif variant.cosmic_data['num_samples'] > 5:
-                style = pass_style
             else:
                 style = default_style
 
