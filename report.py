@@ -436,6 +436,15 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
             col += 1
 
         row = 1
+
+        num_string = variant.cosmic_data['num_samples'].replace(' ', '')
+        bare_string = num_string.replace({ord(i): None for i in '()'})
+        cosmic_nums = bare_string.split(",")
+        high_cosmic = 1
+        for num in cosmic_nums:
+            if num > high_cosmic:
+                high_cosmic = num
+
         for variant in report_data['variants'][tier_key[sheet_num]]:
             if "pathogenic" in variant.clinvar_data['significance']:
                 style = pass_style
@@ -443,7 +452,9 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
                 style = pass_style
             elif "likely-pathogenic" in variant.clinvar_data['significance']:
                 style = pass_style
-            elif variant.max_som_aaf > 0.02:
+            elif variant.max_som_aaf > 0.05:
+                style = pass_style
+            elif high_cosmic > 5:
                 style = pass_style
             else:
                 style = default_style
