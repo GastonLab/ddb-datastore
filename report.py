@@ -438,8 +438,9 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
         row = 1
 
         num_string = variant.cosmic_data['num_samples'].replace(' ', '')
-        bare_string = num_string.replace({ord(i): None for i in '()'})
-        cosmic_nums = bare_string.split(",")
+        bare_string1 = num_string.replace('(', '')
+        bare_string2 = bare_string1.replace(')', '')
+        cosmic_nums = bare_string2.split(",")
         high_cosmic = 1
         for num in cosmic_nums:
             if num > high_cosmic:
