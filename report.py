@@ -436,11 +436,6 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
             col += 1
 
         row = 1
-        high_cosmic = 0
-
-        for num in variant.cosmic_data['num_samples']:
-            if num > high_cosmic:
-                high_cosmic = num
 
         for variant in report_data['variants'][tier_key[sheet_num]]:
             if "pathogenic" in variant.clinvar_data['significance']:
@@ -450,8 +445,6 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
             elif "likely-pathogenic" in variant.clinvar_data['significance']:
                 style = pass_style
             elif variant.max_som_aaf > 0.05:
-                style = pass_style
-            elif high_cosmic > 5:
                 style = pass_style
             else:
                 style = default_style
