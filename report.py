@@ -438,17 +438,9 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
         row = 1
         high_cosmic = 0
 
-        job.fileStore.logToMaster("Cosmic Sample Numbers: {}\n".format(variant.cosmic_data['num_samples']))
-        if variant.cosmic_data['num_samples'].startswith('('):
-            num_string = variant.cosmic_data['num_samples'].replace(' ', '')
-            bare_string1 = num_string.replace('(', '')
-            bare_string2 = bare_string1.replace(')', '')
-            cosmic_nums = bare_string2.split(",")
-            for num in cosmic_nums:
-                job.fileStore.logToMaster("Number: {}\n".format(num))
-                if int(num) > high_cosmic:
-                    job.fileStore.logToMaster("new high num\n")
-                    high_cosmic = int(num)
+        for num in variant.cosmic_data['num_samples']:
+            if num > high_cosmic:
+                high_cosmic = num
 
         for variant in report_data['variants'][tier_key[sheet_num]]:
             if "pathogenic" in variant.clinvar_data['significance']:
