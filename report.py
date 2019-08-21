@@ -438,17 +438,16 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
         row = 1
         high_cosmic = 0
 
-        sys.stdout.write("Cosmic Sample Numbers: {}\n",
-                         variant.cosmic_data['num_samples'])
+        sys.stdout.write("Cosmic Sample Numbers: {}\n".format(variant.cosmic_data['num_samples']))
         if variant.cosmic_data['num_samples'].startswith('('):
             num_string = variant.cosmic_data['num_samples'].replace(' ', '')
             bare_string1 = num_string.replace('(', '')
             bare_string2 = bare_string1.replace(')', '')
             cosmic_nums = bare_string2.split(",")
             for num in cosmic_nums:
-                sys.stdout.write("Number: {}\n", num)
+                sys.stdout.write("Number: {}\n".format(num))
                 if int(num) > high_cosmic:
-                    print "new high num"
+                    sys.stdout.write("new high num\n")
                     high_cosmic = int(num)
 
         for variant in report_data['variants'][tier_key[sheet_num]]:
