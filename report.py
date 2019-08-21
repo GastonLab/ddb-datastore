@@ -438,7 +438,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
         row = 1
         high_cosmic = 0
 
-        if variant.cosmic_data['num_samples'] is not 'None':
+        if variant.cosmic_data['num_samples'].startswith('('):
             num_string = variant.cosmic_data['num_samples'].replace(' ', '')
             bare_string1 = num_string.replace('(', '')
             bare_string2 = bare_string1.replace(')', '')
