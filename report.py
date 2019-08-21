@@ -436,14 +436,14 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
             col += 1
 
         row = 1
+        high_cosmic = 0
 
-        num_string = variant.cosmic_data['num_samples'].replace(' ', '')
-        bare_string1 = num_string.replace('(', '')
-        bare_string2 = bare_string1.replace(')', '')
-        cosmic_nums = bare_string2.split(",")
-        high_cosmic = 1
-        for num in cosmic_nums:
-            if not 'None':
+        if variant.cosmic_data['num_samples'] is not 'None':
+            num_string = variant.cosmic_data['num_samples'].replace(' ', '')
+            bare_string1 = num_string.replace('(', '')
+            bare_string2 = bare_string1.replace(')', '')
+            cosmic_nums = bare_string2.split(",")
+            for num in cosmic_nums:
                 if int(num) > high_cosmic:
                     high_cosmic = int(num)
 
