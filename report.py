@@ -437,6 +437,8 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
 
         row = 1
 
+        sys.stdout.write(type(variant.cosmic_data['num_samples']))
+
         for variant in report_data['variants'][tier_key[sheet_num]]:
             if "pathogenic" in variant.clinvar_data['significance']:
                 style = pass_style
