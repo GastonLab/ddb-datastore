@@ -68,8 +68,8 @@ if __name__ == "__main__":
                     Variant.reference_genome == "GRCh37.75",
                     Variant.chr == row[0],
                     Variant.pos == row[1],
-                    Variant.ref == row[3],
-                    Variant.alt == row[4]
+                    Variant.ref == row[2],
+                    Variant.alt == row[3]
                 ).allow_filtering()
 
                 num_matches = match_variants.count()
