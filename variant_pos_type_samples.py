@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
                 for var in ordered_var:
                     if(var.library_name in type_samples):
-                        output.write("{chr}\t{pos}\t{ref}\t{alt}\t{codon}\t{aa}\t{sample}\t{lib}\t{run}\t{vaf}\t{call}"
+                        output.write("{chr}\t{pos}\t{ref}\t{alt}\t{codon}\t{aa}\t{amp}\t{sample}\t{lib}\t{run}\t{vaf}\t{call}"
                                      "\n".format(chr=var.chr, pos=var.pos, ref=var.ref, alt=var.alt, codon=var.codon_change,
-                                                 aa=var.aa_change, sample=var.sample, lib=var.library_name,
+                                                 aa=var.aa_change, amp=var.amplicon_data['amplicon'], sample=var.sample, lib=var.library_name,
                                                  run=var.run_id, vaf=var.max_som_aaf, call=",".join(var.callers) or None))
