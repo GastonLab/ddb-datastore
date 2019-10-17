@@ -137,8 +137,7 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions,
                     scalpel=caller_variant_data_dicts['scalpel'] or dict(),
                     platypus=caller_variant_data_dicts['platypus'] or dict(),
                     pindel=caller_variant_data_dicts['pindel'] or dict(),
-                    vardict=caller_variant_data_dicts['vardict'] or dict(),
-                    manta=caller_variant_data_dicts['manta'] or dict()
+                    vardict=caller_variant_data_dicts['vardict'] or dict()
                     )
         except WriteFailure:
             with open("{}.sample_variant_add.log".format(samples[sample]['library_name']), "a") as err:
