@@ -340,9 +340,8 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
         sheet.write(0, 22, "Start")
         sheet.write(0, 23, "End")
         sheet.write(0, 24, "rsIDs")
-        sheet.write(0, 25, "Matching Samples in Run")
 
-        col = 26
+        col = 25
         if 'mutect' in callers:
             sheet.write(0, col, "MuTect_AF")
             col += 1
@@ -378,6 +377,8 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
                 style = pass_style
             elif variant.max_som_aaf > 0.05:
                 style = interest_style
+            sheet.write(row, 25,
+                        "{}".format(",".join(variant.matching_samples)), style)
             else:
                 style = default_style
 
@@ -436,10 +437,8 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
             sheet.write(row, 22, "{}".format(variant.pos), style)
             sheet.write(row, 23, "{}".format(variant.end), style)
             sheet.write(row, 24, "{}".format(",".join(variant.rs_ids)), style)
-            sheet.write(row, 25,
-                        "{}".format(",".join(variant.matching_samples)), style)
 
-            col = 26
+            col = 25
             if 'mutect' in callers:
                 sheet.write(row, col, "{}".format(variant.mutect.get('AAF')
                                                   or None), style)
