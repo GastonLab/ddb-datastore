@@ -325,28 +325,28 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
         sheet.write(0, 7, "AA")
         sheet.write(0, 8, "Max Caller Somatic VAF")
         sheet.write(0, 9, "Callers")
-        sheet.write(0, 10, "Caller Counts")
-        sheet.write(0, 11, "COSMIC IDs")
-        sheet.write(0, 12, "Num COSMIC Samples")
-        sheet.write(0, 13, "COSMIC AA")
-        sheet.write(0, 14, "Clinvar Significance")
-        sheet.write(0, 15, "Clinvar HGVS")
-        sheet.write(0, 16, "Clinvar Disease")
-        sheet.write(0, 17, "Coverage")
-        sheet.write(0, 18, "Num Reads")
-        sheet.write(0, 19, "Impact")
-        sheet.write(0, 20, "Severity")
-        sheet.write(0, 21, "Maximum Population AF")
-        sheet.write(0, 22, "Min Caller Depth")
-        sheet.write(0, 23, "Max Caller Depth")
-        sheet.write(0, 24, "Chrom")
-        sheet.write(0, 25, "Start")
-        sheet.write(0, 26, "End")
-        sheet.write(0, 27, "rsIDs")
-        sheet.write(0, 28, "Matching Samples in Run")
+        sheet.write(0, 10, "COSMIC IDs")
+        sheet.write(0, 11, "Num COSMIC Samples")
+        sheet.write(0, 12, "COSMIC AA")
+        sheet.write(0, 13, "Clinvar Significance")
+        sheet.write(0, 14, "Clinvar HGVS")
+        sheet.write(0, 15, "Clinvar Disease")
+        sheet.write(0, 16, "Coverage")
+        sheet.write(0, 17, "Num Reads")
+        sheet.write(0, 18, "Impact")
+        sheet.write(0, 19, "Severity")
+        sheet.write(0, 20, "Maximum Population AF")
+        sheet.write(0, 21, "Min Caller Depth")
+        sheet.write(0, 22, "Max Caller Depth")
+        sheet.write(0, 23, "Chrom")
+        sheet.write(0, 24, "Start")
+        sheet.write(0, 25, "End")
+        sheet.write(0, 26, "rsIDs")
+        sheet.write(0, 27, "Matching Samples in Run")
 
-        col = 29
+        col = 28
         if 'mutect' in callers:
+            sheet.write(row, 10, "{}".format(variant.num_times_callers), style)
             sheet.write(0, col, "MuTect_AF")
             col += 1
 
@@ -358,6 +358,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
             sheet.write(0, col, "FreeBayes_AF")
             col += 1
 
+            sheet.write(row, 10, "{}".format(variant.num_times_callers), style)
         if 'scalpel' in callers:
             sheet.write(0, col, "Scalpel_AF")
             col += 1
@@ -429,34 +430,33 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
             sheet.write(row, 8, "{}".format(variant.max_som_aaf), style)
             sheet.write(row, 9, "{}".format(",".join(variant.callers)
                                              or None), style)
-            sheet.write(row, 10, "{}".format(variant.num_times_callers), style)
-            sheet.write(row, 11, "{}".format(",".join(variant.cosmic_ids)
+            sheet.write(row, 10, "{}".format(",".join(variant.cosmic_ids)
                                              or None), style)
-            sheet.write(row, 12,
+            sheet.write(row, 11,
                         "{}".format(variant.cosmic_data['num_samples']), style)
-            sheet.write(row, 13, "{}".format(variant.cosmic_data['aa']), style)
-            sheet.write(row, 14,
+            sheet.write(row, 12, "{}".format(variant.cosmic_data['aa']), style)
+            sheet.write(row, 13,
                         "{}".format(variant.clinvar_data['significance']),
                         style)
-            sheet.write(row, 15,
+            sheet.write(row, 14,
                         "{}".format(variant.clinvar_data['hgvs']), style)
-            sheet.write(row, 16,
+            sheet.write(row, 15,
                         "{}".format(variant.clinvar_data['disease']), style)
-            sheet.write(row, 17, "{}".format(coverage_string), style)
-            sheet.write(row, 18, "{}".format(reads_string), style)
-            sheet.write(row, 19, "{}".format(variant.impact), style)
-            sheet.write(row, 20, "{}".format(variant.severity), style)
-            sheet.write(row, 21, "{}".format(variant.max_maf_all), style)
-            sheet.write(row, 22, "{}".format(variant.min_depth), style)
-            sheet.write(row, 23, "{}".format(variant.max_depth), style)
-            sheet.write(row, 24, "{}".format(variant.chr), style)
-            sheet.write(row, 25, "{}".format(variant.pos), style)
-            sheet.write(row, 26, "{}".format(variant.end), style)
-            sheet.write(row, 27, "{}".format(",".join(variant.rs_ids)), style)
-            sheet.write(row, 28,
+            sheet.write(row, 16, "{}".format(coverage_string), style)
+            sheet.write(row, 17, "{}".format(reads_string), style)
+            sheet.write(row, 18, "{}".format(variant.impact), style)
+            sheet.write(row, 19, "{}".format(variant.severity), style)
+            sheet.write(row, 20, "{}".format(variant.max_maf_all), style)
+            sheet.write(row, 21, "{}".format(variant.min_depth), style)
+            sheet.write(row, 22, "{}".format(variant.max_depth), style)
+            sheet.write(row, 23, "{}".format(variant.chr), style)
+            sheet.write(row, 24, "{}".format(variant.pos), style)
+            sheet.write(row, 25, "{}".format(variant.end), style)
+            sheet.write(row, 26, "{}".format(",".join(variant.rs_ids)), style)
+            sheet.write(row, 27,
                         "{}".format(",".join(variant.matching_samples)), style)
 
-            col = 29
+            col = 28
             if 'mutect' in callers:
                 sheet.write(row, col, "{}".format(variant.mutect.get('AAF')
                                                   or None), style)
