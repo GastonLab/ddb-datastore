@@ -346,7 +346,6 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
 
         col = 28
         if 'mutect' in callers:
-            sheet.write(row, 10, "{}".format(variant.num_times_callers), style)
             sheet.write(0, col, "MuTect_AF")
             col += 1
 
@@ -358,7 +357,6 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
             sheet.write(0, col, "FreeBayes_AF")
             col += 1
 
-            sheet.write(row, 10, "{}".format(variant.num_times_callers), style)
         if 'scalpel' in callers:
             sheet.write(0, col, "Scalpel_AF")
             col += 1
