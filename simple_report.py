@@ -331,20 +331,18 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
         sheet.write(0, 13, "Clinvar Significance")
         sheet.write(0, 14, "Clinvar HGVS")
         sheet.write(0, 15, "Clinvar Disease")
-        sheet.write(0, 16, "Coverage")
-        sheet.write(0, 17, "Num Reads")
-        sheet.write(0, 18, "Impact")
-        sheet.write(0, 19, "Severity")
-        sheet.write(0, 20, "Maximum Population AF")
-        sheet.write(0, 21, "Min Caller Depth")
-        sheet.write(0, 22, "Max Caller Depth")
-        sheet.write(0, 23, "Chrom")
-        sheet.write(0, 24, "Start")
-        sheet.write(0, 25, "End")
-        sheet.write(0, 26, "rsIDs")
-        sheet.write(0, 27, "Matching Samples in Run")
+        sheet.write(0, 16, "Impact")
+        sheet.write(0, 17, "Severity")
+        sheet.write(0, 18, "Maximum Population AF")
+        sheet.write(0, 19, "Min Caller Depth")
+        sheet.write(0, 20, "Max Caller Depth")
+        sheet.write(0, 21, "Chrom")
+        sheet.write(0, 22, "Start")
+        sheet.write(0, 23, "End")
+        sheet.write(0, 24, "rsIDs")
+        sheet.write(0, 25, "Matching Samples in Run")
 
-        col = 28
+        col = 26
         if 'mutect' in callers:
             sheet.write(0, col, "MuTect_AF")
             col += 1
@@ -385,17 +383,6 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
 
             amplicons = variant.amplicon_data['amplicon'].split(',')
 
-            coverage_values = list()
-            reads_values = list()
-            for amplicon in amplicons:
-                coverage_values.append(
-                    str(report_data['coverage'][amplicon]['mean_coverage']))
-                reads_values.append(
-                    str(report_data['coverage'][amplicon]['num_reads']))
-
-            coverage_string = ",".join(coverage_values)
-            reads_string = ",".join(reads_values)
-
             if len(variant.ref) < 200:
                 ref = variant.ref
             else:
@@ -427,7 +414,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
             sheet.write(row, 7, "{}".format(aa_change), style)
             sheet.write(row, 8, "{}".format(variant.max_som_aaf), style)
             sheet.write(row, 9, "{}".format(",".join(variant.callers)
-                                             or None), style)
+                                            or None), style)
             sheet.write(row, 10, "{}".format(",".join(variant.cosmic_ids)
                                              or None), style)
             sheet.write(row, 11,
@@ -440,21 +427,19 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
                         "{}".format(variant.clinvar_data['hgvs']), style)
             sheet.write(row, 15,
                         "{}".format(variant.clinvar_data['disease']), style)
-            sheet.write(row, 16, "{}".format(coverage_string), style)
-            sheet.write(row, 17, "{}".format(reads_string), style)
-            sheet.write(row, 18, "{}".format(variant.impact), style)
-            sheet.write(row, 19, "{}".format(variant.severity), style)
-            sheet.write(row, 20, "{}".format(variant.max_maf_all), style)
-            sheet.write(row, 21, "{}".format(variant.min_depth), style)
-            sheet.write(row, 22, "{}".format(variant.max_depth), style)
-            sheet.write(row, 23, "{}".format(variant.chr), style)
-            sheet.write(row, 24, "{}".format(variant.pos), style)
-            sheet.write(row, 25, "{}".format(variant.end), style)
-            sheet.write(row, 26, "{}".format(",".join(variant.rs_ids)), style)
-            sheet.write(row, 27,
+            sheet.write(row, 16, "{}".format(variant.impact), style)
+            sheet.write(row, 17, "{}".format(variant.severity), style)
+            sheet.write(row, 18, "{}".format(variant.max_maf_all), style)
+            sheet.write(row, 19, "{}".format(variant.min_depth), style)
+            sheet.write(row, 20, "{}".format(variant.max_depth), style)
+            sheet.write(row, 21, "{}".format(variant.chr), style)
+            sheet.write(row, 22, "{}".format(variant.pos), style)
+            sheet.write(row, 23, "{}".format(variant.end), style)
+            sheet.write(row, 24, "{}".format(",".join(variant.rs_ids)), style)
+            sheet.write(row, 25,
                         "{}".format(",".join(variant.matching_samples)), style)
 
-            col = 28
+            col = 26
             if 'mutect' in callers:
                 sheet.write(row, col, "{}".format(variant.mutect.get('AAF')
                                                   or None), style)
