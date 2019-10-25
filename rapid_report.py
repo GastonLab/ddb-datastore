@@ -392,20 +392,18 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
         sheet.write(0, 20, "Clinvar Significance")
         sheet.write(0, 21, "Clinvar HGVS")
         sheet.write(0, 22, "Clinvar Disease")
-        sheet.write(0, 23, "Coverage")
-        sheet.write(0, 24, "Num Reads")
-        sheet.write(0, 25, "Impact")
-        sheet.write(0, 26, "Severity")
-        sheet.write(0, 27, "Maximum Population AF")
-        sheet.write(0, 28, "Min Caller Depth")
-        sheet.write(0, 29, "Max Caller Depth")
-        sheet.write(0, 30, "Chrom")
-        sheet.write(0, 31, "Start")
-        sheet.write(0, 32, "End")
-        sheet.write(0, 33, "rsIDs")
-        sheet.write(0, 34, "Matching Samples in Run")
+        sheet.write(0, 23, "Impact")
+        sheet.write(0, 24, "Severity")
+        sheet.write(0, 25, "Maximum Population AF")
+        sheet.write(0, 26, "Min Caller Depth")
+        sheet.write(0, 27, "Max Caller Depth")
+        sheet.write(0, 28, "Chrom")
+        sheet.write(0, 29, "Start")
+        sheet.write(0, 30, "End")
+        sheet.write(0, 31, "rsIDs")
+        sheet.write(0, 32, "Matching Samples in Run")
 
-        col = 35
+        col = 33
         if 'mutect' in callers:
             sheet.write(0, col, "MuTect_AF")
             col += 1
@@ -445,17 +443,6 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
                 style = default_style
 
             amplicons = variant.amplicon_data['amplicon'].split(',')
-
-            coverage_values = list()
-            reads_values = list()
-            for amplicon in amplicons:
-                coverage_values.append(
-                    str(report_data['coverage'][amplicon]['mean_coverage']))
-                reads_values.append(
-                    str(report_data['coverage'][amplicon]['num_reads']))
-
-            coverage_string = ",".join(coverage_values)
-            reads_string = ",".join(reads_values)
 
             if len(variant.ref) < 200:
                 ref = variant.ref
@@ -508,21 +495,19 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
                         "{}".format(variant.clinvar_data['hgvs']), style)
             sheet.write(row, 22,
                         "{}".format(variant.clinvar_data['disease']), style)
-            sheet.write(row, 23, "{}".format(coverage_string), style)
-            sheet.write(row, 24, "{}".format(reads_string), style)
-            sheet.write(row, 25, "{}".format(variant.impact), style)
-            sheet.write(row, 26, "{}".format(variant.severity), style)
-            sheet.write(row, 27, "{}".format(variant.max_maf_all), style)
-            sheet.write(row, 28, "{}".format(variant.min_depth), style)
-            sheet.write(row, 29, "{}".format(variant.max_depth), style)
-            sheet.write(row, 30, "{}".format(variant.chr), style)
-            sheet.write(row, 31, "{}".format(variant.pos), style)
-            sheet.write(row, 32, "{}".format(variant.end), style)
-            sheet.write(row, 33, "{}".format(",".join(variant.rs_ids)), style)
-            sheet.write(row, 34,
+            sheet.write(row, 23, "{}".format(variant.impact), style)
+            sheet.write(row, 24, "{}".format(variant.severity), style)
+            sheet.write(row, 25, "{}".format(variant.max_maf_all), style)
+            sheet.write(row, 26, "{}".format(variant.min_depth), style)
+            sheet.write(row, 27, "{}".format(variant.max_depth), style)
+            sheet.write(row, 28, "{}".format(variant.chr), style)
+            sheet.write(row, 29, "{}".format(variant.pos), style)
+            sheet.write(row, 30, "{}".format(variant.end), style)
+            sheet.write(row, 31, "{}".format(",".join(variant.rs_ids)), style)
+            sheet.write(row, 32,
                         "{}".format(",".join(variant.matching_samples)), style)
 
-            col = 35
+            col = 33
             if 'mutect' in callers:
                 sheet.write(row, col, "{}".format(variant.mutect.get('AAF')
                                                   or None), style)
