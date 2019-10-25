@@ -377,8 +377,6 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
                 style = pass_style
             elif variant.max_som_aaf > 0.05:
                 style = interest_style
-            sheet.write(row, 25,
-                        "{}".format(",".join(variant.matching_samples)), style)
             else:
                 style = default_style
 
