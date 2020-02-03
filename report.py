@@ -130,9 +130,8 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
         ).allow_filtering()
 
         num_var = variants.count()
-        ordered = variants.order_by('run_id', 'reference_genome',
-                                    'library_name', 'chr', 'pos', 'ref',
-                                    'alt').limit(variants.count() + 1000)
+        ordered = variants.order_by('library_name', 'chr', 'pos', 'ref',
+                                    'alt', 'date_annotated').limit(variants.count() + 1000)
         job.fileStore.logToMaster(
             "{}: retrieved {} variants from database\n".format(
                 library, num_var))
