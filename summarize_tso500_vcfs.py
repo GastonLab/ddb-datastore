@@ -100,7 +100,7 @@ if __name__ == "__main__":
                             output.write("{}\t".format(v.ALT))
                             output.write("{}\t".format(top_impact.codon_change))
                             output.write("{}\t".format(top_impact.aa_change))
-                            output.write("{}\t".format(freq)
+                            output.write("{}\t".format(freq))
                             output.write("{}\t".format(v.FILTER))
                             output.write("{}\t".format(",".join(vcf_parsing.parse_cosmic_ids(variant))
                                                              or None))
