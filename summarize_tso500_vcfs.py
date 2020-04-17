@@ -46,8 +46,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     args.logLevel = "INFO"
 
-    thresholds = {'max_maf': args.max_pop_freq}
-
     with open(args.input, 'r') as infile:
         reader = csv.reader(infile, delimiter='\t')
         with open(args.output, 'w') as output:
