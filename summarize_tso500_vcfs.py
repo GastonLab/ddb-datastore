@@ -38,10 +38,10 @@ def get_clinvar_info(variant):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-s', '--samples_file',
+    parser.add_argument('-i', '--input',
                         help="Input configuration file for samples")
-    parser.add_argument('-p', '--max_pop_freq',
-                        help='Maximum allowed population allele frequency',
+    parser.add_argument('-o', '--output',
+                        help='Output file name for filtered variants',
                         default=0.005)
     args = parser.parse_args()
     args.logLevel = "INFO"
