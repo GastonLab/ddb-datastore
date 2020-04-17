@@ -50,7 +50,7 @@ def get_cosmic_info(variant):
     cosmic_data = dict()
 
     cosmic_data['ids'] = variant.INFO.get('cosmic_ids') or 'None'
-    cosmic_data['num_samples'] = unicode(variant.INFO.get('cosmic_numsamples')) or 'None'
+    cosmic_data['num_samples'] = variant.INFO.get('cosmic_numsamples') or 'None'
     cosmic_data['cds'] = variant.INFO.get('cosmic_cds') or 'None'
     cosmic_data['aa'] = variant.INFO.get('cosmic_aa') or 'None'
     cosmic_data['gene'] = variant.INFO.get('cosmic_gene') or 'None'
