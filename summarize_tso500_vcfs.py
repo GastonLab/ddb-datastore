@@ -13,9 +13,22 @@ import cyvcf2
 import argparse
 
 from cyvcf2 import VCF
-from ddb import vcf_parsing
-from ddb import configuration
 from collections import defaultdict
+
+def get_effects(variant, annotation_keys):
+    effects = []
+    effects += [geneimpacts.SnpEff(e, annotation_keys) for e in variant.INFO.get("ANN").split(",")]
+
+    return effects
+
+
+def get_top_impact(effects):
+    top_impact = geneimpacts.Effect.top_severity(effects)
+
+    if isinstance(top_impact, list):
+        top_impact = top_impact[0]
+
+    return top_impact
 
 def get_clinvar_info(variant):
     clinvar_data = dict()
@@ -34,6 +47,23 @@ def get_clinvar_info(variant):
         clinvar_data['origin'] = 'None'
 
     return clinvar_data
+
+def get_cosmic_info(variant):
+    cosmic_data = dict()
+
+    cosmic_data['ids'] = variant.INFO.get('cosmic_ids') or 'None'
+    cosmic_data['num_samples'] = unicode(variant.INFO.get('cosmic_numsamples')) or 'None'
+    cosmic_data['cds'] = variant.INFO.get('cosmic_cds') or 'None'
+    cosmic_data['aa'] = variant.INFO.get('cosmic_aa') or 'None'
+    cosmic_data['gene'] = variant.INFO.get('cosmic_gene') or 'None'
+
+    return cosmic_data
+
+def parse_cosmic_ids(variant_data):
+    if variant_data.INFO.get('cosmic_ids') is not None:
+        return variant_data.INFO.get('cosmic_ids').split(',')
+    else:
+        return []
 
 
 if __name__ == "__main__":
@@ -87,13 +117,13 @@ if __name__ == "__main__":
                             max_aaf = v.INFO.get('max_aaf_all')
                         if max_aaf < 0.005:
                             print v
-                            effects = utils.get_effects(v, annotation_keys)
-                            top_impact = utils.get_top_impact(effects)
+                            effects = get_effects(v, annotation_keys)
+                            top_impact = get_top_impact(effects)
                             severity = top_impact.effect_severity
-                            cosmic_data = utils.get_cosmic_info(v)
+                            cosmic_data = get_cosmic_info(v)
                             clinvar_data = get_clinvar_info(v)
 
-                            freq = v.format('VF')[0]
+                            freq = v.format('VF')
 
                             output.write("{}\t".format(row[0]))
                             output.write("{}\t".format(top_impact.gene))
@@ -103,7 +133,7 @@ if __name__ == "__main__":
                             output.write("{}\t".format(top_impact.aa_change))
                             output.write("{}\t".format(freq))
                             output.write("{}\t".format(v.FILTER))
-                            output.write("{}\t".format(",".join(vcf_parsing.parse_cosmic_ids(variant))
+                            output.write("{}\t".format(",".join(parse_cosmic_ids(v))
                                                              or None))
                             output.write("{}\t".format(cosmic_data['num_samples']))
                             output.write("{}\t".format(cosmic_data['aa']))
