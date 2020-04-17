@@ -4,6 +4,7 @@
 # files directly to an excel report format, bypassing the VariantStore
 # Cassandra database.
 
+import re
 import sys
 import csv
 import cyvcf2
