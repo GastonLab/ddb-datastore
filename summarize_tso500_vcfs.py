@@ -93,7 +93,7 @@ if __name__ == "__main__":
                             cosmic_data = utils.get_cosmic_info(v)
                             clinvar_data = get_clinvar_info(v)
 
-                            freq = v.FORMAT.get('VF')
+                            freq = v.format('VF')[0]
 
                             output.write("{}\t".format(row[0]))
                             output.write("{}\t".format(top_impact.gene))
