@@ -48,7 +48,8 @@ def process_sample(job, addresses, keyspace, authenticator, parse_functions,
     annotation_keys = [x.strip("\"'") for x in re.split("\s*\|\s*", desc.split(":", 1)[1].strip('" '))]
 
     # Filter out variants with minor allele frequencies above the threshold but
-    # retain any that are above the threshold but in COSMIC or in ClinVar and not listed as benign.
+    # retain any that are above the threshold but in COSMIC or in ClinVar and
+    # not listed as benign.
     sys.stdout.write("Processing individual variants\n")
     added = 0
     failed = 0
