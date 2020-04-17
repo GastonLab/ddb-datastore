@@ -86,13 +86,14 @@ if __name__ == "__main__":
                         if v.INFO.get('max_aaf_all'):
                             max_aaf = v.INFO.get('max_aaf_all')
                         if max_aaf < 0.005:
+                            print v
                             effects = utils.get_effects(v, annotation_keys)
                             top_impact = utils.get_top_impact(effects)
                             severity = top_impact.effect_severity
                             cosmic_data = utils.get_cosmic_info(v)
                             clinvar_data = get_clinvar_info(v)
 
-                            freq = v.format('VF')
+                            freq = v.FORMAT.get('VF')
 
                             output.write("{}\t".format(row[0]))
                             output.write("{}\t".format(top_impact.gene))
