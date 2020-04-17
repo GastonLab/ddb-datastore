@@ -92,13 +92,15 @@ if __name__ == "__main__":
                             cosmic_data = utils.get_cosmic_info(v)
                             clinvar_data = get_clinvar_info(v)
 
+                            freq = v.format('VF')
+
                             output.write("{}\t".format(row[0]))
                             output.write("{}\t".format(top_impact.gene))
                             output.write("{}\t".format(v.REF))
                             output.write("{}\t".format(v.ALT))
                             output.write("{}\t".format(top_impact.codon_change))
                             output.write("{}\t".format(top_impact.aa_change))
-                            output.write("{}\t".format(v.format('VF'))) # Somatic VAF
+                            output.write("{}\t".format(freq)
                             output.write("{}\t".format(v.FILTER))
                             output.write("{}\t".format(",".join(vcf_parsing.parse_cosmic_ids(variant))
                                                              or None))
