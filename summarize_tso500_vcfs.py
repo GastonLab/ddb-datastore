@@ -4,16 +4,12 @@
 # files directly to an excel report format, bypassing the VariantStore
 # Cassandra database.
 
-import re
 import sys
 import csv
-import xlwt
-import utils
 import cyvcf2
 import argparse
 
 from cyvcf2 import VCF
-from collections import defaultdict
 
 def get_effects(variant, annotation_keys):
     effects = []
