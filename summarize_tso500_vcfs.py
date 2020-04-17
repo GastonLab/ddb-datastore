@@ -7,6 +7,7 @@
 import re
 import sys
 import csv
+import geneimpacts
 import cyvcf2
 import argparse
 
