@@ -88,7 +88,7 @@ if __name__ == "__main__":
                         if max_aaf < 0.005:
                             effects = utils.get_effects(v, annotation_keys)
                             top_impact = utils.get_top_impact(effects)
-                            severity = utils.top_impact.effect_severity
+                            severity = top_impact.effect_severity
                             cosmic_data = utils.get_cosmic_info(v)
                             clinvar_data = get_clinvar_info(v)
 
