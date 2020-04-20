@@ -111,7 +111,7 @@ if __name__ == "__main__":
                                                      desc.split(":", 1)[1].strip('" '))]
                 for v in VCF("{}.vcfanno.vcf.gz".format(row[0])):
                     if len(v.ALT) >= 1:
-                        if v.FILTER == 'None':
+                        if v.FILTER is None:
                             print("Variant passing filter found\n")
                             max_aaf = 1.0
                             if v.INFO.get('max_aaf_all'):
