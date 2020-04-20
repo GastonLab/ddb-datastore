@@ -111,40 +111,41 @@ if __name__ == "__main__":
                                                      desc.split(":", 1)[1].strip('" '))]
                 for v in VCF("{}.vcfanno.vcf.gz".format(row[0])):
                     if len(v.ALT) >= 1:
-                        max_aaf = 1.0
-                        if v.INFO.get('max_aaf_all'):
-                            max_aaf = v.INFO.get('max_aaf_all')
-                        if max_aaf < 0.005:
-                            effects = get_effects(v, annotation_keys)
-                            top_impact = get_top_impact(effects)
-                            severity = top_impact.effect_severity
-                            cosmic_data = get_cosmic_info(v)
-                            clinvar_data = get_clinvar_info(v)
+                        if v.FILTER == 'PASS':
+                            max_aaf = 1.0
+                            if v.INFO.get('max_aaf_all'):
+                                max_aaf = v.INFO.get('max_aaf_all')
+                            if max_aaf < 0.005:
+                                effects = get_effects(v, annotation_keys)
+                                top_impact = get_top_impact(effects)
+                                severity = top_impact.effect_severity
+                                cosmic_data = get_cosmic_info(v)
+                                clinvar_data = get_clinvar_info(v)
 
-                            freq = v.format('VF')
+                                freq = v.format('VF')
 
-                            output.write("{}\t".format(row[0]))
-                            output.write("{}\t".format(top_impact.gene))
-                            output.write("{}\t".format(v.REF))
-                            output.write("{}\t".format(v.ALT))
-                            output.write("{}\t".format(top_impact.codon_change))
-                            output.write("{}\t".format(top_impact.aa_change))
-                            output.write("{}\t".format(freq))
-                            output.write("{}\t".format(v.FILTER))
-                            output.write("{}\t".format(",".join(parse_cosmic_ids(v))
-                                                             or None))
-                            output.write("{}\t".format(cosmic_data['num_samples']))
-                            output.write("{}\t".format(cosmic_data['aa']))
-                            output.write("{}\t".format(clinvar_data['significance']))
-                            output.write("{}\t".format(clinvar_data['hgvs']))
-                            output.write("{}\t".format(clinvar_data['disease']))
-                            output.write("{}\t".format(v.INFO.get('DP')))
-                            output.write("{}\t".format(top_impact.top_consequence))
-                            output.write("{}\t".format(top_impact.effect_severity))
-                            output.write("{}\t".format(max_aaf))
-                            output.write("{}\t".format(v.CHROM))
-                            output.write("{}\t".format(v.start))
-                            output.write("{}\t".format(v.end))
-                            output.write("\n")
+                                output.write("{}\t".format(row[0]))
+                                output.write("{}\t".format(top_impact.gene))
+                                output.write("{}\t".format(v.REF))
+                                output.write("{}\t".format(v.ALT))
+                                output.write("{}\t".format(top_impact.codon_change))
+                                output.write("{}\t".format(top_impact.aa_change))
+                                output.write("{}\t".format(freq))
+                                output.write("{}\t".format(v.FILTER))
+                                output.write("{}\t".format(",".join(parse_cosmic_ids(v))
+                                                                 or None))
+                                output.write("{}\t".format(cosmic_data['num_samples']))
+                                output.write("{}\t".format(cosmic_data['aa']))
+                                output.write("{}\t".format(clinvar_data['significance']))
+                                output.write("{}\t".format(clinvar_data['hgvs']))
+                                output.write("{}\t".format(clinvar_data['disease']))
+                                output.write("{}\t".format(v.INFO.get('DP')))
+                                output.write("{}\t".format(top_impact.top_consequence))
+                                output.write("{}\t".format(top_impact.effect_severity))
+                                output.write("{}\t".format(max_aaf))
+                                output.write("{}\t".format(v.CHROM))
+                                output.write("{}\t".format(v.start))
+                                output.write("{}\t".format(v.end))
+                                output.write("\n")
 
     sys.stdout.write("Finished processing samples\n")
