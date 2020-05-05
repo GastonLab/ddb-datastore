@@ -282,10 +282,11 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
 
     wb = xlsxwriter.Workbook(report_name)
 
-    error_style = wb.add_format({'bg_color': 'red'})
-    warning_style = wb.add_format({'bg_color': 'orange'})
-    pass_style = wb.add_format({'bg_color': 'green'})
-    default_style = wb.add_format({'bg_color': 'white'})
+    error_style = wb.add_format({'bg_color': '#FF0000'})
+    warning_style = wb.add_format({'bg_color': '#FF9900'})
+    pass_style = wb.add_format({'bg_color': '#00FF00'})
+    interest_style = wb.add_format({'bg_color': '#3366FF'})
+    default_style = wb.add_format({'bg_color': '#FFFFFF'})
 
     coverage_sheet = wb.add_worksheet("Coverage")
     report_sheet = wb.add_worksheet("Reporting Variants")
