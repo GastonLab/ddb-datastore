@@ -5,8 +5,15 @@ import xlsxwriter
 from toil.common import Toil
 from toil.job import Job
 
-def sampleReport(sample, memory="4G", cores=4, disk="1G"):
-    return "Success"
+def createReports(job, samples)
+    job.log("Creating sample variant reports")
+    for sample in samples:
+        job.addChildJobFn(sampleReport, sample)
+
+def sampleReport(job, sample, memory="4G", cores=4, disk="1G"):
+    job.log("Creating variant report for {sample}")
+
+    job.log("Finished creating report for {sample}")
 
 
 if __name__=="__main__":
@@ -41,9 +48,7 @@ if __name__=="__main__":
     options.logLevel = "INFO"
     options.clean = "always"
 
-    root_job = Job.wrapFn()
-    for sample in samples:
-        sample_job = Job.wrapFn(sampleReport, sample)
+    root_job = Job.wrapJobFn(createReports, samples)
 
     with Toil(options) as workflow:
         if not toil.options.restart:
