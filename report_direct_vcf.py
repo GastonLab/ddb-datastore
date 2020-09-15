@@ -331,6 +331,8 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
                 style = pass_style
             elif "likely-pathogenic" in clinvar_data['significance']:
                 style = pass_style
+            elif variant.max_som_aaf > 0.05:
+                style = pass_style
             else:
                 style = default_style
 
