@@ -2,10 +2,10 @@
 
 import re
 import sys
-import xlwt
 import utils
 import getpass
 import argparse
+import xlsxwriter
 
 import numpy as np
 
@@ -280,22 +280,22 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
 
     report_name = "{}.xlsx".format(sample)
 
-    wb = xlwt.Workbook()
+    wb = xlsxwriter.Workbook(report_name)
 
-    error_style = xlwt.easyxf('pattern: pattern solid, fore_colour red;')
-    warning_style = xlwt.easyxf(
-        'pattern: pattern solid, fore_colour light_orange;')
-    pass_style = xlwt.easyxf(
-        'pattern: pattern solid, fore_colour light_green;')
-    default_style = xlwt.easyxf('pattern: pattern solid, fore_colour white;')
+    error_style = wb.add_format({'bg_color': '#FF0000'})
+    warning_style = wb.add_format({'bg_color': '#FF9900'})
+    pass_style = wb.add_format({'bg_color': '#00FF00'})
+    interest_style = wb.add_format({'bg_color': '#3366FF'})
+    default_style = wb.add_format({'bg_color': '#FFFFFF'})
 
-    coverage_sheet = wb.add_sheet("Coverage")
-    tier1_sheet = wb.add_sheet("Tier1 and 2 Pass")
-    tier1_fail_sheet = wb.add_sheet("Tier1 and 2 Fail")
-    tier3_sheet = wb.add_sheet("Tier3 Pass")
-    tier3_fail_sheet = wb.add_sheet("Tier3 Fail")
-    tier4_sheet = wb.add_sheet("Tier4 Pass")
-    tier4_fail_sheet = wb.add_sheet("Tier4 Fail")
+    coverage_sheet = wb.add_worksheet("Coverage")
+    report_sheet = wb.add_worksheet("Reporting Variants")
+    tier1_sheet = wb.add_worksheet("Tier1 and 2 Pass")
+    tier1_fail_sheet = wb.add_worksheet("Tier1 and 2 Fail")
+    tier3_sheet = wb.add_worksheet("Tier3 Pass")
+    tier3_fail_sheet = wb.add_worksheet("Tier3 Fail")
+    tier4_sheet = wb.add_worksheet("Tier4 Pass")
+    tier4_fail_sheet = wb.add_worksheet("Tier4 Fail")
 
     tier_sheets = (tier1_sheet, tier1_fail_sheet, tier3_sheet,
                    tier3_fail_sheet, tier4_sheet, tier4_fail_sheet)
@@ -562,7 +562,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
 
             row += 1
         sheet_num += 1
-    wb.save(report_name)
+    wb.close()
 
 
 if __name__ == "__main__":
