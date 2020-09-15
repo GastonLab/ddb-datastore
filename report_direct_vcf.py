@@ -325,17 +325,6 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
             cosmic_data = utils.get_cosmic_info(variant)
             max_aaf_all = variant.INFO.get('max_aaf_all') or -1
 
-            if "pathogenic" in clinvar_data['significance']:
-                style = pass_style
-            elif "drug-response" in clinvar_data['significance']:
-                style = pass_style
-            elif "likely-pathogenic" in clinvar_data['significance']:
-                style = pass_style
-            elif variant.max_som_aaf > 0.05:
-                style = pass_style
-            else:
-                style = default_style
-
             coverage_values = list()
             reads_values = list()
             for amplicon in amplicons:
@@ -387,6 +376,17 @@ def process_sample_variants(coverage, sample, samples, config, thresholds):
 
             if min_depth == 100000000:
                 min_depth = -1
+
+            if "pathogenic" in clinvar_data['significance']:
+                style = pass_style
+            elif "drug-response" in clinvar_data['significance']:
+                style = pass_style
+            elif "likely-pathogenic" in clinvar_data['significance']:
+                style = pass_style
+            elif max_som_aaf > 0.05:
+                style = pass_style
+            else:
+                style = default_style
 
             sheet.write(row, 0, "{}".format(top_impact.gene), style)
             sheet.write(row, 1, "{}".format(amplicon_data['amplicon']),
