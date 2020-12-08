@@ -463,9 +463,10 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
             freebayes_pindel_only = 0
 
             num_cosmic = 0
-            for num in variant.cosmic_data['num_samples']:
-                if num > num_cosmic:
-                    num_cosmic = num
+            cosmic_nums = variant.cosmic_data['num_samples'].split(',')
+            for num in cosmic_nums:
+                if int(num) > num_cosmic:
+                    num_cosmic = int(num)
 
             if num_callers == 1:
                 if 'freebayes' in callers:
