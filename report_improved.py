@@ -459,7 +459,19 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
         cosmic_nums = re.findall(r'\b\d+\b', variant.cosmic_data['num_samples'])
 
         for variant in report_data['variants'][tier_key[sheet_num]]:
-            if "pathogenic" in variant.clinvar_data['significance']:
+            num_callers = len(callers)
+            freebayes_pindel_only = 0
+            if num_callers == 1:
+                if 'freebayes' in callers:
+                    freebayes_pindel_only = 1
+                elif 'pindel' in callers:
+                    freebayes_pindel_only = 1
+                else:
+                    freebayes_pindel_only = 0
+
+            if freebayes_pindel_only:
+                style = error_style
+            elif "pathogenic" in variant.clinvar_data['significance']:
                 style = pass_style
             elif "drug-response" in variant.clinvar_data['significance']:
                 style = pass_style
