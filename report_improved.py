@@ -459,18 +459,17 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
         cosmic_nums = re.findall(r'\b\d+\b', variant.cosmic_data['num_samples'])
 
         for variant in report_data['variants'][tier_key[sheet_num]]:
-            num_callers = len(callers)
-            freebayes_pindel_only = 0
-
             num_cosmic = 0
             for num in cosmic_nums:
                 if int(num) > num_cosmic:
                     num_cosmic = int(num)
 
+            num_callers = len(variant.callers)
+            freebayes_pindel_only = 0
             if num_callers == 1:
-                if 'freebayes' in callers:
+                if 'freebayes' in variant.callers:
                     freebayes_pindel_only = 1
-                elif 'pindel' in callers:
+                elif 'pindel' in variant.callers:
                     freebayes_pindel_only = 1
                 else:
                     freebayes_pindel_only = 0
