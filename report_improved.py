@@ -461,6 +461,12 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
         for variant in report_data['variants'][tier_key[sheet_num]]:
             num_callers = len(callers)
             freebayes_pindel_only = 0
+
+            num_cosmic = 0
+            for num in variant.cosmic_data['num_samples']:
+                if num > num_cosmic:
+                    num_cosmic = num
+
             if num_callers == 1:
                 if 'freebayes' in callers:
                     freebayes_pindel_only = 1
@@ -478,6 +484,8 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
             elif "likely-pathogenic" in variant.clinvar_data['significance']:
                 style = pass_style
             elif variant.max_som_aaf > 0.05:
+                style = interest_style
+            elif num_cosmic >= 5:
                 style = interest_style
             else:
                 style = default_style
