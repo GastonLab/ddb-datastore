@@ -200,15 +200,15 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
                     if variant.cosmic_ids:
                         if variant.max_som_aaf < thresholds['min_saf']:
                             filtered_variant_data[
-                                'tier1_fail_variants'].append(variant)
+                                'cosmic_clinvar_fail'].append(variant)
                             filtered_low_freq += 1
                         elif variant.max_depth < thresholds['depth']:
                             filtered_variant_data[
-                                'tier1_fail_variants'].append(variant)
+                                'cosmic_clinvar_fail'].append(variant)
                             filtered_low_depth += 1
                         else:
                             filtered_variant_data[
-                                'tier1_pass_variants'].append(variant)
+                                'cosmic_clinvar'].append(variant)
                             passing_variants += 1
                         continue
 
@@ -218,44 +218,58 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
                             'significance']):
                         if variant.max_som_aaf < thresholds['min_saf']:
                             filtered_variant_data[
-                                'tier1_fail_variants'].append(variant)
+                                'cosmic_clinvar_fail'].append(variant)
                             filtered_low_freq += 1
                         elif variant.max_depth < thresholds['depth']:
                             filtered_variant_data[
-                                'tier1_fail_variants'].append(variant)
+                                'cosmic_clinvar_fail'].append(variant)
                             filtered_low_depth += 1
                         else:
                             filtered_variant_data[
-                                'tier1_pass_variants'].append(variant)
+                                'cosmic_clinvar'].append(variant)
                             passing_variants += 1
                         continue
 
-                    if variant.severity == 'MED' or variant.severity == 'HIGH':
+                    if variant.severity == 'HIGH':
                         if variant.max_som_aaf < thresholds['min_saf']:
                             filtered_variant_data[
-                                'tier3_fail_variants'].append(variant)
+                                'high_impact_fail'].append(variant)
                             filtered_low_freq += 1
                         elif variant.max_depth < thresholds['depth']:
                             filtered_variant_data[
-                                'tier3_fail_variants'].append(variant)
+                                'high_impact_fail'].append(variant)
                             filtered_low_depth += 1
                         else:
                             filtered_variant_data[
-                                'tier3_pass_variants'].append(variant)
+                                'high_impact'].append(variant)
+                            passing_variants += 1
+                        continue
+                    elif variant.severity == 'MED':
+                        if variant.max_som_aaf < thresholds['min_saf']:
+                            filtered_variant_data[
+                                'med_impact_fail'].append(variant)
+                            filtered_low_freq += 1
+                        elif variant.max_depth < thresholds['depth']:
+                            filtered_variant_data[
+                                'med_impact_fail'].append(variant)
+                            filtered_low_depth += 1
+                        else:
+                            filtered_variant_data[
+                                'med_impact'].append(variant)
                             passing_variants += 1
                         continue
                     else:
                         if variant.max_som_aaf < thresholds['min_saf']:
                             filtered_variant_data[
-                                'tier4_fail_variants'].append(variant)
+                                'low_impact_fail'].append(variant)
                             filtered_low_freq += 1
                         elif variant.max_depth < thresholds['depth']:
                             filtered_variant_data[
-                                'tier4_fail_variants'].append(variant)
+                                'low_impact_fail'].append(variant)
                             filtered_low_depth += 1
                         else:
                             filtered_variant_data[
-                                'tier4_pass_variants'].append(variant)
+                                'low_impact'].append(variant)
                             passing_variants += 1
                         continue
                 else:
@@ -285,24 +299,28 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
     error_style = wb.add_format({'bg_color': '#FF0000'})
     warning_style = wb.add_format({'bg_color': '#FF9900'})
     pass_style = wb.add_format({'bg_color': '#00FF00'})
-    interest_style = wb.add_format({'bg_color': '#3366FF'})
-    highlight_style = wb.add_format({'bg_color': '#d3d3d3'})
+    interest_style = wb.add_format({'bg_color': '#d3d3d3'})
     default_style = wb.add_format({'bg_color': '#FFFFFF'})
 
     coverage_sheet = wb.add_worksheet("Coverage")
-    report_sheet = wb.add_worksheet("Reporting Variants")
-    tier1_sheet = wb.add_worksheet("Tier1 and 2 Pass")
-    tier1_fail_sheet = wb.add_worksheet("Tier1 and 2 Fail")
-    tier3_sheet = wb.add_worksheet("Tier3 Pass")
-    tier3_fail_sheet = wb.add_worksheet("Tier3 Fail")
-    tier4_sheet = wb.add_worksheet("Tier4 Pass")
-    tier4_fail_sheet = wb.add_worksheet("Tier4 Fail")
+    report_sheet = wb.add_worksheet("Notable Variants")
+    cosmic_clinvar_pass_sheet  = wb.add_worksheet("COSMIC and ClinVar Variants")
+    high_impact_pass_sheet = wb.add_worksheet("Other High Impact Variants")
+    med_impact_pass_sheet = wb.add_worksheet("Other Missense Variants")
+    low_impact_pass_sheet = wb.add_worksheet("Other Low Impact Variants")
 
-    tier_sheets = (tier1_sheet, tier1_fail_sheet, tier3_sheet,
-                   tier3_fail_sheet, tier4_sheet, tier4_fail_sheet)
-    tier_key = ("tier1_pass_variants", "tier1_fail_variants",
-                "tier3_pass_variants", "tier3_fail_variants",
-                "tier4_pass_variants", "tier4_fail_variants")
+    cosmic_clinvar_fail_sheet  = wb.add_worksheet("FAIL - COSMIC and ClinVar")
+    high_impact_fail_sheet = wb.add_worksheet("FAIL - High Impact")
+    med_impact_fail_sheet = wb.add_worksheet("FAIL - Missense")
+    low_impact_fail_sheet = wb.add_worksheet("Fail - Low Impact")
+
+    tier_sheets = (cosmic_clinvar_pass_sheet, high_impact_pass_sheet, med_impact_pass_sheet,
+                   low_impact_pass_sheet, cosmic_clinvar_fail_sheet, high_impact_fail_sheet,
+                   med_impact_fail_sheet, low_impact_fail_sheet)
+    tier_key = ("cosmic_clinvar", "high_impact",
+                "med_impact", "low_impact",
+                "cosmic_clinvar_fail", "high_impact_fail",
+                "med_impact_fail", "low_impact_fail")
 
     libraries = list()
     report_templates = list()
@@ -448,7 +466,7 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
             elif "likely-pathogenic" in variant.clinvar_data['significance']:
                 style = pass_style
             elif variant.max_som_aaf > 0.05:
-                style = pass_style
+                style = interest_style
             else:
                 style = default_style
 
