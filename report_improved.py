@@ -463,7 +463,12 @@ def process_sample(job, config, sample, samples, addresses, authenticator,
             freebayes_pindel_only = 0
 
             num_cosmic = 0
-            cosmic_nums = variant.cosmic_data['num_samples'].split(',')
+            cosmic_nums_string = variant.cosmic_data['num_samples']
+            translate_dict = {'(': None,
+                              ')': None,
+                              ' ': None }
+            cleaned_string = cosmic_nums_string.translate(translate_dict)
+            cosmic_nums = cleaned_string.split(',')
             for num in cosmic_nums:
                 if int(num) > num_cosmic:
                     num_cosmic = int(num)
